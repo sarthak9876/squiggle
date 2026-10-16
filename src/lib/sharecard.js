@@ -1,5 +1,6 @@
 import { puzzleLabel } from './schedule.js';
 import { BRAND } from '../brand.js';
+import { loadEmojiImage } from './emojiUrl.js';
 /* The card's palette is pinned, deliberately. See the note in drawShareCard.
    Keep these in step with the light-theme values in styles/tokens.css. */
 export const CARD_PALETTE = {
@@ -36,6 +37,11 @@ export async function ensureCardFont() {
     await document.fonts.ready;
   } catch { /* fall back to system-ui, which still renders */ }
 }
+
+/* Preloaded by ensureCardFont's caller before drawing, because canvas cannot
+   wait mid-draw. Null means "use the glyph", which still renders. */
+let fpEmojiImg = null;
+export async function ensureCardEmoji(ch) { fpEmojiImg = await loadEmojiImage(ch); }
 
 export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) {
   const story = format === 'story';
@@ -79,8 +85,8 @@ export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) 
   c.fillStyle = soft; c.font = '600 34px "Space Grotesk", system-ui, sans-serif';
   c.fillText('YOUR BIAS FINGERPRINT', W / 2, 380 + top);
 
-  c.font = '130px "Space Grotesk", system-ui, sans-serif';
-  c.fillText(fp.emoji, W / 2, 530 + top);
+  if (fpEmojiImg) c.drawImage(fpEmojiImg, W / 2 - 65, 530 + top - 112, 130, 130);
+  else { c.font = '130px "Space Grotesk", system-ui, sans-serif'; c.fillText(fp.emoji, W / 2, 530 + top); }
 
   c.fillStyle = ink; c.font = '700 78px "Space Grotesk", system-ui, sans-serif';
   wrap(c, fp.title, W / 2, 650 + top, W - 180, 86);

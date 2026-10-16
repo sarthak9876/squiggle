@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
+import { emojiUrl } from '../lib/emojiUrl.js';
 import { shuffled } from '../lib/random.js';
 import { hash } from '../lib/random.js';
 
@@ -156,7 +157,12 @@ export const order = {
                 // Keyboard users never get a pointer event, so give them the tap path.
                 onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onUp(pos); } }}>
                 <span className="ogrip" aria-hidden="true">⠿</span>
-                {emo && <span className="oemo">{emo}</span>}
+                {/* SVG, not the system glyph — these include country flags, which
+                    Windows renders as two letters. */}
+                {emo && <img className="oemo" src={emojiUrl(emo)} alt="" width={22} height={22}
+                             onError={e => { e.currentTarget.replaceWith(
+                               Object.assign(document.createElement('span'),
+                                 { className: 'oemo', textContent: emo })); }} />}
                 <span className="orank">{pos + 1}</span>
                 <span className="olabel">{label}</span>
                 {revealed && <span className="oval">{fmt(val, item.unit)} {item.unit}</span>}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { clamp } from './contract.js';
+import { loadEmojiImage } from '../lib/emojiUrl.js';
 
 /* PLACE THE DOT — drop a thing between two axes.
    Rewards relational thinking rather than recall: you do not need the number, you
@@ -83,6 +84,15 @@ export const place = {
        it to scale and drop the truth marker, so the answer lands rather than
        simply existing. */
     const [drop, setDrop] = useState(0);
+    /* The item's emoji as an SVG image. fillText used the system font, so the
+       flags in this pool drew as letters on Windows. null until loaded, and the
+       draw falls back to fillText so nothing is ever missing. */
+    const [emoImg, setEmoImg] = useState(null);
+    useEffect(() => {
+      let alive = true;
+      loadEmojiImage(item.emoji).then(img => { if (alive) setEmoImg(img); });
+      return () => { alive = false; };
+    }, [item.emoji]);
     useEffect(() => {
       if (!revealed) { setDrop(0); return; }
       const still = typeof matchMedia === 'function'
@@ -217,9 +227,10 @@ export const place = {
         const x = px(value.fx), y = py(value.fy);
         c.fillStyle = V('--accent');
         c.beginPath(); c.arc(x, y, 6, 0, Math.PI * 2); c.fill();
-        if (item.emoji) { c.font = '24px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(item.emoji, x + 10, y - 16); }
+        if (emoImg) c.drawImage(emoImg, x + 10, y - 28, 24, 24);
+        else if (item.emoji) { c.font = '24px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(item.emoji, x + 10, y - 16); }
       }
-    }, [item, value, revealed, drop]);
+    }, [item, value, revealed, drop, emoImg]);
 
     useEffect(() => { draw(); }, [draw]);
     useEffect(() => {

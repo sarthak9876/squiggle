@@ -25,6 +25,10 @@ const STATES_A_NUMBER = new Set(['size', 'share', 'place', 'draw', 'order', 'sha
 
 for (const [mode, pool] of Object.entries(POOLS)) {
   const seenId = new Set();
+  /* Prompt-level duplicates. The signature check compares what is ON SCREEN
+     (option sets, item lists), so two questions asking the same thing with one
+     option swapped slipped through and read as the same question twice. */
+  const seenPrompt = new Map();
   for (const q of pool) {
     const id = `[${mode}] ${q.id}`;
     if (seenId.has(String(q.id))) fail(id, 'duplicate id within the pool');
@@ -39,6 +43,18 @@ for (const [mode, pool] of Object.entries(POOLS)) {
     }
 
     if (!q.theme) fail(id, 'no theme (the scheduler needs it to avoid same-topic days)');
+
+    /* Only where the prompt IS the question. In Put In Order and Shapes Only it
+       is a generic instruction — "Hottest first", "Which of these is heaviest?" —
+       and the real question is the item list, which signatureOf already dedupes.
+       Flagging those produced five false positives on legitimate questions. */
+    if (['share', 'place', 'size', 'draw'].includes(mode)) {
+      const prompt = (q.prompt || q.question || q.title || '').trim().toLowerCase();
+      if (prompt) {
+        if (seenPrompt.has(prompt)) fail(id, `asks the same thing as ${seenPrompt.get(prompt)}`);
+        else seenPrompt.set(prompt, q.id);
+      }
+    }
 
     if (mode === 'size') {
       if (!q.unit) fail(id, 'numeric answer with no unit');

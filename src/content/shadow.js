@@ -194,10 +194,13 @@ export const SHADOW = [
     options:['cheetah','horse','human','elephant'], answer:0,
     source:'Journal of Experimental Biology', theme:'animals',
     note:'A cheetah covers 100 m in about 5.8 seconds. Usain Bolt took 9.58.' },
-  { id:'h42', prompt:'Which of these holds the most water?',
-    options:['bottle','cup','drop','boat'], answer:3,
-    source:'Vessel capacity specifications', theme:'icewater',
-    note:'A small boat displaces thousands of litres. A raindrop is about 0.05 ml.' },
+  /* Was a second "holds the most water?" with three of the same four pictures as
+     h36 — the linter compared option SETS, which differed by one item, so it
+     passed while reading to a player as the same question asked twice. */
+  { id:'h42', prompt:'Which of these was invented in India?',
+    options:['cricket','temple','rocket','diya'], answer:3,
+    source:'Archaeological Survey of India', theme:'india-ancient', region:'india',
+    note:'Oil lamps have been lit here for 5,000 years. Cricket is English, rockets Chinese \u2014 though Mysore weaponised them first.' },
   { id:'h43', prompt:'Which of these came last?',
     options:['rocket','camera','guitar','key'], answer:0,
     source:'Encyclopaedia Britannica, history of invention', theme:'inventions',

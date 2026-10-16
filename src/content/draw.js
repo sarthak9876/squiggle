@@ -373,12 +373,13 @@ export const DRAW = [
     points:[[1995,0.01],[2000,0.35],[2005,8],[2010,61],[2015,78],[2020,84],[2023,82]]
   },
 
-  { id:'in-dr7', title:'UPI payments', question:'Monthly UPI transactions in India',
-    yLabel:'Transactions per month (billion)', xLabel:'Year',
-    xMin:2017, xMax:2024, yMin:0.05, yMax:20, log:true,
-    source:'NPCI monthly UPI statistics', theme:'india-money', region:'india',
-    note:'From 100 million a month to 16 billion in seven years. No payment system anywhere has scaled this fast.',
-    points:[[2017,0.1],[2018,0.62],[2019,1.3],[2020,2.2],[2021,4.6],[2022,7.8],[2023,11.7],[2024,16.6]] },
+  /* Was a second UPI transactions chart — in-dr2 already is one, same title and
+     same question. Replaced with a different India series. */
+  { id:'in-dr7', title:'Indians online', question:'People in India using the internet',
+    yLabel:'Users (millions)', xLabel:'Year', xMin:2000, xMax:2024, yMin:0, yMax:1000,
+    source:'TRAI / ITU internet penetration data', theme:'india-tech', region:'india',
+    note:'5 million to 880 million in twenty-four years. More Indians are online than the whole population of Europe.',
+    points:[[2000,5],[2005,25],[2010,92],[2014,250],[2017,440],[2020,690],[2022,800],[2024,880]] },
   { id:'in-dr8', title:'Mobile data price', question:'Price of 1 GB of mobile data in India',
     yLabel:'\u20b9 per GB', xLabel:'Year',
     xMin:2013, xMax:2023, yMin:5, yMax:400, log:true,

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { fingerprint } from '../lib/bias.js';
-import { drawShareCard, shareText, challengeLink, ensureCardFont } from '../lib/sharecard.js';
+import { drawShareCard, shareText, challengeLink, ensureCardFont, ensureCardEmoji } from '../lib/sharecard.js';
 import { GAMES } from '../games.jsx';
 import { dayNumber, puzzleLabel } from '../lib/schedule.js';
 import { BRAND } from '../brand.js';
@@ -24,7 +24,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
     if (!cardRef.current) return;
     let alive = true;
     // Await the font, then draw — otherwise the shared PNG carries system-ui.
-    ensureCardFont().then(() => {
+    Promise.all([ensureCardFont(), ensureCardEmoji(fp.emoji)]).then(() => {
       if (!alive || !cardRef.current) return;
       const cv = drawShareCard(fp, { total, max, day, scores });
       cardRef.current.innerHTML = '';
@@ -43,7 +43,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
   const canShareFiles = typeof navigator !== 'undefined' && !!navigator.canShare;
 
   const saveImage = async () => {
-    await ensureCardFont();
+    await Promise.all([ensureCardFont(), ensureCardEmoji(fp.emoji)]);
     const cv = drawShareCard(fp, { total, max, day, scores, format: 'story' });
     if (canShareFiles) {
       try {

@@ -3,4 +3,11 @@
 # static host 404s on a direct load, a refresh mid-game, or any shared link —
 # which is every link the share card produces.
 # 200 (not 301) so the URL stays intact for the router to read.
+# Asset folders must 404 properly. The catch-all below was returning the 25KB
+# HTML shell for a missing icon or font, which an <img> then fails to decode —
+# wasteful, and it hides a genuinely missing file behind a confusing symptom.
+/emoji/*   /emoji/:splat   404
+/fonts/*   /fonts/:splat   404
+/assets/*  /assets/:splat  404
+
 /*    /index.html   200

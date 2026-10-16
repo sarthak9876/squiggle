@@ -128,6 +128,11 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
   // Score counts up rather than appearing. A number that climbs reads as earned.
   useEffect(() => {
     if (!revealed) return;
+    // Reduced motion gets the number, not the climb — the information either way.
+    if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setShown(score);
+      return;
+    }
     let raf, t0 = performance.now();
     const tick = t => {
       const p = Math.min(1, (t - t0) / 650);

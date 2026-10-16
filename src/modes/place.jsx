@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { clamp } from './contract.js';
 
 /* PLACE THE DOT — drop a thing between two axes.
@@ -79,6 +79,26 @@ export const place = {
   },
   Component: ({ item, value, setValue, revealed }) => {
     const ref = useRef(null);
+    /* 0 -> 1 over 520ms once revealed, with a small overshoot. The canvas reads
+       it to scale and drop the truth marker, so the answer lands rather than
+       simply existing. */
+    const [drop, setDrop] = useState(0);
+    useEffect(() => {
+      if (!revealed) { setDrop(0); return; }
+      const still = typeof matchMedia === 'function'
+        && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (still) { setDrop(1); return; }
+      let raf, t0 = performance.now();
+      const tick = t => {
+        const p = Math.min(1, (t - t0) / 520);
+        // easeOutBack: overshoots once, which reads as a bounce.
+        const c1 = 1.70158, c3 = c1 + 1;
+        setDrop(1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(raf);
+    }, [revealed]);
 
     const draw = useCallback(() => {
       const cv = ref.current;
@@ -181,12 +201,15 @@ export const place = {
         }
         /* Drawn AFTER the dashed connector and given a paper-coloured ring, so a
            near-perfect guess does not hide the answer underneath itself. */
+        const k = Math.max(0, drop);              // animation progress
         c.fillStyle = V('--truth');
-        c.beginPath(); c.arc(tx, ty, 8, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(tx, ty, 8 * k, 0, Math.PI * 2); c.fill();
         c.strokeStyle = V('--paper'); c.lineWidth = 2.5;
         c.beginPath(); c.arc(tx, ty, 8, 0, Math.PI * 2); c.stroke();
         c.strokeStyle = V('--truth'); c.lineWidth = 1.5;
-        c.beginPath(); c.arc(tx, ty, 12.5, 0, Math.PI * 2); c.stroke();
+        c.globalAlpha = Math.min(1, k);
+        c.beginPath(); c.arc(tx, ty, 12.5 * k, 0, Math.PI * 2); c.stroke();
+        c.globalAlpha = 1;
         c.textAlign = tx > w * 0.6 ? 'right' : 'left'; c.textBaseline = 'bottom';
         c.fillText(item.item, tx + (tx > w * 0.6 ? -10 : 10), ty - 6);
       }
@@ -196,7 +219,7 @@ export const place = {
         c.beginPath(); c.arc(x, y, 6, 0, Math.PI * 2); c.fill();
         if (item.emoji) { c.font = '24px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(item.emoji, x + 10, y - 16); }
       }
-    }, [item, value, revealed]);
+    }, [item, value, revealed, drop]);
 
     useEffect(() => { draw(); }, [draw]);
     useEffect(() => {

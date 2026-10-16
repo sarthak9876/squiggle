@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { logScore } from './contract.js';
 import { SIL } from '../content/emoji.js';
 
@@ -122,7 +123,14 @@ export const size = {
             {/* An abstract quantity has no size, so it gets a proportional bar
                 instead of a picture that would be pretending. */}
             {ghostFits && <span className="ghost" style={{ fontSize: Math.round(Math.max(FLOOR, ghost)) }}>{SIL[item.target.key]}</span>}
-            <span className="emo" style={{ fontSize: Math.round(shown.tgt) }}>{SIL[item.target.key]}</span>
+            {/* Springs from the size you guessed to the real one. A snap gives
+                you the answer; a spring shows you how far off you were. */}
+            <motion.span className="emo"
+              initial={false}
+              animate={{ fontSize: Math.round(shown.tgt) }}
+              transition={{ type: 'spring', stiffness: 170, damping: 22 }}>
+              {SIL[item.target.key]}
+            </motion.span>
             <span className="sizelab">{item.target.label}<br />
               <b>{revealed ? `${item.answer}×` : '?'}</b></span>
           </div>

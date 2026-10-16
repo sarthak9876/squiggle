@@ -37,9 +37,24 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
   /* Saving is a separate action from sharing. Web Share is the better path on a
      phone, but it does not exist on desktop and it cannot put a file in Downloads
      — which is exactly what someone editing a story later wants. */
+  /* On a phone with Web Share, hand the PNG straight to Instagram/WhatsApp.
+     Downloading a story-sized image to the camera roll is a strictly worse path
+     when the OS can pass it to the app directly. */
+  const canShareFiles = typeof navigator !== 'undefined' && !!navigator.canShare;
+
   const saveImage = async () => {
     await ensureCardFont();
     const cv = drawShareCard(fp, { total, max, day, scores, format: 'story' });
+    if (canShareFiles) {
+      try {
+        const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+        const file = new File([blob], `${BRAND.name.toLowerCase()}-story.png`, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file] });
+          return;
+        }
+      } catch (e) { if (e?.name === 'AbortError') return; /* else fall through to download */ }
+    }
     cv.toBlob(blob => {
       if (!blob) return say('Could not save');
       const url = URL.createObjectURL(blob);
@@ -106,28 +121,27 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
         <p className="tbig">{total}<span className="tmax">/{max}</span></p>
         <div className="sqrow">
           {scores.map((s, i) => (
+            /* Flipped in one at a time. Sixteen squares appearing at once is a
+               block of colour; sixteen arriving in sequence is a result. */
             <motion.span key={i} className={'sq ' + band(s)}
-              initial={{ scale: 0 }} animate={{ scale: 1 }}
-              transition={{ delay: i * 0.035, type: 'spring', stiffness: 420, damping: 18 }} />
+              initial={{ rotateX: -90, opacity: 0 }}
+              animate={{ rotateX: 0, opacity: 1 }}
+              transition={{ delay: i * 0.07, duration: .32, ease: 'easeOut' }} />
           ))}
         </div>
       </div>
 
       <div className="card fpcard">
+        {/* The image preview below already shows the emoji, title and blurb, so
+            repeating them above was the same claim twice and doubled the page
+            height. Only the tags survive here — they are not on the card. */}
         <p className="shead">Your Bias Fingerprint</p>
-        <div className="fphead">
-          <span className="fpemo">{fp.emoji}</span>
-          <div>
-            <h3 className="fptitle">{fp.title}</h3>
-            <p className="fpblurb">{fp.blurb}</p>
-          </div>
-        </div>
         <div className="fptags">{fp.tags.map(t => <span key={t} className="tag">{t}</span>)}</div>
         <div ref={cardRef} className="cardpreview" aria-label="Your shareable result card" />
         <div className="actions">
           <button className="btn btn-primary grow" onClick={doShare}>Share result</button>
           <button className="btn btn-ghost" onClick={saveImage} title="1080 × 1920, sized for stories">
-            Save image
+            {canShareFiles ? 'Share to story' : 'Save image'}
           </button>
         </div>
       </div>
@@ -152,8 +166,10 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
 
       <AdSlot slot="results" />
 
-      <div className="card">
-        <p className="shead">How you did, game by game</p>
+      {/* Collapsed by default. It is the longest block on the page and the least
+          urgent — the score, the fingerprint and the share buttons come first. */}
+      <details className="card breakdown">
+        <summary className="shead">How you did, game by game</summary>
         <div className="statbars">
           {byMode.map(r => (
             <div key={r.k} className="sbar">
@@ -164,7 +180,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
             </div>
           ))}
         </div>
-      </div>
+      </details>
 
       {isDaily && (
         <div className="card nextset">

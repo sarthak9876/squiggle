@@ -1,5 +1,17 @@
 import { puzzleLabel } from './schedule.js';
 import { BRAND } from '../brand.js';
+/* The card's palette is pinned, deliberately. See the note in drawShareCard.
+   Keep these in step with the light-theme values in styles/tokens.css. */
+export const CARD_PALETTE = {
+  '--paper-2': '#fffdf8',
+  '--ink':     '#1a1a1f',
+  '--ink-soft':'#5c5c68',
+  '--accent':  '#ff5a5f',
+  '--good':    '#12a150',
+  '--warn':    '#e08700',
+  '--mid':     '#e8833a',
+};
+
 /* Bias Fingerprint share card, drawn on a canvas.
 
    A rendered image beats an emoji grid here because the Fingerprint is a *claim
@@ -34,8 +46,13 @@ export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) 
   const cv = document.createElement('canvas');
   cv.width = W; cv.height = H;
   const c = cv.getContext('2d');
-  const css = getComputedStyle(document.documentElement);
-  const V = n => css.getPropertyValue(n).trim() || '#000';
+  /* FIXED palette, not the live theme.
+     The card used to read its colours from the current theme, so a result shared
+     from dark mode reached your friend looking like a different product from one
+     shared in light mode — and the tile colours drifted from the in-app ones the
+     moment anyone toggled. A shared image is branding: it looks the same for
+     everyone, always. These are the light-theme token values, pinned. */
+  const V = n => CARD_PALETTE[n] || '#000';
 
   const paper = V('--paper-2'), ink = V('--ink'), soft = V('--ink-soft'), accent = V('--accent');
 
@@ -86,7 +103,8 @@ export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) 
     const inRow = Math.min(cols, scores.length - row * cols);
     const cx = (W - rowWidth(inRow)) / 2 + (i % cols) * (sq + gap);
     const cy = y0 + row * (sq + gap);
-    c.fillStyle = s >= 85 ? V('--good') : s >= 60 ? V('--warn') : s >= 35 ? '#e8833a' : accent;
+    // Same four bands as .sq.a/.b/.c/.d in game.css — one palette, two renderers.
+    c.fillStyle = s >= 85 ? V('--good') : s >= 60 ? V('--warn') : s >= 35 ? V('--mid') : accent;
     c.globalAlpha = s >= 35 ? 1 : .75;
     roundRect(c, cx, cy, sq, sq, 16); c.fill();
     c.globalAlpha = 1;

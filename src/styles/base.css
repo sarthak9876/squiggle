@@ -40,10 +40,17 @@ a { color: var(--accent-ink); }
 /* Honour the OS setting. Vestibular disorders make large motion genuinely
    unpleasant; this is not a nice-to-have. */
 @media (prefers-reduced-motion: reduce) {
+  /* Kill LOOPS and movement, keep fades.
+     The old blanket `animation-duration: .001ms` on everything was too blunt: it
+     snapped count-ups to their end value instantly and could skip a reveal state
+     entirely, so a reduced-motion player saw less information, not less motion.
+     The JS/framer animations handle themselves via matchMedia; CSS only needs to
+     stop the decorative loops and the transforms. */
+  .sqhero .crawl, .sqhero .crawlhead, .hintline.pulse { animation: none !important; }
   *, *::before, *::after {
-    animation-duration: .001ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: .001ms !important;
+    transition-property: opacity !important;   /* fade, never slide or scale */
+    transition-duration: 150ms !important;
     scroll-behavior: auto !important;
   }
 }

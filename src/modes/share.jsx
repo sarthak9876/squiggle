@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { clamp } from './contract.js';
 
 const PEOPLE = /\b(people|person|population|indians?|adults?|children|kids|players|students|teenagers|women|men|households|users|voters|humans|workers|drivers|speakers)\b/i;
@@ -24,7 +25,28 @@ export const share = {
       : `You said ${v.v}%, the answer is ${item.answer}% — ${off} percentage point${off === 1 ? '' : 's'} out.`;
   },
   magnitude: () => 'world',
-  Component: ({ item, value, setValue, revealed }) => (
+  Component: ({ item, value, setValue, revealed }) => {
+    /* The truth used to pop in fully formed. Filling the dots one by one is the
+       moment the player actually learns the number — it reads as the answer
+       arriving rather than as a state change. ~6ms a dot, so 100 dots take
+       600ms; instant under reduced motion. */
+    const [fill, setFill] = useState(0);
+    useEffect(() => {
+      if (!revealed) { setFill(0); return; }
+      const still = typeof matchMedia === 'function'
+        && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (still) { setFill(item.answer); return; }
+      let raf, t0 = performance.now();
+      const tick = t => {
+        const p = Math.min(1, (t - t0) / 600);
+        setFill(Math.round(item.answer * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(raf);
+    }, [revealed, item.answer]);
+
+    return (
     <div className="m-share">
       {/* "A hundred people" is a lovely line and wrong for most of this pool —
           the share of Earth's water that is fresh is not a hundred people. Say it
@@ -48,7 +70,7 @@ export const share = {
           const n = i + 1;
           return (
             <button key={i} type="button" tabIndex={-1} disabled={revealed}
-              className={'dot' + (revealed && n <= item.answer ? ' truth' : '') + (n <= value.v ? ' mine' : '')}
+              className={'dot' + (revealed && n <= fill ? ' truth' : '') + (n <= value.v ? ' mine' : '')}
               onPointerDown={() => !revealed && setValue({ v: n, touched: true })}
               onPointerEnter={e => { if (!revealed && e.buttons === 1) setValue({ v: n, touched: true }); }}
               aria-label={`${n}%`} />
@@ -61,5 +83,6 @@ export const share = {
       {!revealed && !value.touched &&
         <p className="hintline">Drag the slider, or tap the dots.</p>}
     </div>
-  ),
+    );
+  },
 };

@@ -177,13 +177,17 @@ export const GROUPS = [
     source:'NASA mission archive',
     theme:'planets',
     note:'Apollo and Cassini are gods too. NASA named its missions after the same pantheon the planets came from.' },
+  /* Was Score / Canasta / Jetty / Buoy / Mooring, with a Gettysburg reference in
+     the note — fine for 40+, a bounce for the 15-24 audience this is built for.
+     Same wordplay trick (Bridge belongs to two of these, Poker to three), words
+     they actually use. "Fortnight" next to the game they know is the joke. */
   { id:'g20', prompt:'Sort these nine into three groups of three',
-    groups:[{ label:'Units of time', items:['Fortnight','Decade','Score'] },
-            { label:'Card games', items:['Bridge','Rummy','Canasta'] },
-            { label:'Things in a harbour', items:['Jetty','Buoy','Mooring'] }],
+    groups:[{ label:'Units of time', items:['Fortnight','Decade','Millennium'] },
+            { label:'Card games', items:['Bridge','Rummy','Poker'] },
+            { label:'Parts of a guitar', items:['Neck','Fret','Capo'] }],
     source:'Oxford English Dictionary',
     theme:'language',
-    note:'A "score" is twenty years — the word Lincoln used at Gettysburg. Bridge is also something a harbour has.' },
+    note:'A fortnight is two weeks \u2014 the game spells it differently on purpose. Bridge is a card game and the piece of a guitar that holds the strings down.' },
   { id:'g21', prompt:'Sort these nine into three groups of three',
     groups:[{ label:'Vitamins', items:['Thiamine','Niacin','Folate'] },
             { label:'Clouds', items:['Cirrus','Cumulus','Stratus'] },

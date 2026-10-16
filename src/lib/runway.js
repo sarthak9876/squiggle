@@ -23,7 +23,7 @@ export function checkRunway(pools, threshold = 14) {
     const low = r.rows.filter(x => x.days < threshold)
       .map(x => `${x.key} ${x.count} (${x.days}d)`).join(', ');
     console.warn(
-      `[hunch] Content runway is ${r.days} days. Below ${threshold}. Top up: ${low}`
+      `[squiggle] Content runway is ${r.days} days. Below ${threshold}. Top up: ${low}`
     );
   }
   return r;

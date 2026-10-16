@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { puzzleNumber, puzzleLabel, LAUNCH_DAY, dayNumber } from '../src/lib/schedule.js';
 
-/* QA: "Today's share text says Hunch #289, so launch day will be #292.
+/* QA: "Today's share text says Squiggle #289, so launch day will be #292.
    Players expect launch day to be #1." */
 describe('puzzle numbering', () => {
   it('launch day is #1', () => {

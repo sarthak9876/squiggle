@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { GAME_LIST, ICONS } from '../games.jsx';
-import { HunchHero } from './HunchMark.jsx';
+import { SquiggleHero } from './SquiggleMark.jsx';
 import Countdown from './Countdown.jsx';
 import TryOne from './TryOne.jsx';
 import AdSlot from './AdSlot.jsx';
@@ -17,7 +17,7 @@ export default function Home({ stats, onPlayDaily, onPlayGame, playedToday, prog
     <motion.div className="home" initial="hidden" animate="show" variants={stagger}>
 
       <motion.section className="hero" variants={riseIn}>
-        <HunchHero />
+        <SquiggleHero />
         <h1 className="herotitle">
           Eight ways to be <span className="hand wrong">wrong</span> about the world
         </h1>

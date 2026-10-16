@@ -9,6 +9,29 @@ import { CROWD_ENABLED } from '../lib/flags.js';
 import { reportLink } from '../lib/report.js';
 import { dayNumber } from '../lib/schedule.js';
 
+/* A face for the fact. Picked from the question's own theme so it is never
+   random, and it gives the card a flash of colour that a paragraph cannot. */
+const FACT_ICONS = {
+  space:'\ud83d\ude80', planets:'\ud83e\ude90', moonsun:'\u2600\ufe0f', missions:'\ud83d\udef0\ufe0f',
+  animals:'\ud83d\udc3e', wildlife:'\ud83d\udc06', sealife:'\ud83d\udc0b', birds:'\ud83d\udc26', bugs:'\ud83d\udc1b',
+  pets:'\ud83d\udc36', fossil:'\ud83e\uddb4', biology:'\ud83e\uddec', health:'\u2764\ufe0f', disease:'\ud83e\udda0',
+  food:'\ud83c\udf5b', nutrition:'\ud83e\udd57', drinks:'\u2615', farming:'\ud83c\udf3e',
+  money:'\ud83d\udcb0', economy:'\ud83d\udcc8', prices:'\ud83c\udff7\ufe0f', tech:'\ud83d\udcbb', web:'\ud83c\udf10',
+  devices:'\ud83d\udcf1', social:'\ud83d\udcac', streaming:'\ud83c\udfac', film:'\ud83c\udfa5',
+  energy:'\u26a1', renewables:'\ud83c\udf1e', climate:'\ud83c\udf21\ufe0f', warming:'\ud83d\udd25',
+  geography:'\ud83d\uddfa\ufe0f', cities:'\ud83c\udfd9\ufe0f', demography:'\ud83d\udc65', history:'\ud83d\udcdc',
+  ancient:'\ud83c\udffa', inventions:'\ud83d\udca1', language:'\ud83d\udde3\ufe0f', culture:'\ud83c\udfad',
+  sport:'\ud83c\udfc5', rail:'\ud83d\ude82', road:'\ud83d\ude97', aviation:'\u2708\ufe0f', space2:'\ud83c\udf0c',
+  icewater:'\ud83e\uddca', batteries:'\ud83d\udd0b', lifestyle:'\ud83c\udfe0', modern:'\u2728',
+};
+const factIcon = theme => {
+  if (!theme) return '\ud83d\udca1';
+  if (FACT_ICONS[theme]) return FACT_ICONS[theme];
+  // India themes are "india-rail", "india-food" and so on — fall back to the tail.
+  const tail = String(theme).split('-').pop();
+  return FACT_ICONS[tail] || '\ud83d\udca1';
+};
+
 const verdict = s =>
   s >= 95 ? ['Spot on', 'good'] : s >= 85 ? ['Very close', 'good'] :
   s >= 65 ? ['Close', 'ink'] : s >= 40 ? ['Some of it', 'soft'] :
@@ -248,8 +271,18 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
                 animate={{ width: score + '%' }} transition={{ duration: .6, delay: .1 }} />
             </div>
             {mode.detail && <p className="rdetail">{mode.detail(slot.item, value)}</p>}
-            <p className="rnote">{noteOf(slot.item)}</p>
-            {sourceOf(slot.item) && <p className="rsrc">Source: {sourceOf(slot.item)}</p>}
+            {/* The note is the payload — the bit people screenshot. It was the
+                third grey paragraph in a row and read as small print. */}
+            <motion.div className="funfact"
+              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: .25 }}>
+              <span className="ficon" aria-hidden="true">{factIcon(slot.item.theme)}</span>
+              <div>
+                <p className="flabel">Did you know</p>
+                <p className="ftext">{noteOf(slot.item)}</p>
+                {sourceOf(slot.item) && <p className="fsrc">{sourceOf(slot.item)}</p>}
+              </div>
+            </motion.div>
             {/* Every reveal can be reported. The About page said "tell us" and
                 offered no way to, so a wrong answer had nowhere to go. */}
             <p className="rreport">

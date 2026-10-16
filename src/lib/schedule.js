@@ -23,7 +23,7 @@ export const LAUNCH_DAY = dayNumber(LAUNCH_DATE);
 
 /** The number players SEE. The internal day index counts from 1 Jan 2026 so the
  *  scheduler has a stable origin, but nobody wants to be told their first ever
- *  game is "Hunch #292" — launch day is #1.
+ *  game is "Squiggle #292" — launch day is #1.
  *  Before launch this is <= 0, so callers show "Preview" instead of a number. */
 export function puzzleNumber(day) { return day - LAUNCH_DAY + 1; }
 

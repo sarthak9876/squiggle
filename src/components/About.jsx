@@ -5,7 +5,7 @@ import { REPORT_TO } from '../lib/report.js';
 /* ONE place to put the real URLs once the accounts exist. Anything left null is
    not rendered anywhere — footer or About. */
 export const HANDLES = {
-  instagram: null,   // e.g. 'https://instagram.com/hunch.game'
+  instagram: null,   // e.g. 'https://instagram.com/squiggle.game'
   x:         null,
   discord:   null,
   coffee:    null,   // e.g. 'https://buymeacoffee.com/sarthak'
@@ -15,7 +15,7 @@ export const CREDITS = {
   author: 'Sarthak',
   authorUrl: null,
   socials: [
-    /* A link to instagram.com/ is not a link to Hunch — it looks live and goes
+    /* A link to instagram.com/ is not a link to Squiggle — it looks live and goes
        nowhere, which is worse than no link. Fill in the handle and the row appears;
        leave it null and the row is hidden. */
     { label: 'Instagram', emo: '📸', url: HANDLES.instagram },
@@ -29,9 +29,9 @@ export default function About({ onHome }) {
   return (
     <motion.div className="aboutpage" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
       <div className="card">
-        <h2 className="shead">About Hunch</h2>
+        <h2 className="shead">About Squiggle</h2>
         <p className="abouttext">
-          Hunch is a daily game about how badly we all estimate the world. Eight
+          Squiggle is a daily game about how badly we all estimate the world. Eight
           ways to be wrong, sixteen questions, about four minutes. Free, no account,
           no ads on the questions themselves.
         </p>

@@ -1,4 +1,4 @@
-# Hunch
+# Squiggle
 
 **Eight ways to be wrong about the world.**
 

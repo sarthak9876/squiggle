@@ -41,7 +41,9 @@ export function fmtAxis(v, label) {
   if (f.kind === 'log') return `10^${Math.round(v)}`;
   const n = Math.abs(v) >= 100 ? Math.round(v).toLocaleString()
           : (+v.toFixed(Math.abs(v) < 1 ? 2 : 1)).toString();
-  return f.unit && f.unit !== '%' ? `${n} ${f.unit}` : f.unit === '%' ? `${n}%` : n;
+  // "26.5 millions" — scale words stay singular after a number, unlike "years".
+  const unit = (f.unit || '').replace(/\b(million|billion|thousand|trillion)s\b/gi, '$1');
+  return unit && unit !== '%' ? `${n} ${unit}` : unit === '%' ? `${n}%` : n;
 }
 
 const nx = (it, v) => (v - it.x.min) / (it.x.max - it.x.min);

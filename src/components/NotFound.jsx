@@ -7,7 +7,7 @@ export default function NotFound({ path, onHome, onPlayGame }) {
     <div className="card notfound">
       <p className="bigemo" aria-hidden="true">🧭</p>
       <h2>That page does not exist</h2>
-      {path && <p className="stubtext"><code>{path}</code> is not a Hunch page.</p>}
+      {path && <p className="stubtext"><code>{path}</code> is not a Squiggle page.</p>}
       <button className="btn btn-primary wide" onClick={onHome}>Go to today’s set →</button>
       <p className="shead" style={{ marginTop: 18 }}>Or try one game</p>
       <div className="nfgames">

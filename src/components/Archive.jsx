@@ -51,7 +51,7 @@ export default function Archive({ onPlayDay, onHome }) {
             return (
               <button key={d} className={'archday' + band(total) + (d === today ? ' today' : '')}
                       onClick={() => onPlayDay(d)}
-                      aria-label={`Hunch #${n}, ${label(d)}${total != null ? `, scored ${total} out of 1600` : ', not played'}`}>
+                      aria-label={`Squiggle #${n}, ${label(d)}${total != null ? `, scored ${total} out of 1600` : ', not played'}`}>
                 <span className="archdate">{label(d)}</span>
                 <span className="archnum">#{n}</span>
                 <span className="archscore">{total != null ? total : '–'}{fromArchive && <i title="Played from the archive"> ·</i>}</span>

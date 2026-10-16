@@ -14,7 +14,7 @@ import { logScore } from './modes/contract.js';
 
 // Read-only test surface over the REAL shipped modes, so the suite exercises what
 // players run rather than a copy of it.
-window.__hunch = Object.freeze({ MODES, POOLS, fingerprint, logScore });
+window.__squiggle = Object.freeze({ MODES, POOLS, fingerprint, logScore });
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

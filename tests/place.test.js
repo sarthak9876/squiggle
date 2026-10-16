@@ -14,7 +14,10 @@ describe('Place The Dot — axis formatting', () => {
   it('carries the unit from the axis label', () => {
     expect(fmtAxis(6190, 'Height above sea level (m)')).toBe('6,190 m');
     expect(fmtAxis(44, 'Share of world species (%)')).toBe('44%');
-    expect(fmtAxis(216, 'Population (millions)')).toBe('216 millions');
+    // Scale words stay singular after a number: "216 million", not "216 millions".
+    expect(fmtAxis(216, 'Population (millions)')).toBe('216 million');
+    expect(fmtAxis(3.1, 'Monthly visitors (billions)')).toBe('3.1 billion');
+    expect(fmtAxis(28.4, 'Median age (years)')).toBe('28.4 years');   // real plural, kept
   });
 
   it('renders a log axis as a power of ten, not as 44', () => {

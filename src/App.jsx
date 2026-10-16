@@ -5,7 +5,7 @@ import Results from './components/Results.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import Archive from './components/Archive.jsx';
 import About, { CREDITS } from './components/About.jsx';
-import HunchMark from './components/HunchMark.jsx';
+import SquiggleMark from './components/SquiggleMark.jsx';
 import { BRAND } from './brand.js';
 import NotFound from './components/NotFound.jsx';
 import { checkRunway } from './lib/runway.js';
@@ -278,7 +278,7 @@ export default function App() {
     <div className="shell">
       <header className="topbar">
         <button className="brand" onClick={goHome} aria-label={BRAND.name + ' home'}>
-          <HunchMark size={26} animate={false} />
+          <SquiggleMark size={26} animate={false} />
           <span className="brandname">{BRAND.name}</span>
         </button>
         <span className="spacer" />

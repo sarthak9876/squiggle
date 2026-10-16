@@ -5,7 +5,7 @@ import { Component } from 'react';
 export default class ErrorBoundary extends Component {
   state = { err: null };
   static getDerivedStateFromError(err) { return { err }; }
-  componentDidCatch(err, info) { console.error('Hunch crashed:', err, info); }
+  componentDidCatch(err, info) { console.error('Squiggle crashed:', err, info); }
   render() {
     if (!this.state.err) return this.props.children;
     return (

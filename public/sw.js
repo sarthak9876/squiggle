@@ -7,7 +7,7 @@
    Strategy: cache-first for the shell (instant repeat loads, works on a plane),
    network-first for navigation so a deploy is picked up rather than pinned forever.
    The cache name carries a version — bump it to force every client to refresh. */
-const VERSION = 'hunch-v2.0.0';
+const VERSION = 'squiggle-v2.0.0';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest'];
 
 self.addEventListener('install', e => {

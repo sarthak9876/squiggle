@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 /* SQUIGGLE, the mascot: a hand-drawn line that reacts to how you did.
@@ -17,19 +18,55 @@ export const moodFor = score =>
 
 export default function Mascot({ mood = 'neutral', size = 72, say }) {
   const m = MOODS[mood] || MOODS.neutral;
+  const [poked, setPoked] = useState(false);
+  const still = typeof matchMedia === 'function'
+    && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Hovering it should feel like poking a creature, not like hovering a picture.
+     It leans in, blinks and bounces once. `whileHover` would restart on every
+     pointer jitter inside the shape, so a one-shot flag drives it instead and
+     resets on leave. The whole thing is decorative, so it stays aria-hidden and
+     is skipped under prefers-reduced-motion. */
+  const react = poked && !still;
+
   return (
-    <div className="mascot" style={{ width: size }}>
+    <div className="mascot" style={{ width: size }}
+         onPointerEnter={() => setPoked(true)}
+         onPointerLeave={() => setPoked(false)}>
       <motion.svg viewBox="0 0 80 80" width={size} height={size} aria-hidden="true"
-        animate={{ rotate: m.tilt, y: mood === 'wow' ? [-2, -8, -2] : 0 }}
-        transition={{ y: { duration: .5, repeat: mood === 'wow' ? 2 : 0 }, rotate: { duration: .3 } }}>
-        {/* The hunch itself: an open loop, deliberately not a closed circle. */}
+        animate={{
+          rotate: react ? [m.tilt, m.tilt - 9, m.tilt + 6, m.tilt] : m.tilt,
+          y: mood === 'wow' ? [-2, -8, -2] : react ? [0, -6, 0] : 0,
+          scale: react ? [1, 1.08, 1] : 1,
+        }}
+        transition={{
+          y: { duration: .5, repeat: mood === 'wow' ? 2 : 0 },
+          rotate: { duration: react ? .5 : .3 },
+          scale: { duration: .45, ease: 'easeOut' },
+        }}>
+        {/* The squiggle itself: an open loop, deliberately not a closed circle. */}
         <motion.path
           d="M 12 44 C 6 20 26 6 40 10 C 58 15 74 28 68 46 C 63 62 44 74 28 68 C 18 64 14 56 18 50"
           fill="var(--paper)" stroke="var(--ink)" strokeWidth="3"
           strokeLinecap="round" strokeLinejoin="round"
           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: .7 }} />
-        <circle cx="31" cy="35" r="3.2" fill="var(--ink)" />
-        <circle cx="49" cy="35" r="3.2" fill="var(--ink)" />
+        {/* Eyes blink on poke by animating `ry` — the ellipse's own radius —
+            rather than a scaleY transform. Same lesson the hero taught: framer
+            drives SVG ATTRIBUTES reliably and SVG transforms unreliably, and a
+            scaleY on <ellipse> produced computed transform "none". `ry` is a real
+            animatable attribute, so it just works, and squashing the radius is a
+            truer blink than scaling the whole shape anyway. */}
+        {/* `initial` AND the static attribute both carry 3.2. Without a starting
+            value framer has nothing to animate FROM and writes ry="undefined" on
+            the first frame, which the browser rejects — eight console errors and
+            an eye that vanishes for a beat. Exactly the trap the mascot's mouth
+            path hit earlier with d="undefined". */}
+        <motion.ellipse cx="31" cy="35" rx="3.2" ry={3.2} fill="var(--ink)"
+          initial={{ ry: 3.2 }} animate={{ ry: react ? [3.2, 0.4, 3.2] : 3.2 }}
+          transition={{ duration: .34, times: [0, .5, 1] }} />
+        <motion.ellipse cx="49" cy="35" rx="3.2" ry={3.2} fill="var(--ink)"
+          initial={{ ry: 3.2 }} animate={{ ry: react ? [3.2, 0.4, 3.2] : 3.2 }}
+          transition={{ duration: .34, times: [0, .5, 1], delay: .04 }} />
         {/* Brow and mouth are SWAPPED, not tweened. Framer cannot interpolate `d`
             between paths with different commands - happy's mouth is one quadratic,
             wow's is two arcs - and it emitted d="undefined" on the first frame,

@@ -39,8 +39,8 @@
 .band-lo .sfill  { background: var(--accent); }
 .rdetail { font-size: var(--t-small); color: var(--ink-soft); margin-bottom: var(--s2);
            font-variant-numeric: tabular-nums; }
-.rnote { font-size: var(--t-small); line-height: 1.6; }
-.rsrc { font-size: var(--t-micro); color: var(--ink-faint); margin-top: 6px; }
+
+
 
 /* ═══════════ crowd reveal ═══════════ */
 .crowd { margin-top: var(--s4); padding-top: var(--s4); border-top: 1px dashed var(--rule); }
@@ -324,3 +324,25 @@
 .rreport { margin: 8px 0 0; font-size: var(--t-micro); }
 .rreport a { color: var(--ink-faint); text-decoration: underline; text-underline-offset: 2px; }
 .rreport a:hover { color: var(--ink); }
+/* The mascot is pokeable, so say so with the cursor. */
+.mascot { cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .mascot { cursor: default; } }
+
+/* ── Fun fact card ───────────────────────────────────────────────── */
+/* The note is the thing worth remembering and it was styled as small print:
+   three grey paragraphs stacked under a grey bar. Now it is a block with its own
+   colour, an icon drawn from the question's theme, and the source tucked under
+   the text instead of competing with it. */
+.funfact { display: flex; gap: 12px; align-items: flex-start;
+  background: color-mix(in srgb, var(--gc, var(--accent)) 9%, var(--paper-2));
+  border: 1.5px solid color-mix(in srgb, var(--gc, var(--accent)) 26%, transparent);
+  border-radius: var(--r-md, 14px); padding: 12px 14px; margin: 10px 0 2px; }
+.funfact .ficon { font-size: 26px; line-height: 1.1; flex: none; }
+.funfact .flabel { margin: 0 0 2px; font-size: 11px; font-weight: 800;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--gc, var(--accent)) 72%, var(--ink)); }
+.funfact .ftext { margin: 0; font-size: var(--t-small); line-height: 1.6; color: var(--ink); }
+.funfact .fsrc { margin: 7px 0 0; font-size: var(--t-micro); color: var(--ink-faint); }
+.funfact .fsrc::before { content: 'Source: '; }
+/* The detail line separates your guess from the truth by colour, not just commas. */
+.rdetail b, .rdetail .t { color: var(--truth); font-weight: 700; }

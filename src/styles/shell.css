@@ -7,7 +7,7 @@
           max-width: var(--maxw); margin: 0 auto; padding: var(--s4) 0; }
 .brand { display: flex; align-items: center; gap: 8px; background: none; border: 0;
          cursor: pointer; padding: 6px; margin-left: -6px; border-radius: var(--r-sm); }
-.brand .hunchmark { flex: none; }
+.brand .sqmark { flex: none; }
 .brandname { font-weight: 700; font-size: 1.1rem; letter-spacing: -.02em; }
 .spacer { flex: 1; }
 .streakchip { font-size: var(--t-small); font-weight: 600; background: var(--accent-soft);

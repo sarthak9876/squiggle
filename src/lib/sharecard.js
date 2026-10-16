@@ -32,7 +32,7 @@ export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) 
   for (let y = 0; y < H; y += 4) c.fillRect(0, y, W, 1);
   c.globalAlpha = 1;
 
-  /* The logo, drawn to match HunchMark: a curve that is your guess and a dot
+  /* The logo, drawn to match SquiggleMark: a curve that is your guess and a dot
      where the answer was. Same two shapes as the favicon and the header. */
   c.strokeStyle = accent; c.lineWidth = 14; c.lineCap = 'round';
   c.beginPath();
@@ -57,13 +57,21 @@ export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) 
   c.fillStyle = soft; c.font = '400 38px system-ui, sans-serif';
   wrap(c, fp.blurb, W / 2, 770 + top, W - 200, 52);
 
-  // Per-question squares — spoiler-free, same idea as a Wordle grid.
-  const cols = 8, sq = 74, gap = 14;
-  const gw = cols * sq + (cols - 1) * gap;
-  let x0 = (W - gw) / 2, y0 = 920 + top;
+  /* Per-question squares — spoiler-free, same idea as a Wordle grid.
+     EACH ROW is centred on its own width. The old code centred on a fixed
+     eight-column grid whatever the run length, so a five-question practice card
+     drew five squares starting at the eight-column origin and sat visibly left of
+     the score beneath it. A 16-question card hid the bug because it filled the
+     grid exactly. */
+  const cols = Math.min(8, scores.length), sq = 74, gap = 14;
+  const rowWidth = n => n * sq + (n - 1) * gap;
+  const y0 = 920 + top;
   scores.forEach((s, i) => {
-    const cx = x0 + (i % cols) * (sq + gap);
-    const cy = y0 + Math.floor(i / cols) * (sq + gap);
+    const row = Math.floor(i / cols);
+    // How many squares are actually on THIS row — the last row is often short.
+    const inRow = Math.min(cols, scores.length - row * cols);
+    const cx = (W - rowWidth(inRow)) / 2 + (i % cols) * (sq + gap);
+    const cy = y0 + row * (sq + gap);
     c.fillStyle = s >= 85 ? V('--good') : s >= 60 ? V('--warn') : s >= 35 ? '#e8833a' : accent;
     c.globalAlpha = s >= 35 ? 1 : .75;
     roundRect(c, cx, cy, sq, sq, 16); c.fill();

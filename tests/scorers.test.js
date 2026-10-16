@@ -14,7 +14,7 @@ import { normY, truthAt } from '../src/modes/draw.jsx';
 function perfectAnswer(key, item, m) {
   switch (key) {
     case 'share':  return { v: item.answer, touched: true };
-    case 'size':   return { v: m.toSlider(item.answer), touched: true };
+    case 'size':   return { v: m.toSlider(item.answer, item), touched: true };
     case 'shadow': return item.answer;
     case 'odd':    return { pick: item.odd, reason: item.reason };
     case 'order':  return { seq: item.items.map((_, i) => i).sort((a, b) => item.items[b][1] - item.items[a][1]), sel: null };

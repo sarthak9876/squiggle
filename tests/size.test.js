@@ -46,7 +46,7 @@ describe('Size It Up — picture matches the quantity', () => {
     // 27x area is about 5.2x across — the number the picture must honour.
     expect(Math.sqrt(z18.answer)).toBeCloseTo(5.196, 2);
     // The readout still reports the real quantity, not the drawn one.
-    const perfect = { v: size.toSlider(z18.answer), touched: true };
+    const perfect = { v: size.toSlider(z18.answer, z18), touched: true };
     expect(size.score(z18, perfect)).toBe(100);
   });
 });
@@ -64,5 +64,81 @@ describe('Size It Up — readout wording', () => {
       if (/\bthe (around|across|over|under|per|from|to|in|on)\b/.test(p)) bad.push(`${q.id}: "${p}"`);
     }
     expect(bad, bad.join('\n')).toEqual([]);
+  });
+});
+
+/* Round-3 review: "the slider covers 0.05x-200x for EVERY question. For
+   'shark vs person' (truth 2.6x) more than half the slider is nonsense, and
+   small movements jump a lot (~1% per pixel), so it feels twitchy." */
+describe('Size It Up — per-question range', () => {
+  it('every question brackets its own answer, not a global 0.05-200', async () => {
+    const { rangeFor, toSlider } = await import('../src/modes/size.jsx');
+    const bad = [];
+    for (const q of POOLS.size) {
+      const { lo, hi } = rangeFor(q);
+      if (!(q.answer > lo && q.answer < hi)) bad.push(`${q.id}: ${q.answer} outside [${lo}, ${hi}]`);
+      // The answer must not sit at either end, or it is guessable from the travel.
+      const pos = toSlider(q.answer, q) / 1000;
+      if (pos < 0.12 || pos > 0.88) bad.push(`${q.id}: answer at ${(pos * 100) | 0}% of travel`);
+    }
+    expect(bad, bad.join('\n')).toEqual([]);
+  });
+
+  it('the range is far tighter than the old global one', async () => {
+    const { rangeFor } = await import('../src/modes/size.jsx');
+    for (const q of POOLS.size) {
+      const { lo, hi } = rangeFor(q);
+      const decades = Math.log10(hi / lo);
+      // The old scale spanned 3.6 decades for every question regardless.
+      expect(decades, `${q.id} spans ${decades.toFixed(2)} decades`).toBeLessThan(1.5);
+    }
+  });
+
+  it('a perfect answer still scores 100 on the new mapping', async () => {
+    const { size } = await import('../src/modes/size.jsx');
+    for (const q of POOLS.size)
+      expect(size.score(q, { v: size.toSlider(q.answer, q), touched: true }), q.id).toBe(100);
+  });
+
+  it('an untouched slider still cannot be submitted, and scores poorly', async () => {
+    const { size } = await import('../src/modes/size.jsx');
+    for (const q of POOLS.size) {
+      const fresh = size.init(q);
+      expect(size.ready(fresh), q.id).toBe(false);
+      expect(size.score(q, fresh), `${q.id} untouched`).toBeLessThanOrEqual(35);
+    }
+  });
+
+  it('the live phrase names the reference in objects, not multiples', async () => {
+    const { livePhrase } = await import('../src/modes/size.jsx');
+    const q = POOLS.size.find(x => (x.dimension || 'length') === 'length');
+    const p = livePhrase(q, q.answer);
+    expect(p).toMatch(/[a-z]/);
+    expect(p.length).toBeGreaterThan(8);
+    // At parity it should say so rather than printing "1.0x".
+    expect(livePhrase(q, 1)).toMatch(/same/);
+  });
+});
+
+/* "about 1.4 persons tall" — a naive +s on a closed set of labels. */
+describe('Size It Up — the live phrase reads as English', () => {
+  it('pluralises every reference label correctly', async () => {
+    const { livePhrase } = await import('../src/modes/size.jsx');
+    const bad = [];
+    for (const q of POOLS.size) {
+      const p = livePhrase(q, q.answer * 1.3);
+      if (/\bpersons\b/.test(p)) bad.push(`${q.id}: "${p}"`);
+      if (/\b\w+ys\b/.test(p)) bad.push(`${q.id}: "${p}"`);     // "citys"
+      if (/\b\w+(s|x|ch|sh)s\b/.test(p)) bad.push(`${q.id}: "${p}"`);  // "boxs"
+    }
+    expect(bad, bad.join('\n')).toEqual([]);
+  });
+
+  it('never prints a bare multiplier where a noun belongs', async () => {
+    const { livePhrase } = await import('../src/modes/size.jsx');
+    for (const q of POOLS.size.filter(x => x.dimension !== 'abstract')) {
+      const p = livePhrase(q, q.answer);
+      expect(p, q.id).not.toMatch(/^\d+(\.\d+)?×$/);
+    }
   });
 });

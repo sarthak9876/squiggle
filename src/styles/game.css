@@ -476,3 +476,28 @@
 .shadowopt .emo-img { margin: 0 auto; }
 .sizecell .emo-img { display: block; }
 .sizecell .ghost { position: absolute; bottom: 42px; opacity: .28; filter: grayscale(1); }
+
+/* ── Size It Up, redesigned ──────────────────────────────────────────
+   The object is the control now; the slider is the accessible secondary. */
+/* A fixed box the scene is fitted INTO, so nothing can be clipped. */
+.sizestage { position: relative; overflow: hidden; display: grid; place-items: end center;
+             min-height: 210px; max-height: 240px; }
+.sizescene { display: flex; align-items: flex-end; justify-content: center; gap: 30px; }
+.refbox { display: grid; place-items: end center; }
+.refbox .emo-img { width: 100%; height: 100%; }
+.sizegrab { position: relative; display: grid; place-items: center; touch-action: none;
+  cursor: grab; border-radius: 10px; }
+.sizegrab.live:hover { outline: 2px dashed var(--rule-strong); outline-offset: 4px; }
+.sizegrab:active { cursor: grabbing; }
+.sizegrab:focus-visible { outline: 3px solid var(--accent-ink); outline-offset: 3px; }
+/* A visible handle, so "you can grab this" is not a secret. */
+.grabdot { position: absolute; right: -6px; bottom: -6px; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--accent-ink); border: 2px solid var(--paper);
+  box-shadow: 0 1px 4px rgba(0,0,0,.25); pointer-events: none; }
+.zoombadge { position: absolute; top: 6px; right: 8px; z-index: 2;
+  font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink-faint); background: var(--paper-2);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 2px 8px; }
+.sizephrase { text-align: center; font-size: var(--t-small); color: var(--ink-soft);
+  margin: 2px 0 8px; min-height: 1.4em; }
+@media (prefers-reduced-motion: reduce) { .sizescene { transition: none; } }

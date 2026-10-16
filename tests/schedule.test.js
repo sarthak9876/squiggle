@@ -61,10 +61,15 @@ describe('across days', () => {
     }
   });
 
-  it('gives different players different sets', () => {
+  /* INVERTED in QA round 2. This used to assert that two players get DIFFERENT
+     sets — the original anti-spoiler design. That design deleted the entire
+     reason a daily game spreads: a shared score, a comparable emoji grid, and
+     "did you get the whale one?". The pid is now ignored for the daily.
+     Full coverage lives in tests/daily-shared.test.js. */
+  it('gives EVERY player the same set — the daily is shared', () => {
     const a = lineupFor(POOLS, 'alice', LAUNCH_DAY).map(x => x.item.id);
     const b = lineupFor(POOLS, 'bob', LAUNCH_DAY).map(x => x.item.id);
-    expect(a.filter(x => b.includes(x)).length).toBeLessThan(16);
+    expect(a).toEqual(b);
   });
 
   it('reports how many unique days the bank supports', () => {

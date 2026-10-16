@@ -95,6 +95,13 @@ export const groups = {
                 onClick={() => setValue(prev => {
                   const idx = prev.locked.findIndex(s => s.includes(label));
                   if (idx >= 0) {
+                    /* Once all three groups are locked the puzzle is COMPLETE, and
+                       the instruction still says "tap three that belong together" —
+                       so players tap the last three. Each tap used to toggle the
+                       auto-locked group off, then on, then off, leaving nothing
+                       locked and Submit dead with no explanation.
+                       A finished board ignores taps; Reset is the way out. */
+                    if (prev.locked.length === 3) return prev;
                     const locked = prev.locked.slice(); locked.splice(idx, 1);
                     return { ...prev, locked };
                   }

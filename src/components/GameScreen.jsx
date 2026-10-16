@@ -52,6 +52,21 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
   const [muted, setMute] = useState(isMuted);
   const [confirmQuit, setConfirmQuit] = useState(false);
   const rcardRef = useRef(null);
+  const barRef = useRef(null);
+
+  /* Publish the real height of the sticky bar. A hard-coded padding guess goes
+     wrong the moment a button wraps to two lines, which is exactly what happens
+     to "Make your guess" at 360px. */
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(([e]) => {
+      const h = Math.ceil(e.contentRect.height);
+      if (h > 0) document.documentElement.style.setProperty('--actionbar-h', h + 'px');
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [revealed]);
 
   // Running total so far. The score was only ever visible at the end, which made
   // the middle of a 16-question run feel like it did not count.
@@ -178,6 +193,11 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
 
       <div className="card qcard">
         <div className="qhead">
+          {/* Quit lived in the bottom bar as an 80x100 box. Moving it here is what
+              lets the action bar be one row, which is what stops it covering the
+              slider on a 667px screen. */}
+          <button className="quitx" onClick={() => setConfirmQuit(true)}
+                  aria-label="Leave this set" title="Leave this set">✕</button>
           <span className="qcount">{label} · {idx + 1} of {lineup.length}</span>
           {answers.length > 0 && (
             <span className="runscore" title="Your score so far">{runTotal} pts</span>
@@ -205,15 +225,16 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
         </AnimatePresence>
 
         {!revealed && (
-          <div className="actions stickyactions">
-            <button className="btn btn-ghost" onClick={() => setConfirmQuit(true)} title="Back to home">Quit</button>
+          <div className="actions stickyactions" ref={barRef}>
             {mode.clear && (
-              <button className="btn btn-ghost" onClick={() => setValue(mode.clear(slot.item))}>
-                Clear
+              <button className="btn btn-reset" onClick={() => setValue(mode.clear(slot.item))}>
+                Reset
               </button>
             )}
-            <button className="btn btn-primary grow" onClick={submit} disabled={!ready}>
-              {ready ? 'Submit' : 'Make your guess'}
+            {/* One line, always. "Make your guess" wrapped to three lines at 360px
+                and tripled the bar's height. */}
+            <button className="btn btn-primary grow cta" onClick={submit} disabled={!ready}>
+              {ready ? 'Submit' : 'Pick an answer'}
             </button>
           </div>
         )}

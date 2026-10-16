@@ -29,6 +29,12 @@ export const share = {
       {/* "A hundred people" is a lovely line and wrong for most of this pool —
           the share of Earth's water that is fresh is not a hundred people. Say it
           only when the question actually counts people. */}
+      {/* The number first. It used to sit below the slider, i.e. dead last, which
+          on a 667px screen put it behind the sticky action bar. */}
+      <p className="readout">
+        <b>{value.v}%</b> <span className="sub">{item.unit}</span>
+        {revealed && <> · <b className="t">actually {item.answer}%</b></>}
+      </p>
       <p className="dothint">
         {PEOPLE.test(`${item.prompt} ${item.unit || ''}`)
           ? 'Each dot is one person in a hundred.'
@@ -52,10 +58,6 @@ export const share = {
       <input type="range" min="0" max="100" value={value.v} disabled={revealed}
              onChange={e => setValue({ v: +e.target.value, touched: true })} className="slider"
              aria-label={item.prompt} />
-      <p className="readout">
-        <b>{value.v}%</b> <span className="sub">{item.unit}</span>
-        {revealed && <> · <b className="t">actually {item.answer}%</b></>}
-      </p>
       {!revealed && !value.touched &&
         <p className="hintline">Drag the slider, or tap the dots.</p>}
     </div>

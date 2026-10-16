@@ -86,6 +86,14 @@ export const size = {
     const ghostFits = revealed && ghost <= STAGE * 2.4 && Math.abs(ghost - shown.tgt) > 4;
     return (
       <div className="m-size">
+        <p className="readout">
+          {/* One number, formatted once, used by the readout AND by detail() — they
+              used to round separately and could disagree ("2.9x" next to "within 5%
+              of 2.75x"). */}
+          <b>{fmtX(r)}×</b>
+          <span className="sub"> {DIM_WORD[item.dimension] || 'the size of'} {phrase(item.ref.label)}</span>
+          {revealed && <> · <b className="t">actually {fmtX(item.answer)}×</b></>}
+        </p>
         <div className="sizestage">
           <div className="sizecell">
             <span className="emo" style={{ fontSize: Math.round(shown.ref) }}>{SIL[item.ref.key]}</span>
@@ -109,15 +117,7 @@ export const size = {
             <span className="sizebar t" style={{ width: `${100 * Math.min(1, r)}%` }} />
           </div>
         )}
-        <p className="readout">
-          {/* One number, formatted once, used by the readout AND by detail() — they
-              used to round separately and could disagree ("2.9x" next to "within 5%
-              of 2.75x"). */}
-          <b>{fmtX(r)}×</b>
-          <span className="sub"> {DIM_WORD[item.dimension] || 'the size of'} {phrase(item.ref.label)}</span>
-          {revealed && <> · <b className="t">actually {fmtX(item.answer)}×</b></>}
-        </p>
-        {revealed && !ghostFits && Math.abs(ghost - shown.tgt) > 4 &&
+ {revealed && !ghostFits && Math.abs(ghost - shown.tgt) > 4 &&
           <p className="hintline">Your guess was too far off to draw next to the answer.</p>}
         {!revealed && !value.touched &&
           <p className="hintline">Drag the slider to set your answer.</p>}

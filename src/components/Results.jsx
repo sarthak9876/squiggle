@@ -18,7 +18,6 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
   const cardRef = useRef(null);
   const [toast, setToast] = useState('');
   const [name, setName] = useState(() => { try { return localStorage.getItem('sq.name') || ''; } catch { return ''; } });
-  const [waitlisted, setWaitlisted] = useState(() => { try { return localStorage.getItem('sq.ig') === '1'; } catch { return false; } });
   const say = m => { setToast(m); setTimeout(() => setToast(''), 1800); };
 
   useEffect(() => {
@@ -60,12 +59,6 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
     }
   };
 
-  const joinWaitlist = () => {
-    // Stored locally for now: there is no backend on launch day, and a button that
-    // pretends to submit somewhere is worse than one that is honest about waiting.
-    try { localStorage.setItem('sq.ig', '1'); } catch { /* private mode */ }
-    setWaitlisted(true); say('You are on the list');
-  };
 
   const doShare = async () => {
     const text = shareText(fp, { total, max, day, scores });
@@ -142,16 +135,11 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
         </div>
       </div>
 
-      <div className="card igcard">
-        <p className="shead">{BRAND.name} on Instagram</p>
-        <p className="stubtext">
-          A daily question card, one a day, in your feed. Not built yet — leave your
-          flag here and it will be the first thing announced.
-        </p>
-        <button className="btn btn-ghost wide" onClick={joinWaitlist} disabled={waitlisted}>
-          {waitlisted ? '✓ You are on the list' : 'Tell me when it launches'}
-        </button>
-      </div>
+      {/* The Instagram waitlist card lived here. It promised "you are on the
+          list" and only ever set sq.ig=1 in localStorage — nobody was ever going
+          to be told anything. A broken promise on the results screen is worse
+          than no card. It comes back as a real "Follow @handle" button when the
+          account exists (see HANDLES in About.jsx). */}
 
       <AdSlot slot="results" />
 

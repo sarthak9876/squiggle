@@ -20,8 +20,10 @@ const TYPES = [
   { id:'hedger',   emoji:'⚖️', title:'The Fence-Sitter',
     blurb:'You park near the middle and hope. It is safe. It is rarely right.',
     test: b => b.extremity < 0.3 },
-  { id:'gambler',  emoji:'🎲', title:'The Swinger',
-    blurb:'No half measures. When you are right you are very right.',
+  /* Was "The Swinger", which to a 15-24 audience reads as a sexual term — and
+     this title goes on a card built to be screenshotted into group chats. */
+  { id:'gambler',  emoji:'🎢', title:'The Rollercoaster',
+    blurb:'All or nothing. When you are right, you are really right.',
     test: b => b.extremity > 0.72 },
   { id:'shape',    emoji:'📈', title:'The Shape Reader',
     blurb:'You feel how things move even when you cannot name the number.',

@@ -262,18 +262,30 @@ function dealBlock(pools, pid, block, mendSeam = true) {
 /** How many India-relevant questions every daily set should contain. */
 export const MIN_INDIA = 4;
 
+/* The global salt. Changing it reshuffles the entire schedule for everyone, so it
+   is a one-way door once the game is live — it exists so the question order is not
+   trivially derivable from the day number alone, nothing more. */
+const SALT = 'squiggle-daily-v1';
+
 /**
- * The day's sixteen questions.
- * Everyone gets the same SLOTS in the same order, so scores stay comparable; which
- * QUESTION lands in each slot depends on the player, so there is no answer key to
- * leak.
+ * The day's sixteen questions — THE SAME SIXTEEN FOR EVERY PLAYER.
+ *
+ * This used to be seeded per browser so there would be no answer key to leak. That
+ * was the wrong trade. A daily game spreads because two people can say "did you get
+ * the whale one?" — per-player sets kill the shared score, make the emoji grid
+ * meaningless between friends, and made the challenge card's promise ("they get
+ * today's exact set") simply false. Wordle and every game like it accept the
+ * spoiler risk, because the conversation IS the distribution.
+ *
+ * `pid` is still accepted so callers need not change, but it is deliberately
+ * ignored here. Practice mode keeps using it for per-player variety.
  */
-export function lineupFor(pools, pid, day) {
+export function lineupFor(pools, _pid, day) {
   const BLOCK = blockLength(pools);
   const offset = day - LAUNCH_DAY;
   const b = Math.floor(offset / BLOCK);
   const idx = ((offset % BLOCK) + BLOCK) % BLOCK;
-  return dealBlock(pools, pid, b)[idx];
+  return dealBlock(pools, SALT, b)[idx];
 }
 
 /** How many days each game can run before it starts repeating. */

@@ -346,3 +346,55 @@
 .funfact .fsrc::before { content: 'Source: '; }
 /* The detail line separates your guess from the truth by colour, not just commas. */
 .rdetail b, .rdetail .t { color: var(--truth); font-weight: 700; }
+
+/* ── Mobile: the sticky action bar covered the answer controls ─────
+   At 375px the What Share? slider and its live readout sat UNDER the
+   Quit/Clear/Submit bar, so you could not see the number you were choosing
+   without scrolling. Same for the Size It Up readout and the hint lines.
+   The bar reserves its own height via a custom property, and the question card
+   pads by exactly that much plus the safe area. */
+:root { --actionbar-h: 76px; }
+
+.qcard { padding-bottom: calc(var(--actionbar-h) + env(safe-area-inset-bottom) + 12px); }
+@media (min-width: 720px) {
+  /* The bar is static on desktop, so the reservation is not needed. */
+  .qcard { padding-bottom: var(--s5); }
+}
+
+/* Keep the slider and its readout on screen at 375x667 without scrolling. */
+@media (max-width: 420px) {
+  .dotgrid { max-width: min(100%, 320px); margin-left: auto; margin-right: auto; gap: 3px; }
+  .m-share .readout, .m-size .readout { margin: 8px 0 4px; }
+  .m-share .dothint, .hintline { margin: 4px 0; }
+  .sizestage { min-height: 150px; max-height: 180px; }
+  .qtext { margin-bottom: 6px; }
+  .qhow { margin-bottom: 8px; }
+}
+
+/* A thumb needs a real target. 30px was below the 44px floor. */
+.slider { height: 44px; }
+.slider::-webkit-slider-thumb { width: 28px; height: 28px; }
+.slider::-moz-range-thumb { width: 28px; height: 28px; }
+
+/* ── One-row action bar ──────────────────────────────────────────────
+   Was Quit + Clear + Submit as three boxes = 122px tall, which on a 667px
+   screen pushed the slider and its readout behind the bar. Quit is now an ✕ in
+   the question header and Clear is a compact "Reset". */
+.quitx { background: none; border: 0; cursor: pointer; font-size: 15px; line-height: 1;
+  color: var(--ink-faint); padding: 6px 8px; margin-left: -6px; border-radius: 8px; flex: none;
+  min-width: 44px; min-height: 44px; }      /* 44px touch target even though the glyph is small */
+.quitx:hover { color: var(--ink); background: var(--paper-sunk); }
+.btn-reset { flex: none; padding: 10px 14px; font-size: 14px; background: none;
+  border: 2px solid var(--rule); color: var(--ink-soft); }
+.actions.stickyactions { gap: 8px; align-items: stretch; }
+.actions.stickyactions .cta { min-height: 48px; white-space: nowrap; }
+@media (max-width: 420px) {
+  /* The grid drives the card's height more than anything else. */
+  .dotgrid { max-width: 192px; gap: 2px; }
+  /* The slider's 44px hit box must clear the bar entirely, not just look
+     clear — a tap on its lower edge would otherwise land on the bar. */
+  .m-share input.slider, .m-size input.slider { margin-bottom: 2px; }
+  .qtext { font-size: clamp(16px, 4.6vw, 20px); line-height: 1.22; margin-bottom: 4px; }
+  .qhow { font-size: 13px; margin-bottom: 6px; }
+  .stage { margin: 4px 0; }
+}

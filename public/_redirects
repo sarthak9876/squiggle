@@ -1,0 +1,6 @@
+# SPA fallback. The router is hand-rolled over the History API, so /play,
+# /results, /archive, /about and /game/:id are not real files. Without this a
+# static host 404s on a direct load, a refresh mid-game, or any shared link —
+# which is every link the share card produces.
+# 200 (not 301) so the URL stays intact for the router to read.
+/*    /index.html   200

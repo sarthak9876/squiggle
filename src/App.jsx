@@ -6,6 +6,7 @@ import ErrorBoundary from './components/ErrorBoundary.jsx';
 import Archive from './components/Archive.jsx';
 import About, { CREDITS } from './components/About.jsx';
 import SquiggleMark from './components/SquiggleMark.jsx';
+import RepoLink from './components/RepoLink.jsx';
 import { BRAND } from './brand.js';
 import NotFound from './components/NotFound.jsx';
 import { Privacy, Terms } from './components/Legal.jsx';
@@ -13,6 +14,7 @@ import { checkRunway } from './lib/runway.js';
 import { load, patch, playerId } from './lib/storage.js';
 import { isMuted, setMuted } from './lib/juice.js';
 import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, puzzleNumber } from './lib/schedule.js';
+import { slotKey } from './lib/slotkey.js';
 import { POOLS } from './modes/index.js';
 import { GAMES } from './games.jsx';
 import { shuffled } from './lib/random.js';
@@ -310,12 +312,24 @@ export default function App() {
         </button>
         <span className="spacer" />
         {stats.streak > 0 && <span className="streakchip" title="Day streak">{stats.streak}🔥</span>}
+        <RepoLink />
         {/* Reachable BEFORE the first sound plays. It used to live inside the
             reveal card, i.e. only after you had already been surprised by it. */}
         <button className="iconbtn" aria-pressed={!muted}
           onClick={() => { setMuted(!muted); setMutedState(!muted); }}
           aria-label={muted ? 'Sound off. Turn sound on.' : 'Sound on. Turn sound off.'}
-          title={muted ? 'Sound off' : 'Sound on'}>{muted ? '🔇' : '🔊'}</button>
+          title={muted ? 'Sound off' : 'Sound on'}>
+          {/* SVG, not an emoji — the platform glyphs are a muddy blob at 15px
+              and sat badly next to the crisp GitHub mark. */}
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+               stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+               strokeLinejoin="round" aria-hidden="true">
+            <path d="M11 5 6 9H2v6h4l5 4z" />
+            {muted
+              ? <><path d="m23 9-6 6" /><path d="m17 9 6 6" /></>
+              : <><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M19 5a9 9 0 0 1 0 14" /></>}
+          </svg>
+        </button>
         {/* Was a three-way cycle where "system" and "dark" looked identical on a
             dark machine, with no label saying which you were on. Now it names the
             NEXT state, which is the only thing a toggle needs to tell you. */}
@@ -343,10 +357,14 @@ export default function App() {
         )}
         {view === 'notfound' && <NotFound path={route.path} onHome={goHome} onPlayGame={startPractice} />}
         {view === 'play' && lineup && session && (
-          /* key={idx} remounts per question so each mode's state initialiser runs
-             fresh. Without it, one frame of the new mode renders with the previous
-             mode's value shape. */
-          <GameScreen key={idx} lineup={lineup} idx={idx} answers={answers} challenge={challenge} onAnswer={onAnswer} onNext={onNext}
+          /* Remount whenever the QUESTION changes, not just the index. GameScreen
+             seeds its answer state once, with `useState(() => mode.init(item))`,
+             so a key that misses a swap leaves the new mode reading the previous
+             mode's value shape — size/share expect {v}, order/draw expect arrays.
+             key={idx} alone missed the mode swap at a fixed index (/game/a →
+             /game/b both sit at idx 0), which threw on 27 of 56 mode pairs.
+             Mode + item id + index covers all three ways a slot can change. */
+          <GameScreen key={slotKey(lineup[idx], idx)} lineup={lineup} idx={idx} answers={answers} challenge={challenge} onAnswer={onAnswer} onNext={onNext}
             onQuit={goHome}
             label={session.kind === 'daily' ? 'Today'
               : session.kind === 'archive' ? 'Archive'

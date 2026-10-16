@@ -74,3 +74,17 @@
 .legal code { background: var(--paper-sunk); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
 .legalupd { font-weight: 600; color: var(--ink) !important; }
 .credit { font-size: var(--t-micro); color: var(--ink-faint); margin-top: 14px; }
+
+/* ── GitHub repo link ────────────────────────────────────────────── */
+.repolink { display: inline-flex; align-items: center; gap: 6px; flex: none;
+  min-height: 44px; padding: 0 10px; border-radius: var(--r-sm);
+  color: var(--ink-soft); text-decoration: none;
+  border: 2px solid transparent; transition: color .15s, border-color .15s; }
+.repolink:hover { color: var(--ink); border-color: var(--rule); }
+.repolink:focus-visible { outline: 3px solid var(--accent-ink); outline-offset: 2px; }
+.repostars { display: inline-flex; align-items: center; gap: 2px;
+  font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.repostars .star { color: var(--warn); font-size: 12px; }
+/* On a narrow screen the icon alone carries it — the count is the first thing
+   worth dropping before the header starts wrapping. */
+@media (max-width: 420px) { .repostars { display: none; } }

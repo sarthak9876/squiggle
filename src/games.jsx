@@ -74,7 +74,7 @@ export const GAMES = {
             how:'Tap the picture that answers the question. Nothing to read.',
             colour:'var(--g-shadow)', order:1 },
   size:   { key:'size',   name:'Size It Up',    rule:'Scale one thing against another.',
-            how:'Drag the slider until the right-hand thing looks the right size next to the left.',
+            how:'Drag the slider until the two match. Weight and area questions are drawn to scale, not to length.',
             colour:'var(--g-size)', order:2 },
   groups: { key:'groups', name:'Make The Sets', rule:'Nine things, three hidden sets.',
             how:'Tap three that belong together. They lock. Tap a locked set to break it.',

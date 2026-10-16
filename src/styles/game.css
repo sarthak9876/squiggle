@@ -398,3 +398,48 @@
   .qhow { font-size: 13px; margin-bottom: 6px; }
   .stage { margin: 4px 0; }
 }
+/* Put In Order reveal: cards fly into the TRUE order, each tagged with where you
+   had put it. Before this the answer was never actually shown — you had to
+   re-sort five cards mentally to work out what the right sequence was. */
+.ocard .omoved { font-size: 11px; color: var(--ink-faint); margin-left: auto; white-space: nowrap; }
+.ocard.bad .omoved { color: var(--accent); }
+
+/* ── #9: hover styles stuck after a tap on touch devices ──────────────
+   :hover latches on touch, so a tapped game card stayed highlighted, and the
+   card icon animations — hover-only — never played for a phone user at all.
+   Gate every hover rule on a device that actually has a pointer. */
+@media (hover: none), (pointer: coarse) {
+  .opt:hover, .shadowopt:hover, .gitem:hover, .ocard:hover,
+  .gamecard:hover, .btn:hover, .mutebtn:hover, .quitx:hover {
+    background: inherit; border-color: inherit; transform: none; box-shadow: none;
+  }
+  /* Touch has no hover, so the affordance is the active state instead. */
+  .opt:active, .shadowopt:active, .gitem:active, .ocard:active { transform: scale(.97); }
+}
+
+/* ── #10: the challenge row collapsed to a tiny pill at 375px ───────── */
+@media (max-width: 420px) {
+  .challengerow { flex-direction: column; align-items: stretch; }
+  .challengerow .btn { width: 100%; padding: 13px 16px; }
+  .namein { width: 100%; }
+}
+
+/* ── #11: the question header wrapped into a 3-line circle ──────────── */
+.qhead { flex-wrap: wrap; row-gap: 6px; }
+.qcount, .gtag, .runscore, .combo { white-space: nowrap; }
+@media (max-width: 420px) {
+  /* Two deliberate rows: identity on top, score and streak underneath. */
+  .qhead { display: grid; grid-template-columns: auto 1fr auto; align-items: center; }
+  .qhead .quitx { grid-row: 1; grid-column: 1; }
+  .qhead .qcount { grid-row: 1; grid-column: 2; font-size: 11px; }
+  .qhead .gtag { grid-row: 1; grid-column: 3; font-size: 11px; }
+  .qhead .runscore { grid-row: 2; grid-column: 2; justify-self: start; font-size: 12px; }
+  .qhead .combo { grid-row: 2; grid-column: 3; font-size: 11px; }
+  .qhead .spacer { display: none; }
+}
+
+/* ── #13: the results tile grid wrapped 11 + 5 instead of 8 + 8 ─────── */
+.sqrow { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; max-width: 320px;
+  margin-left: auto; margin-right: auto; }
+.sqrow .sq { width: auto; aspect-ratio: 1; }
+.readout .dimnote { font-size: var(--t-micro); color: var(--ink-faint); font-weight: 500; }

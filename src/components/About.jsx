@@ -41,7 +41,10 @@ export default function About({ onHome }) {
           score, but the kind of wrong you personally are.
         </p>
         <p className="abouttext">
-          Built by <a href={CREDITS.authorUrl} target="_blank" rel="noopener">{CREDITS.author}</a>,
+          Built by {CREDITS.authorUrl
+              ? <a href={CREDITS.authorUrl} target="_blank" rel="noopener noreferrer">{CREDITS.author}</a>
+              /* An <a> with no href looked clickable and did nothing. */
+              : <b>{CREDITS.author}</b>},
           in the daily-puzzle tradition that Wordle and <a href="https://magnitudle.com"
           target="_blank" rel="noopener">Magnitudle</a> made popular.
         </p>

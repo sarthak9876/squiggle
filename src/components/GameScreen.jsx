@@ -156,7 +156,12 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
   const qid = slot.item.id || promptOf(slot.item).slice(0, 24);
 
   if (atHalfway) {
-    const best = answers.reduce((b, a) => (a.score > b.score ? a : b), answers[0]);
+    /* Name every game that tied. Saying "100 on Shapes Only" when three games
+       scored 100 reads as a bug to the person who just played them. */
+    const topScore = Math.max(...answers.map(a => a.score));
+    const tied = [...new Set(answers.filter(a => a.score === topScore).map(a => GAMES[a.mode].name))];
+    const bestNames = tied.length === 1 ? tied[0]
+      : tied.slice(0, -1).join(', ') + ' and ' + tied[tied.length - 1];
     const avg = Math.round(runTotal / answers.length);
     return (
       <motion.div className="play halfway" initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }}>
@@ -166,7 +171,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
           <p className="bignum">{runTotal}<span className="sub"> / {half * 100}</span></p>
           <p className="halfline">
             Averaging <b>{avg}</b> a question. Your best so far was{' '}
-            <b>{best.score}</b> on <b>{GAMES[best.mode].name}</b>.
+            <b>{topScore}</b> on <b>{bestNames}</b>.
           </p>
           <p className="halfline sub">{half} questions to go.</p>
           <button className="btn btn-primary wide" onClick={() => setHalfSeen(true)}>
@@ -205,7 +210,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
           {combo >= 3 && (
             <motion.span className="combo" key={combo}
               initial={{ scale: .6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-              🔥 {combo} in a row
+              ⚡ {combo} correct in a row
             </motion.span>
           )}
           <span className="spacer" />
@@ -312,7 +317,8 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
                 Something wrong with this question?
               </a>
             </p>
-            <Reveal mode={mode} modeKey={slot.mode} item={slot.item} value={value} score={score} qid={qid} />
+            <Reveal mode={mode} modeKey={slot.mode} item={slot.item} value={value}
+                    score={score} qid={qid} history={[...answers, { mode: slot.mode, score }]} />
             {/* Sticky: the reveal card is long (score, detail, note, source, crowd
                 histogram) and on a phone Next sat below the fold, so the run felt
                 like it had stalled. It now rides the bottom of the viewport. */}

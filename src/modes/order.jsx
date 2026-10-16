@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { motion } from 'framer-motion';
 import { shuffled } from '../lib/random.js';
 import { hash } from '../lib/random.js';
 
@@ -68,6 +69,12 @@ export const order = {
   extremity: () => 0.6,
   Component: ({ item, value, setValue, revealed }) => {
     const truthOrder = item.items.map((_, i) => i).sort((a, b) => item.items[b][1] - item.items[a][1]);
+    /* On reveal the cards used to stay in YOUR order with values bolted on, so to
+       learn the answer you had to re-sort five cards in your head. Now they
+       animate into the CORRECT order and each keeps a tag saying where you had
+       put it — you see both the truth and your mistake at once. framer's `layout`
+       does the FLIP; the keys are stable so it tracks each card across the move. */
+    const shown = revealed ? truthOrder : value.seq;
     const listRef = useRef(null);
     // from  = where the dragged card started this gesture
     // moved = has the pointer travelled far enough to be a drag rather than a tap?
@@ -132,11 +139,13 @@ export const order = {
     return (
       <div className="m-order">
         <div className="olist" ref={listRef}>
-          {value.seq.map((oi, pos) => {
+          {shown.map((oi, pos) => {
             const [label, val, emo] = item.items[oi];
-            const right = truthOrder[pos] === oi;
+            const yourPos = value.seq.indexOf(oi);
+            const right = yourPos === pos;
             return (
-              <button key={label} disabled={revealed}
+              <motion.button key={label} layout disabled={revealed}
+                transition={{ type: 'spring', stiffness: 420, damping: 34, delay: revealed ? pos * 0.06 : 0 }}
                 className={'ocard' + (value.sel === pos ? ' sel' : '')
                   + (drag.current.from === pos && drag.current.moved ? ' dragging' : '')
                   + (revealed ? (right ? ' ok' : ' bad') : '')}
@@ -151,7 +160,12 @@ export const order = {
                 <span className="orank">{pos + 1}</span>
                 <span className="olabel">{label}</span>
                 {revealed && <span className="oval">{fmt(val, item.unit)} {item.unit}</span>}
-              </button>
+                {revealed && !right && (
+                  <span className="omoved" title={`You placed it ${yourPos + 1}`}>
+                    {yourPos > pos ? '↑' : '↓'} you had it {yourPos + 1}
+                  </span>
+                )}
+              </motion.button>
             );
           })}
         </div>

@@ -111,7 +111,20 @@ export const draw = {
        pre-render value and be dropped — which is exactly what a fast flick, a
        coalesced 120Hz event stream, and a synthetic test all produce. */
     const drawing = useRef(false);
-    const kb = useRef({ i: 0, y: 0.5, last: null });   // keyboard cursor
+    const [kbFocus, setKbFocus] = useState(false);
+    /* Start the keyboard cursor ON the revealed anchor point, not at mid-height.
+       Arrow keys used to begin the line in mid-air (1.5k when the blue start dot
+       said 2.8k), so a keyboard player's first stroke was wrong before they moved. */
+    const startY = (() => {
+      const p0 = item.points?.[0];
+      if (!p0) return 0.5;
+      const v = p0[1];
+      const f = item.log
+        ? (Math.log10(v) - Math.log10(item.yMin)) / (Math.log10(item.yMax) - Math.log10(item.yMin))
+        : (v - item.yMin) / (item.yMax - item.yMin);
+      return clamp(1 - f, 0, 1);
+    })();
+    const kb = useRef({ i: 0, y: startY, last: null });   // keyboard cursor
     const [reveal, setReveal] = useState(0);
 
     useEffect(() => {
@@ -302,6 +315,7 @@ export const draw = {
     return (
       <>
         <canvas ref={ref} className="canv draw" tabIndex={revealed ? -1 : 0} onKeyDown={onKey}
+          onFocus={() => setKbFocus(true)} onBlur={() => setKbFocus(false)}
           role={revealed ? 'img' : 'application'} aria-label={item.question + '. Arrow keys draw.'}
           onPointerDown={e => {
             if (revealed) return;
@@ -317,6 +331,10 @@ export const draw = {
           onPointerCancel={() => { drawing.current = false; last.current = null; }} />
         {/* Submit used to just sit there greyed out with no explanation. Say what
             is missing and where to go. */}
+        {/* Keyboard players had no idea the canvas was drivable. */}
+        {!revealed && kbFocus && (
+          <p className="hintline">← → move along the years · ↑ ↓ set the value · Shift for fine steps</p>
+        )}
         {!revealed && (
           drawn === 0
             ? <p className="hintline">Draw a line across the chart — left to right.</p>

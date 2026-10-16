@@ -8,7 +8,7 @@ import { modeStats } from '../lib/stats.js';
  *  Your guess, the truth, then where everyone else landed. The third part is the
  *  one that makes being wrong bearable — and it is what turns a score into a story.
  *  Falls back to a simple "x% got this" bar for modes with no number line. */
-export default function Reveal({ mode, item, value, score, qid, modeKey }) {
+export default function Reveal({ mode, item, value, score, qid, modeKey, history = [] }) {
   const [crowd, setCrowd] = useState(null);
   const num = mode.numeric?.(item, value);
 
@@ -23,15 +23,20 @@ export default function Reveal({ mode, item, value, score, qid, modeKey }) {
   /* No backend, so no crowd. Show the player against THEMSELVES instead — true,
      local, and the comparison a returning player is actually making. */
   if (!CROWD_ENABLED) {
-    const st = modeStats(modeKey);
+    /* `prior` excludes the answer just given, so "best" is what you had to beat.
+       It also folds in today's earlier answers, which storage does not have yet. */
+    const prior = modeStats(modeKey, history, true);
+    const st = modeStats(modeKey, history, false);
     if (!st || st.n < 2) return null;
+    // Strictly greater. Tying 100 with 100 is not a new best.
+    const isRecord = prior != null && score > prior.best;
     return (
       <motion.div className="selfstat"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .3 }}>
         <span>Your best on this game <b>{st.best}</b></span>
         <span className="dot" aria-hidden="true">·</span>
         <span>Your average <b>{st.mean}</b></span>
-        {score >= st.best && st.n > 2 && <span className="pb">New best ✨</span>}
+        {isRecord && <span className="pb">New best ✨</span>}
       </motion.div>
     );
   }

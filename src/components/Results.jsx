@@ -37,7 +37,9 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
       if (!blob) return say('Could not save');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `${BRAND.name.toLowerCase()}-${day}.png`;
+      // Was the internal day index (289). Players see #1, #2, ... — the file should match.
+      const n = puzzleLabel(day).replace('#', '').toLowerCase();
+      a.href = url; a.download = `${BRAND.name.toLowerCase()}-${n}.png`;
       document.body.appendChild(a); a.click(); a.remove();
       // Revoking immediately races the download in Safari; one tick is enough.
       setTimeout(() => URL.revokeObjectURL(url), 1000);

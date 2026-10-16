@@ -235,6 +235,28 @@ export default function App() {
     if (can) can.setAttribute('href', BRAND.url.replace(/\/$/, '') + (route.name === 'home' ? '/' : location.pathname));
   }, [route.name]);
 
+  /* Two tabs, one localStorage. Finishing the daily in tab A left tab B showing
+     "Continue · 2 of 16" forever, and clicking it resumed a run that no longer
+     existed. The `storage` event only fires in OTHER tabs, which is exactly the
+     case we need. */
+  useEffect(() => {
+    const onStorage = e => {
+      if (e.key && e.key !== BRAND.storageKey) return;
+      setTick(t => t + 1);
+      const fresh = load();
+      const doneElsewhere = !!(fresh.answers && fresh.answers[day]);
+      // If this tab is mid-run on a day that was completed elsewhere, stop
+      // pretending — send it to the result rather than a stale question.
+      if (doneElsewhere && route.name === 'play' && session?.kind === 'daily' && !session.replay) {
+        setAnswers(fresh.answers[day]);
+        setSession({ kind: 'daily', replay: true });
+        go({ name: 'results' }, { replace: true });
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [day, route.name, session]);
+
   const goHome = useCallback(() => { go({ name: 'home' }); setTick(t => t + 1); }, []);
 
   /* /results can be entered cold — a refresh, a shared link, the Back button.

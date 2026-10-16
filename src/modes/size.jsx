@@ -23,6 +23,24 @@ const DIM_SCALE = {
 };
 const visualScale = (item, r) => (DIM_SCALE[item.dimension] || DIM_SCALE.length)(r);
 const DIM_WORD = { area: 'the area of', volume: 'the volume of', mass: 'the weight of', abstract: 'the cost of' };
+
+/* The unit says what is being measured, so the label should too. "Person — 1.7 m
+   long" was wrong for an upright person, and "1.00x the size of" is meaningless
+   on a weight question where the picture is scaled by volume. */
+const unitWord = unit => {
+  const u = String(unit || '');
+  if (/tall|height|at the shoulder/i.test(u)) return 'tall';
+  if (/long|length|across|wide/i.test(u)) return 'long';
+  return '';
+};
+const refLabel = item => {
+  const w = unitWord(item.unit);
+  return w ? `${item.ref.size} ${String(item.unit).replace(/\s*(tall|long|at the shoulder).*/i, '').trim()} ${w}`
+           : `${item.ref.size} ${item.unit}`;
+};
+/* Mass scales as the cube of length, so the drawing is a VOLUME. Say so, or the
+   picture and the number look like they disagree. */
+const DIM_NOTE = { mass: 'drawn by volume', area: 'drawn by area' };
 const toRatio = v => Math.pow(10, Math.log10(MIN) + (v / 1000) * (Math.log10(MAX) - Math.log10(MIN)));
 const toSlider = r => Math.round(1000 * (Math.log10(r) - Math.log10(MIN)) / (Math.log10(MAX) - Math.log10(MIN)));
 /* Fit BOTH into the stage: the larger fills it, the smaller follows the true
@@ -93,11 +111,12 @@ export const size = {
           <b>{fmtX(r)}×</b>
           <span className="sub"> {DIM_WORD[item.dimension] || 'the size of'} {phrase(item.ref.label)}</span>
           {revealed && <> · <b className="t">actually {fmtX(item.answer)}×</b></>}
+          {DIM_NOTE[item.dimension] && <span className="dimnote"> ({DIM_NOTE[item.dimension]})</span>}
         </p>
         <div className="sizestage">
           <div className="sizecell">
             <span className="emo" style={{ fontSize: Math.round(shown.ref) }}>{SIL[item.ref.key]}</span>
-            <span className="sizelab">{item.ref.label}<br /><b>{item.ref.size} {item.unit}</b></span>
+            <span className="sizelab">{item.ref.label}<br /><b>{refLabel(item)}</b></span>
           </div>
           <div className={'sizecell target' + (revealed ? ' revealed' : '')}>
             {/* An abstract quantity has no size, so it gets a proportional bar

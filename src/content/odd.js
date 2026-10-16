@@ -6,7 +6,22 @@
    first twelve questions here shipped with two or three true reasons — "the Pyramids
    are the only one not on the modern wonders list" was the key, but "the only one in
    Africa" was equally true, so the player was punished for being right.
-   `trueCount` records the hand-check. validate.js refuses anything but 1. */
+   `trueCount` records the hand-check. validate.js refuses anything but 1.
+
+   But trueCount is an ATTESTATION, not a check — it is a number the author types,
+   and nothing can verify it, because "is this sentence also true of the outlier?"
+   is semantic. 2026-10-17: a play-through found seven more questions carrying
+   trueCount:1 with two true reasons (d16, d17, d27, d30, in-d2, d33, d35 — see
+   git log). The only reliable test is reading all four reasons aloud against the
+   odd item and asking "could a smart player defend this one?".
+
+   Judged acceptable on that pass, but worth a second opinion if they ever read as
+   unfair: d14 Australia "the only one with a desert" (Greenland is a polar desert);
+   d18 Mediterranean "the only one in the northern hemisphere" (the Atlantic is
+   partly northern, so literally false); d19 Visa "the only one that is regulated";
+   d25 peanut "the only one that is not a nut botanically" (almonds and cashews are
+   not true nuts either, so it is false — but it reads as true); in-d4 yen "the only
+   one that is not a decimal currency"; d31 drum "the only one you hit". */
 export const ODD = [
   { id:'d1', prompt:'Which does not belong?', trueCount:1,
     items:['Tomato','Cucumber','Pumpkin','Lettuce'], odd:3,

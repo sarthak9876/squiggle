@@ -76,15 +76,21 @@
 .credit { font-size: var(--t-micro); color: var(--ink-faint); margin-top: 14px; }
 
 /* ── GitHub repo link ────────────────────────────────────────────── */
+/* Same chip as .iconbtn next to it: a bare icon between two bordered buttons
+   read as unstyled rather than as a third control. Border is 1px/--rule to
+   match exactly; only the hover colour differs from a button, because this is
+   a link off-site. */
 .repolink { display: inline-flex; align-items: center; gap: 6px; flex: none;
   min-height: 44px; padding: 0 10px; border-radius: var(--r-sm);
   color: var(--ink-soft); text-decoration: none;
-  border: 2px solid transparent; transition: color .15s, border-color .15s; }
-.repolink:hover { color: var(--ink); border-color: var(--rule); }
+  border: 1px solid var(--rule); transition: color .15s, border-color .15s; }
+.repolink:hover { color: var(--ink); border-color: var(--rule-strong); }
 .repolink:focus-visible { outline: 3px solid var(--accent-ink); outline-offset: 2px; }
 .repostars { display: inline-flex; align-items: center; gap: 2px;
   font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .repostars .star { color: var(--warn); font-size: 12px; }
-/* On a narrow screen the icon alone carries it — the count is the first thing
-   worth dropping before the header starts wrapping. */
-@media (max-width: 420px) { .repostars { display: none; } }
+/* The count is the point of the link, so it survives down to the narrowest
+   phones. Measured at 390px: logo + chip + two icon buttons leave ~90px spare,
+   so 420 was dropping it while it still fit. Below 360 the header does start to
+   crowd, and the icon alone carries it. */
+@media (max-width: 359px) { .repostars { display: none; } }

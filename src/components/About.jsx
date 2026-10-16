@@ -67,6 +67,12 @@ export default function About({ onHome }) {
           shape, not to be quoted in an exam.
           Found something wrong? There is a report link under every answer, or email <a href={'mailto:' + REPORT_TO}>{REPORT_TO}</a> — it gets fixed or deleted.
         </p>
+        <p className="credit">
+          Emoji artwork is <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener noreferrer">Twemoji</a>,
+          © Twitter, licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC-BY 4.0</a>.
+          Served from this site, so the pictures look the same on every device and
+          nothing about you reaches a third party.
+        </p>
       </div>
 
       <div className="actions">

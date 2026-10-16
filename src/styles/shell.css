@@ -73,3 +73,4 @@
 .legal p { margin: 0 0 8px; color: var(--ink-soft); line-height: 1.65; }
 .legal code { background: var(--paper-sunk); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
 .legalupd { font-weight: 600; color: var(--ink) !important; }
+.credit { font-size: var(--t-micro); color: var(--ink-faint); margin-top: 14px; }

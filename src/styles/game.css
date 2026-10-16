@@ -470,3 +470,9 @@
 .breakdown[open] summary::after { transform: rotate(180deg); }
 .breakdown .statbars { margin-top: 10px; }
 .sqrow .sq { transform-style: preserve-3d; }
+/* SVG emoji: same box on every platform, unlike a system glyph whose fill
+   varies by font. */
+.emo-img { display: block; user-select: none; }
+.shadowopt .emo-img { margin: 0 auto; }
+.sizecell .emo-img { display: block; }
+.sizecell .ghost { position: absolute; bottom: 42px; opacity: .28; filter: grayscale(1); }

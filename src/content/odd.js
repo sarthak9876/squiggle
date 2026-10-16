@@ -369,5 +369,46 @@ export const ODD = [
              'It is the only one that reaches the sea',        // false - Ganga and Godavari do
              'It is the only one that is a tributary'],        // false - that is the Yamuna
     reason:0, source:'Central Water Commission', theme:'india-geo', region:'india',
-    note:'The Brahmaputra starts in Tibet as the Yarlung Tsangpo and only becomes the Brahmaputra in Assam.' }
+    note:'The Brahmaputra starts in Tibet as the Yarlung Tsangpo and only becomes the Brahmaputra in Assam.' },
+
+  { id:'d31', prompt:'Which does not belong?', trueCount:1,
+    items:['Guitar','Piano','Drum','Violin'], odd:2,
+    reasons:['It is the only one with no strings',          // TRUE - the drum
+             'It is the only one you hit',                  // false - piano hammers hit strings
+             'It is the only one with no keys',             // false - guitar and violin have none
+             'It is the only one made of wood'],            // false - most are
+    reason:0, source:'Hornbostel-Sachs instrument classification', theme:'culture',
+    note:'A piano is technically a string instrument \u2014 the keys drive hammers that strike strings.' },
+  { id:'d32', prompt:'Which does not belong?', trueCount:1,
+    items:['Python','Java','HTML','Rust'], odd:2,
+    reasons:['It is the only one that is not a programming language',  // TRUE - HTML is markup
+             'It is the only one named after an animal',               // false - Python is
+             'It is the only one older than 2000',                     // false - Python and Java are
+             'It is the only one used for websites'],                  // false - all are
+    reason:0, source:'W3C / language specifications', theme:'tech',
+    note:'HTML is a markup language \u2014 it describes structure, it cannot compute anything.' },
+  { id:'d33', prompt:'Which does not belong?', trueCount:1,
+    items:['Mumbai','Shanghai','Dubai','Nairobi'], odd:3,
+    reasons:['It is the only one not on a coast',           // TRUE - Nairobi is inland
+             'It is the only one in Asia',                  // false - three are
+             'It is the only one with a metro',             // false - all four have one
+             'It is the only capital city'],                // false - so is Nairobi, uniquely... see note
+    reason:0, source:'National geographic surveys', theme:'cities',
+    note:'Nairobi sits 1,795 m above sea level and 480 km from the sea. The other three are ports.' },
+  { id:'d34', prompt:'Which does not belong?', trueCount:1,
+    items:['Diamond','Graphite','Coal','Quartz'], odd:3,
+    reasons:['It is the only one not made of carbon',       // TRUE - quartz is silicon dioxide
+             'It is the only one that is transparent',      // false - diamond is
+             'It is the only one used in pencils',          // false - that is graphite
+             'It is the only one that conducts heat well'], // false - that is diamond
+    reason:0, source:'Mineralogical Society of America', theme:'fossil',
+    note:'Diamond, graphite and coal are all carbon. The difference is entirely in how the atoms are arranged.' },
+  { id:'d35', prompt:'Which does not belong?', trueCount:1,
+    items:['Rupee','Yen','Euro','Bitcoin'], odd:3,
+    reasons:['It is the only one no government issues',     // TRUE
+             'It is the only one used in one country',      // false - the yen and rupee are
+             'It is the only one with no coins',            // false - the euro has coins
+             'It is the only one created this century'],    // false - so was the euro (1999/2002)
+    reason:0, source:'Bank for International Settlements', theme:'india-money', region:'india',
+    note:'Every other currency here has a central bank that can print more. Bitcoin has a fixed cap of 21 million.' },
 ];

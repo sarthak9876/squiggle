@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { logScore } from './contract.js';
 import { SIL } from '../content/emoji.js';
+import Emo from '../components/Emo.jsx';
 
 /* SIZE IT UP — scale one thing against another.
    The slider is LOGARITHMIC because a question can legitimately span 0.19x to 109x,
@@ -116,20 +117,20 @@ export const size = {
         </p>
         <div className="sizestage">
           <div className="sizecell">
-            <span className="emo" style={{ fontSize: Math.round(shown.ref) }}>{SIL[item.ref.key]}</span>
+            <Emo name={item.ref.key} size={Math.round(shown.ref)} className="emo" />
             <span className="sizelab">{item.ref.label}<br /><b>{refLabel(item)}</b></span>
           </div>
           <div className={'sizecell target' + (revealed ? ' revealed' : '')}>
             {/* An abstract quantity has no size, so it gets a proportional bar
                 instead of a picture that would be pretending. */}
-            {ghostFits && <span className="ghost" style={{ fontSize: Math.round(Math.max(FLOOR, ghost)) }}>{SIL[item.target.key]}</span>}
+            {ghostFits && <Emo name={item.target.key} size={Math.round(Math.max(FLOOR, ghost))} className="ghost" />}
             {/* Springs from the size you guessed to the real one. A snap gives
                 you the answer; a spring shows you how far off you were. */}
-            <motion.span className="emo"
-              initial={false}
-              animate={{ fontSize: Math.round(shown.tgt) }}
-              transition={{ type: 'spring', stiffness: 170, damping: 22 }}>
-              {SIL[item.target.key]}
+            <motion.span className="emo" initial={false}
+              animate={{ width: Math.round(shown.tgt), height: Math.round(shown.tgt) }}
+              transition={{ type: 'spring', stiffness: 170, damping: 22 }}
+              style={{ display: 'inline-block' }}>
+              <Emo name={item.target.key} size="100%" />
             </motion.span>
             <span className="sizelab">{item.target.label}<br />
               <b>{revealed ? `${item.answer}×` : '?'}</b></span>

@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "export:csv": "node scripts/export-csv.mjs > questions.csv && echo \"wrote questions.csv\"",
-    "lint:questions": "vite-node scripts/lint-questions.mjs"
+    "lint:questions": "vite-node scripts/lint-questions.mjs",
+    "preview:phone": "vite preview --host",
+    "dev:phone": "vite --host"
   },
   "dependencies": {
     "framer-motion": "^11.11.9",

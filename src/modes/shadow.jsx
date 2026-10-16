@@ -1,4 +1,5 @@
 import { SIL } from '../content/emoji.js';
+import Emo from '../components/Emo.jsx';
 import { shuffled, hash } from '../lib/random.js';
 
 /** SHAPES ONLY — four pictures, no labels. The one mode playable without reading.
@@ -33,7 +34,7 @@ export const shadow = {
              stays unlabelled on screen; the accessible name never was the puzzle. */
           aria-label={key}
           aria-pressed={value === i}>
-          <span className="bigemo">{SIL[key]}</span>
+          <Emo name={key} size={64} alt={revealed ? key : ''} className="bigemo" />
           <span className="cap">{revealed ? key : ''}</span>
         </button>
         );

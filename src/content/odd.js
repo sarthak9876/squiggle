@@ -162,7 +162,7 @@ export const ODD = [
     items:['Tomato','Potato','Aubergine','Chilli'], odd:1,
     reasons:['It is the only one where we eat the underground part',
              'It is the only one in the nightshade family',
-             'It is the only one that is not a fruit',
+             'It is the only one that tastes hot',
              'It is the only one native to Asia'], reason:0,
     source:'Botany',
     theme:'food',
@@ -172,7 +172,7 @@ export const ODD = [
     reasons:['It is the only one that is liquid at room temperature',
              'It is the only one that is a gas',
              'It is the only one used in lighting',
-             'It is the only one named after a planet'], reason:0,
+             'It is the only one lighter than air'], reason:0,
     source:'Chemistry',
     theme:'planets',
     note:'Mercury is the only metal that is liquid at room temperature. The other three are noble gases — and all four have been used in lamps.' },
@@ -264,7 +264,7 @@ export const ODD = [
     items:['Venus','Mercury','Mars','Moon'], odd:3,
     reasons:['It is the only one that is not a planet',
              'It is the only one without an atmosphere',
-             'It is the only one humans have reached',
+             'It is the only one where a day lasts longer than a year',
              'It is the only one smaller than Earth'], reason:0,
     source:'NASA solar system overview',
     theme:'planets',
@@ -290,8 +290,8 @@ export const ODD = [
   { id:'d30', prompt:'Which does not belong?', trueCount:1,
     items:['Himalayas','Andes','Alps','Sahara'], odd:3,
     reasons:['It is the only one that is not a mountain range',
-             'It is the only one in Africa',
-             'It is the only one that is hot',
+             'It is the only one that crosses the equator',
+             'It is the only one people ski on',
              'It is the only one people live in'], reason:0,
     source:'National Geographic atlas',
     theme:'demography',
@@ -309,7 +309,7 @@ export const ODD = [
     items:['Mumbai','Chennai','Kolkata','Jaipur'], odd:3,
     reasons:['It is the only one that is not a port city',
              'It is the only one that is a state capital',
-             'It is the only one founded after 1700',
+             'It is the only one that was once the capital of British India',
              'It is the only one with a metro'], reason:0,
     source:'Census of India', theme:'india-cities', region:'india',
     note:'Jaipur is inland. The other three were all built up as ports — which is why the British made them presidency capitals.' },
@@ -392,7 +392,7 @@ export const ODD = [
     reasons:['It is the only one not on a coast',           // TRUE - Nairobi is inland
              'It is the only one in Asia',                  // false - three are
              'It is the only one with a metro',             // false - all four have one
-             'It is the only capital city'],                // false - so is Nairobi, uniquely... see note
+             'It is the only one with the world’s tallest building'],                // false - so is Nairobi, uniquely... see note
     reason:0, source:'National geographic surveys', theme:'cities',
     note:'Nairobi sits 1,795 m above sea level and 480 km from the sea. The other three are ports.' },
   { id:'d34', prompt:'Which does not belong?', trueCount:1,
@@ -407,8 +407,8 @@ export const ODD = [
     items:['Rupee','Yen','Euro','Bitcoin'], odd:3,
     reasons:['It is the only one no government issues',     // TRUE
              'It is the only one used in one country',      // false - the yen and rupee are
-             'It is the only one with no coins',            // false - the euro has coins
-             'It is the only one created this century'],    // false - so was the euro (1999/2002)
+             'It is the only one that exists as paper notes',            // false - the euro has coins
+             'It is the only one used by over a billion people'],    // false - so was the euro (1999/2002)
     reason:0, source:'Bank for International Settlements', theme:'india-money', region:'india',
     note:'Every other currency here has a central bank that can print more. Bitcoin has a fixed cap of 21 million.' },
 ];

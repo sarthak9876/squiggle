@@ -1,0 +1,2 @@
+/* Not imported. Kept empty on purpose: main.jsx loads src/styles/*.css only,
+   and a second stylesheet at this path silently swallows any rule put in it. */

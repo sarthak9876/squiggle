@@ -1,0 +1,96 @@
+.home { display: flex; flex-direction: column; gap: var(--s5); }
+
+/* ── hero ── */
+.hero { text-align: center; padding: var(--s6) 0 var(--s4); }
+/* Was `.mark`, which collided with the Place The Dot chart marker in game.css
+   (position:absolute; top:0). game.css loads after home.css, so the hero logo
+   inherited absolute positioning and floated up through the header, drawing the
+   red curve straight across the wordmark. Unique name, and a stacking context of
+   its own so it can never paint over the chrome again. */
+.hunchhero { display: block; margin: 0 auto var(--s3); max-width: 100%; height: auto;
+             position: relative; z-index: 0; }
+.herotitle { font-size: var(--t-hero); max-width: 14ch; margin: 0 auto var(--s3); }
+.wrong { color: var(--accent); font-size: 1.22em; display: inline-block; transform: rotate(-3deg); }
+.herolead { color: var(--ink-soft); font-size: var(--t-lead); max-width: 46ch; margin: 0 auto var(--s5); }
+
+.btn { border: 0; border-radius: var(--r-md); cursor: pointer; font-weight: 600;
+       font-family: inherit; transition: transform var(--d-fast) var(--ease-spring),
+       box-shadow var(--d-fast), background var(--d-fast); }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--accent); color: #fff; box-shadow: var(--shadow-pop); }
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-ghost { background: transparent; color: var(--ink); border: 2px solid var(--rule-strong); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+/* 44px minimum target everywhere — thumbs, not cursors. */
+.btn-xl { font-size: 1.12rem; padding: 17px 34px; min-height: 56px; display: inline-flex;
+          align-items: center; gap: 10px; }
+.arrow { transition: transform var(--d-fast) var(--ease-spring); }
+.btn-xl:hover .arrow { transform: translateX(4px); }
+
+.firstday { margin-top: var(--s4); color: var(--ink-soft); font-family: var(--font-hand);
+            font-size: 1.3rem; }
+.herostats { display: flex; justify-content: center; gap: var(--s6); margin-top: var(--s5); }
+.herostats span { font-size: var(--t-micro); color: var(--ink-soft); display: flex; flex-direction: column; }
+.herostats b { font-size: 1.5rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.nextin { margin-top: var(--s4); font-size: var(--t-small); color: var(--ink-faint); }
+.countdown { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--ink-soft); }
+.countdown i { opacity: .4; font-style: normal; }
+
+/* ── cards ── */
+.card { background: var(--paper-2); border: 1px solid var(--rule); border-radius: var(--r-lg);
+        padding: var(--s5); box-shadow: var(--shadow-1); }
+.shead { font-size: 1rem; font-weight: 700; margin-bottom: var(--s3); }
+.sechead { margin-bottom: var(--s3); padding-left: var(--s1); }
+
+.howlist { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 9px;
+           color: var(--ink-soft); font-size: var(--t-small); }
+.howlist b { color: var(--ink); }
+.howlist::marker { color: var(--accent); }
+
+/* ── try one ── */
+.tryq { font-weight: 600; font-size: var(--t-lead); margin-bottom: var(--s4); }
+.trydots { display: grid; grid-template-columns: repeat(25, 1fr); gap: 4px; margin-bottom: var(--s4); }
+.tdot { aspect-ratio: 1; border-radius: 50%; background: var(--rule); transition: background .1s; }
+.tdot.truth { background: var(--truth); opacity: .4; }
+.tdot.mine { background: var(--accent); opacity: 1; }
+.tryslider { width: 100%; accent-color: var(--accent); height: 30px; cursor: pointer; }
+.trybtn { margin-top: var(--s3); padding: 12px 22px; min-height: 44px; width: 100%; }
+.tryres { margin-top: var(--s3); }
+.trynum { font-size: var(--t-lead); }
+.trynum .t { color: var(--truth); }
+.trynote { margin-top: var(--s2); font-size: var(--t-small); color: var(--ink-soft); }
+
+/* ── game grid ── */
+/* Explicit column counts rather than auto-fill, so the grid matches the spec at
+   every breakpoint instead of drifting with the container width. */
+.gamegrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s3); }
+@media (min-width: 600px)  { .gamegrid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .gamegrid { grid-template-columns: repeat(4, 1fr); } }
+.gcard { display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+         padding: var(--s4); border-radius: var(--r-lg); background: var(--paper-2);
+         border: 1px solid var(--rule); cursor: pointer; text-align: left; min-height: 164px;
+         box-shadow: var(--shadow-1);
+         transition: transform var(--d-fast) var(--ease-spring), border-color var(--d-fast),
+                     box-shadow var(--d-fast); }
+.gcard:hover { border-color: var(--gc); box-shadow: var(--shadow-2); }
+/* Lift an INNER wrapper, never the clickable element itself — transforming the
+   button under the pointer moved the hit area and ate the first click. */
+.gcard:hover .giconwrap { transform: translateY(-3px); }
+.giconwrap { transition: transform var(--d-fast) var(--ease-spring); }
+.giconwrap { width: 46px; height: 46px; margin-bottom: var(--s2); }
+.gname { font-weight: 700; font-size: 1rem; }
+.grule { font-size: var(--t-micro); color: var(--ink-soft); line-height: 1.4; flex: 1; }
+.gplay { font-size: var(--t-micro); font-weight: 600; color: var(--gc); margin-top: var(--s2); }
+
+@media (max-width: 420px) {
+  .gamegrid { gap: var(--s2); }
+  .gcard { min-height: 148px; padding: var(--s3); }
+  .herostats { gap: var(--s5); }
+}
+
+/* "best" sat unlabelled between two counts and read as a best streak. */
+.herostats span { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.herostats b i { font-style: normal; font-weight: 600; font-size: .62em; color: var(--ink-faint); }
+.prelaunch { font-size: var(--t-small); color: var(--ink-faint); margin: 8px 0 0; }
+/* The hero hunch decoration crossed straight through the wordmark. */
+.hero .herotitle { position: relative; z-index: 1; }

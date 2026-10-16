@@ -1,0 +1,107 @@
+/* ═══════════════════════ DESIGN SYSTEM ═══════════════════════
+   Sketchbook identity: the game is about being wrong, so the surface should feel
+   like a notebook you scribble guesses in — not a dashboard. Off-white paper in
+   light mode, ink-on-slate in dark.
+
+   Every value below is a token. Nothing in a component may hard-code a colour, a
+   radius or a duration; that is what makes a theme swap one file instead of fifty. */
+
+:root {
+  /* ── paper + ink ───────────────────────────────────────── */
+  --paper:        #faf7f0;   /* warm off-white, not sterile #fff */
+  --paper-2:      #fffdf8;   /* raised cards sit LIGHTER than the page */
+  --paper-sunk:   #f2ece0;
+  --ink:          #1a1a1f;
+  --ink-soft:     #5c5c68;
+  --ink-faint:    #70707f;   /* 4.55:1 on --paper — measured, AA for body text */
+  --rule:         #e2dbcc;   /* pencil-ruled line */
+  --rule-strong:  #cfc6b2;
+
+  /* ── accents ───────────────────────────────────────────── */
+  --accent:       #ff5a5f;   /* the hunch red */
+  --accent-soft:  #ffe8e8;
+  --truth:        #2f6df6;   /* the real answer, always blue */
+  --truth-soft:   #e4edff;
+  --good:         #12a150;
+  --warn:         #e08700;
+
+  /* Per-game accents. A game should be recognisable by colour before you read
+     its name — this is what makes the home grid scannable. */
+  --g-draw:   #ff5a5f;
+  --g-order:  #7b5cff;
+  --g-place:  #0ea5a5;
+  --g-share:  #e0820a;
+  --g-odd:    #d6409f;
+  --g-groups: #2f6df6;
+  --g-shadow: #12a150;
+  --g-size:   #8b5a2b;
+
+  /* ── type ──────────────────────────────────────────────── */
+  --font-ui:   'Space Grotesk', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-hand: 'Caveat', 'Bradley Hand', cursive;
+  /* Fluid scale — clamp() means no breakpoint juggling between 360px and desktop. */
+  --t-hero:   clamp(2rem, 7vw, 3.4rem);
+  --t-title:  clamp(1.35rem, 4.2vw, 1.9rem);
+  --t-lead:   clamp(1rem, 2.6vw, 1.12rem);
+  --t-body:   1rem;
+  --t-small:  0.875rem;
+  --t-micro:  0.75rem;
+
+  /* ── space (4px base) ──────────────────────────────────── */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+
+  /* ── shape ─────────────────────────────────────────────── */
+  --r-sm: 8px; --r-md: 14px; --r-lg: 20px; --r-pill: 999px;
+  --shadow-1: 0 1px 2px rgba(40,30,10,.06), 0 4px 12px rgba(40,30,10,.05);
+  --shadow-2: 0 2px 6px rgba(40,30,10,.08), 0 14px 34px rgba(40,30,10,.09);
+  --shadow-pop: 0 10px 30px rgba(255,90,95,.26);
+
+  /* ── motion ────────────────────────────────────────────── */
+  --d-fast: .14s; --d-med: .26s; --d-slow: .5s;
+  --ease-out:    cubic-bezier(.22,.9,.3,1);
+  --ease-spring: cubic-bezier(.2,1.3,.4,1);
+
+  /* Fluid, not a single hard cap. The page breathes to 1200px on desktop while the
+     PLAY area stays narrower (960px) so a chart is big without a question line
+     running to 140 characters, which is unreadable. */
+  --maxw: 1200px;
+  --maxw-play: 960px;
+  --gutter: 16px;
+  color-scheme: light;
+}
+
+@media (min-width: 768px) { :root { --gutter: 32px; } }
+
+/* Dark: chalkboard, not "light with the lights off". Ink becomes chalk, paper
+   becomes slate, and the accents brighten so contrast stays above WCAG AA. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:#14141a; --paper-2:#1c1c24; --paper-sunk:#101016;
+    --ink:#eceaf2; --ink-soft:#a3a3b2; --ink-faint:#82829a;
+    --rule:#2d2d38; --rule-strong:#3d3d4c;
+    --accent:#ff6b70; --accent-soft:#3a1f22;
+    --truth:#6ea0ff; --truth-soft:#1a2440;
+    --good:#3ecf7a; --warn:#f5a524;
+    --g-draw:#ff6b70; --g-order:#9a80ff; --g-place:#2dd4bf; --g-share:#f5a524;
+    --g-odd:#f06ec0; --g-groups:#6ea0ff; --g-shadow:#3ecf7a; --g-size:#c89b6a;
+    --shadow-1:0 1px 2px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
+    --shadow-2:0 2px 6px rgba(0,0,0,.5), 0 14px 34px rgba(0,0,0,.4);
+    --shadow-pop:0 10px 30px rgba(255,107,112,.22);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper:#14141a; --paper-2:#1c1c24; --paper-sunk:#101016;
+  --ink:#eceaf2; --ink-soft:#a3a3b2; --ink-faint:#82829a;
+  --rule:#2d2d38; --rule-strong:#3d3d4c;
+  --accent:#ff6b70; --accent-soft:#3a1f22;
+  --truth:#6ea0ff; --truth-soft:#1a2440;
+  --good:#3ecf7a; --warn:#f5a524;
+  --g-draw:#ff6b70; --g-order:#9a80ff; --g-place:#2dd4bf; --g-share:#f5a524;
+  --g-odd:#f06ec0; --g-groups:#6ea0ff; --g-shadow:#3ecf7a; --g-size:#c89b6a;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
+  --shadow-2:0 2px 6px rgba(0,0,0,.5), 0 14px 34px rgba(0,0,0,.4);
+  --shadow-pop:0 10px 30px rgba(255,107,112,.22);
+  color-scheme: dark;
+}

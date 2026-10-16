@@ -1,0 +1,394 @@
+/* Game type 1 of 5: DRAW — freehand a curve on blank axes.
+   The original mechanic. See README for the field contract. */
+export const DRAW = [
+  {
+    id: 1,
+    title: "Solar panels",
+    question: "Price of solar panels, per watt of capacity",
+    yLabel: "US$ per watt", xLabel: "Year",
+    xMin: 1977, xMax: 2023, yMin: 0.1, yMax: 100, log: true,
+    source: "Our World in Data / Swanson's Law",
+    theme:'renewables',
+    note: "A ~99.7% fall. Solar got cheap so fast that most forecasts, including the official ones, were wrong every single year for two decades.",
+    points: [[1977,76.7],[1980,24],[1985,10.8],[1990,10.2],[1995,7.5],[2000,5.1],[2005,3.6],[2010,2.0],[2013,0.86],[2016,0.55],[2019,0.38],[2023,0.26]]
+  },
+  {
+    id: 2,
+    title: "US life expectancy",
+    question: "Life expectancy at birth in the United States",
+    yLabel: "Years", xLabel: "Year",
+    xMin: 1900, xMax: 2022, yMin: 35, yMax: 85,
+    source: "CDC / National Center for Health Statistics",
+    theme:'disease',
+    note: "Two scars: the 1918 flu knocked ~12 years off in a single year, and COVID caused the sharpest two-year drop since then.",
+    points: [[1900,47.3],[1910,50.0],[1918,39.1],[1920,54.1],[1930,59.7],[1940,62.9],[1950,68.2],[1960,69.7],[1970,70.8],[1980,73.7],[1990,75.4],[2000,76.8],[2010,78.7],[2019,78.8],[2020,77.0],[2021,76.4],[2022,77.5]]
+  },
+  {
+    id: 3,
+    title: "Recorded music",
+    question: "US recorded music industry revenue, adjusted for inflation",
+    yLabel: "US$ billions", xLabel: "Year",
+    xMin: 1973, xMax: 2023, yMin: 0, yMax: 25,
+    source: "RIAA (2023 dollars)",
+    theme:'culture',
+    note: "The CD boom peaked in 1999, then Napster and piracy cut revenue by two thirds. Streaming has clawed most of it back — almost nobody draws this U.",
+    points: [[1973,6.0],[1980,9.0],[1985,8.0],[1990,13.0],[1995,18.0],[1999,21.5],[2003,15.0],[2008,10.0],[2014,7.1],[2018,10.2],[2021,15.5],[2023,17.1]]
+  },
+  {
+    id: 4,
+    title: "Air travel",
+    question: "Airline passengers carried worldwide, per year",
+    yLabel: "Billion passengers", xLabel: "Year",
+    xMin: 1970, xMax: 2023, yMin: 0, yMax: 5,
+    source: "World Bank / ICAO",
+    theme:'aviation',
+    note: "Fifty years of near-perfect growth, then 2020 erased sixteen years of it in about ten weeks.",
+    points: [[1970,0.31],[1980,0.64],[1990,1.02],[2000,1.67],[2010,2.63],[2015,3.44],[2019,4.50],[2020,1.80],[2021,2.30],[2022,3.40],[2023,4.40]]
+  },
+  {
+    id: 5,
+    title: "Extreme poverty",
+    question: "Share of the world's population living in extreme poverty",
+    yLabel: "% of people", xLabel: "Year",
+    xMin: 1950, xMax: 2023, yMin: 0, yMax: 60,
+    source: "World Bank / Our World in Data ($2.15/day, 2017 PPP)",
+    theme:'demography',
+    note: "Most people draw this line going UP. It fell by roughly 46 percentage points — the largest improvement in human living standards ever recorded.",
+    points: [[1950,55],[1970,47],[1990,37.9],[2000,29.3],[2010,16.3],[2015,10.1],[2019,8.5],[2020,9.7],[2023,8.5]]
+  },
+  {
+    id: 6,
+    title: "Reading the air",
+    question: "Carbon dioxide in the atmosphere, measured at Mauna Loa",
+    yLabel: "parts per million", xLabel: "Year",
+    xMin: 1958, xMax: 2024, yMin: 300, yMax: 440,
+    source: "NOAA Global Monitoring Laboratory (Keeling Curve)",
+    theme:'warming',
+    note: "The steadiest line in science — and it is not straight. It curves upward, meaning the rate of increase is itself increasing.",
+    points: [[1958,315],[1965,320],[1970,325.7],[1975,331],[1980,338.7],[1985,346],[1990,354.4],[1995,360.8],[2000,369.5],[2005,379.8],[2010,389.9],[2015,400.8],[2020,414.2],[2024,424.6]]
+  },
+  {
+    id: 7,
+    title: "Your DNA, priced",
+    question: "Cost to sequence one human genome",
+    yLabel: "US$", xLabel: "Year",
+    xMin: 2001, xMax: 2022, yMin: 100, yMax: 100000000, log: true,
+    source: "NIH National Human Genome Research Institute",
+    theme:'health',
+    note: "Note the cliff at 2008 — that is next-generation sequencing arriving. Costs fell far faster than Moore's Law, which is the dotted line biologists expected.",
+    points: [[2001,95000000],[2003,50000000],[2005,10000000],[2007,9000000],[2008,1000000],[2010,47000],[2012,7700],[2015,1500],[2019,940],[2022,600]]
+  },
+  {
+    id: 8,
+    title: "Phones everywhere",
+    question: "Mobile phone subscriptions per 100 people, worldwide",
+    yLabel: "Subscriptions per 100", xLabel: "Year",
+    xMin: 1990, xMax: 2022, yMin: 0, yMax: 120,
+    source: "International Telecommunication Union",
+    theme:'devices',
+    note: "It crosses 100, which confuses people — it counts SIM cards, not humans. Plenty of people carry two.",
+    points: [[1990,0.2],[1995,1.6],[2000,12.1],[2005,33.9],[2010,76.6],[2015,98],[2020,105],[2022,107]]
+  },
+  {
+    id: 9,
+    title: "Netflix",
+    question: "Netflix paid subscribers worldwide",
+    yLabel: "Millions", xLabel: "Year",
+    xMin: 2011, xMax: 2024, yMin: 0, yMax: 320,
+    source: "Netflix quarterly shareholder letters",
+    theme:'streaming',
+    note: "Look at 2022 — the first subscriber loss in the company's history. The stock fell 35% in one day over a dip you can barely see on this chart.",
+    points: [[2011,23],[2013,41],[2015,70],[2017,110],[2019,167],[2020,204],[2021,222],[2022,231],[2023,260],[2024,302]]
+  },
+  {
+    id: 10,
+    title: "Batteries",
+    question: "Price of a lithium-ion battery pack, per kilowatt-hour",
+    yLabel: "US$ per kWh", xLabel: "Year",
+    xMin: 1991, xMax: 2023, yMin: 100, yMax: 10000, log: true,
+    source: "BloombergNEF / Ziegler & Trancik (Nature Energy)",
+    theme:'batteries',
+    note: "Down 98%. And look at the very end — 2022 ticked UP for the first time ever, on lithium prices. Nothing falls forever.",
+    points: [[1991,7523],[1995,3800],[2000,1800],[2005,1200],[2010,1191],[2013,668],[2016,273],[2019,156],[2021,132],[2023,139]]
+  },
+  {
+    id: 11,
+    title: "A warming world",
+    question: "Global average temperature, difference from the 1951-1980 average",
+    yLabel: "°C anomaly", xLabel: "Year",
+    xMin: 1880, xMax: 2023, yMin: -0.5, yMax: 1.5,
+    source: "NASA GISS Surface Temperature Analysis",
+    theme:'warming',
+    note: "It is not a straight ramp. There is a real cooling dip around 1910 and a pause mid-century from industrial aerosols, before the modern climb.",
+    points: [[1880,-0.16],[1900,-0.08],[1910,-0.43],[1920,-0.27],[1940,0.12],[1950,-0.17],[1960,-0.03],[1970,0.03],[1980,0.26],[1990,0.45],[2000,0.40],[2010,0.72],[2016,1.01],[2020,1.01],[2023,1.17]]
+  },
+  {
+    id: 12,
+    title: "Getting married later",
+    question: "Median age at first marriage for women in the US",
+    yLabel: "Age", xLabel: "Year",
+    xMin: 1950, xMax: 2023, yMin: 18, yMax: 32,
+    source: "US Census Bureau",
+    theme:'demography',
+    note: "Dead flat for twenty years, then a near-straight climb for fifty. The hinge is around 1970 — the pill, college enrolment and the labour market all turning at once.",
+    points: [[1950,20.3],[1960,20.3],[1970,20.8],[1980,22.0],[1990,23.9],[2000,25.1],[2010,26.1],[2020,28.1],[2023,28.4]]
+  },
+  {
+    id: 13,
+    title: "Storage",
+    question: "Cost of one gigabyte of hard drive storage",
+    yLabel: "US$ per GB", xLabel: "Year",
+    xMin: 1980, xMax: 2023, yMin: 0.01, yMax: 1000000, log: true,
+    source: "mkomo.com / Backblaze historical price data",
+    theme:'tech',
+    note: "In 1980 a gigabyte cost about as much as a house. Today it costs about as much as a grain of rice. Eight orders of magnitude.",
+    points: [[1980,440000],[1985,70000],[1990,9000],[1995,900],[2000,11],[2005,1.2],[2010,0.09],[2015,0.04],[2020,0.018],[2023,0.014]]
+  },
+  {
+    id: 14,
+    title: "Roads got safer",
+    question: "US road deaths per 100 million miles driven",
+    yLabel: "Deaths per 100M miles", xLabel: "Year",
+    xMin: 1925, xMax: 2022, yMin: 0, yMax: 20,
+    source: "US National Highway Traffic Safety Administration",
+    theme:'road',
+    note: "A 93% fall — seatbelts, crumple zones, airbags, drink-driving laws. But look at 2020-21: the rate jumped during lockdown, when empty roads made people drive faster.",
+    points: [[1925,18.0],[1935,15.9],[1950,7.2],[1960,5.1],[1970,4.7],[1980,3.3],[1990,2.1],[2000,1.53],[2010,1.11],[2019,1.11],[2021,1.37],[2022,1.33]]
+  },
+  {
+    id: 15,
+    title: "Online",
+    question: "Share of the world's population using the internet",
+    yLabel: "% of people", xLabel: "Year",
+    xMin: 1990, xMax: 2023, yMin: 0, yMax: 100,
+    source: "International Telecommunication Union",
+    theme:'web',
+    note: "A textbook S-curve caught mid-bend. The remaining third is the hard third — rural, poor, and disproportionately women.",
+    points: [[1990,0.05],[1995,0.8],[2000,6.8],[2005,15.8],[2010,28.7],[2015,41],[2020,59],[2023,67]]
+  },
+
+  {
+    id:'dr16', title:'Nuclear warheads',
+    question:'Number of nuclear warheads in the world',
+    yLabel:'Warheads', xLabel:'Year',
+    xMin:1945, xMax:2024, yMin:0, yMax:75000,
+    source:'Federation of American Scientists / SIPRI',
+    theme:'modern',
+    note:'It peaked in 1986 at about 70,000 and has fallen by more than 80% since. Almost nobody draws the peak — most people draw a line that keeps rising.',
+    points:[[1945,2],[1950,300],[1960,20400],[1970,38000],[1980,54000],[1986,70300],[1990,59000],[2000,32000],[2010,22600],[2020,13400],[2024,12100]]
+  },
+  {
+    id:'dr17', title:'Child mortality',
+    question:'Share of children who die before their fifth birthday, worldwide',
+    yLabel:'% of children', xLabel:'Year',
+    xMin:1800, xMax:2023, yMin:0, yMax:50,
+    source:'UN Inter-agency Group for Child Mortality Estimation',
+    theme:'health',
+    note:'In 1800 roughly 43% of all children died before five — everywhere, rich and poor alike. It is now under 4%.',
+    points:[[1800,43],[1850,41],[1900,36],[1950,22],[1970,14],[1990,9.3],[2000,7.6],[2010,5.2],[2023,3.7]]
+  },
+  {
+    id:'dr18', title:'Transistors on a chip',
+    question:'Transistors on a single processor',
+    yLabel:'Transistors', xLabel:'Year',
+    xMin:1971, xMax:2023, yMin:1000, yMax:100000000000, log:true,
+    source:'Our World in Data / manufacturer datasheets',
+    theme:'tech',
+    note:'Moore\u2019s Law: a doubling roughly every two years for fifty years. On a normal axis the entire 20th century would be flat against the floor.',
+    points:[[1971,2300],[1980,29000],[1990,1200000],[2000,42000000],[2010,2300000000],[2017,19200000000],[2023,80000000000]]
+  },
+  {
+    id:'dr19', title:'Air travel deaths',
+    question:'Deaths per million commercial flights',
+    yLabel:'Deaths per million flights', xLabel:'Year',
+    xMin:1970, xMax:2023, yMin:0, yMax:12,
+    source:'IATA Safety Report / Aviation Safety Network',
+    theme:'aviation',
+    note:'A 98% fall. Flying got safer while flying got vastly more common, which is the harder of the two things to do.',
+    points:[[1970,10.8],[1980,6.5],[1990,3.4],[2000,1.6],[2010,0.6],[2017,0.1],[2023,0.17]]
+  },
+  {
+    id:'dr20', title:'Smoking in the US',
+    question:'Share of US adults who smoke',
+    yLabel:'% of adults', xLabel:'Year',
+    xMin:1950, xMax:2023, yMin:0, yMax:50,
+    source:'CDC National Health Interview Survey',
+    theme:'lifestyle',
+    note:'45% to 11%. The Surgeon General\u2019s 1964 report is the visible hinge — one document, and the line turns.',
+    points:[[1950,45],[1964,42],[1970,37],[1980,33],[1990,25.5],[2000,23],[2010,19],[2020,12.5],[2023,11]]
+  },
+  {
+    id:'dr21', title:'Wind power',
+    question:'Global installed wind power capacity',
+    yLabel:'Gigawatts', xLabel:'Year',
+    xMin:1996, xMax:2023, yMin:0, yMax:1000,
+    source:'Global Wind Energy Council',
+    theme:'renewables',
+    note:'From 6 GW to over 900. Wind now generates more electricity worldwide than all of Africa consumes.',
+    points:[[1996,6],[2000,17],[2005,59],[2010,198],[2015,433],[2020,743],[2023,906]]
+  },
+  {
+    id:'dr22', title:'Measles cases',
+    question:'Reported measles cases in the United States',
+    yLabel:'Cases', xLabel:'Year',
+    xMin:1950, xMax:2023, yMin:0, yMax:800000,
+    source:'CDC Morbidity and Mortality Weekly Report',
+    theme:'disease',
+    note:'The vaccine arrived in 1963 and the line falls off a cliff. The small bumps after 2000 are outbreaks in unvaccinated communities.',
+    points:[[1950,320000],[1955,555000],[1958,763000],[1963,385000],[1968,22000],[1975,24000],[1983,1497],[1990,27786],[2000,86],[2010,63],[2019,1274],[2023,58]]
+  },
+  {
+    id:'dr23', title:'Women in work',
+    question:'Share of US women aged 25-54 in paid work',
+    yLabel:'% of women', xLabel:'Year',
+    xMin:1950, xMax:2023, yMin:0, yMax:100,
+    source:'US Bureau of Labor Statistics',
+    theme:'demography',
+    note:'37% to 77%, with a plateau through the 2000s that most people miss entirely.',
+    points:[[1950,37],[1960,43],[1970,50],[1980,64],[1990,74],[2000,77],[2010,75],[2015,74],[2023,77.5]]
+  },
+  {
+    id:'dr24', title:'Ozone hole',
+    question:'Size of the Antarctic ozone hole',
+    yLabel:'Million km²', xLabel:'Year',
+    xMin:1979, xMax:2023, yMin:0, yMax:30,
+    source:'NASA Ozone Watch',
+    theme:'icewater',
+    note:'It grew until about 2000, then stopped. The Montreal Protocol worked — the clearest case of the world fixing something it broke.',
+    points:[[1979,1.1],[1985,14],[1990,21],[1995,23],[2000,29.9],[2006,26.6],[2010,22],[2015,25.6],[2020,24.8],[2023,23.1]]
+  },
+  {
+    id:'dr25', title:'Price of a TV',
+    question:'Price of a television in the US, adjusted for inflation and quality',
+    yLabel:'Index (2000 = 100)', xLabel:'Year',
+    xMin:1950, xMax:2023, yMin:0, yMax:3000,
+    source:'US Bureau of Labor Statistics, CPI for televisions',
+    theme:'prices',
+    note:'Down over 99%. A 1950 set cost about a fifth of a year\u2019s wages for a blurry black-and-white picture.',
+    points:[[1950,2800],[1960,1600],[1970,900],[1980,500],[1990,250],[2000,100],[2010,25],[2020,7],[2023,5]]
+  },
+  {
+    id:'dr26', title:'Sea level',
+    question:'Global average sea level, change since 1900',
+    yLabel:'mm above 1900', xLabel:'Year',
+    xMin:1900, xMax:2023, yMin:-20, yMax:250,
+    source:'NASA Sea Level Change Portal',
+    theme:'icewater',
+    note:'About 230 mm, and the curve is steepening — the rate has more than doubled since 1993.',
+    points:[[1900,0],[1930,30],[1950,60],[1970,90],[1990,130],[2000,155],[2010,185],[2020,220],[2023,232]]
+  },
+  {
+    id:'dr27', title:'People in cities',
+    question:'Share of the world living in cities',
+    yLabel:'% of people', xLabel:'Year',
+    xMin:1800, xMax:2023, yMin:0, yMax:100,
+    source:'UN World Urbanization Prospects',
+    theme:'cities',
+    note:'7% to 57%. Humanity crossed the halfway mark in 2007 — the first time most people did not live rurally.',
+    points:[[1800,7],[1850,9],[1900,16],[1950,30],[1970,37],[1990,43],[2007,50],[2015,54],[2023,57]]
+  },
+  {
+    id:'dr28', title:'Cost of a flight',
+    question:'Average US airfare per mile, adjusted for inflation',
+    yLabel:'US cents per mile (2023 money)', xLabel:'Year',
+    xMin:1950, xMax:2023, yMin:0, yMax:60,
+    source:'US Bureau of Transportation Statistics',
+    theme:'aviation',
+    note:'Deregulation in 1978 is the visible bend. Flying cost five times more per mile when only the rich did it.',
+    points:[[1950,55],[1960,42],[1970,33],[1978,30],[1985,22],[1995,17],[2005,14],[2015,15],[2023,14]]
+  },
+  {
+    id:'dr29', title:'Countries in the UN',
+    question:'Number of UN member states',
+    yLabel:'Member states', xLabel:'Year',
+    xMin:1945, xMax:2023, yMin:0, yMax:220,
+    source:'United Nations member states archive',
+    theme:'modern',
+    note:'51 to 193. The two steep steps are African decolonisation around 1960 and the Soviet collapse in 1991-92.',
+    points:[[1945,51],[1955,76],[1960,99],[1965,117],[1975,144],[1985,159],[1991,166],[1993,184],[2000,189],[2011,193],[2023,193]]
+  },
+  {
+    id:'dr30', title:'Obesity',
+    question:'Share of US adults classed as obese',
+    yLabel:'% of adults', xLabel:'Year',
+    xMin:1960, xMax:2023, yMin:0, yMax:50,
+    source:'CDC National Health and Nutrition Examination Survey',
+    theme:'lifestyle',
+    note:'13% to 42%. The line is almost flat until 1980, then turns sharply — and nobody has fully explained why that decade.',
+    points:[[1960,13.4],[1970,14.6],[1980,15],[1990,23.3],[2000,30.5],[2010,35.7],[2018,42.4],[2023,41.9]]
+  },
+
+  {
+    id:'in-dr1', title:'India population',
+    question:'Population of India',
+    yLabel:'Billion people', xLabel:'Year',
+    xMin:1950, xMax:2023, yMin:0, yMax:1.6,
+    source:'UN World Population Prospects', theme:'india-people', region:'india',
+    note:'From 376 million to 1.43 billion in seventy years. The growth RATE peaked in 1979 and has been falling ever since.',
+    points:[[1950,0.376],[1960,0.450],[1970,0.555],[1980,0.699],[1990,0.870],[2000,1.059],[2010,1.240],[2020,1.396],[2023,1.429]]
+  },
+  {
+    id:'in-dr2', title:'UPI payments',
+    question:'Monthly UPI transactions in India',
+    yLabel:'Billion transactions', xLabel:'Year',
+    xMin:2016, xMax:2024, yMin:0, yMax:18,
+    source:'National Payments Corporation of India', theme:'india-money', region:'india',
+    note:'From nothing in 2016 to over 16 billion a month. More transactions than the entire US card network.',
+    points:[[2016,0.0001],[2017,0.1],[2018,0.62],[2019,1.1],[2020,2.2],[2021,4.6],[2022,7.8],[2023,11.4],[2024,16.6]]
+  },
+  {
+    id:'in-dr3', title:'Indians online',
+    question:'Share of Indians using the internet',
+    yLabel:'% of people', xLabel:'Year',
+    xMin:2000, xMax:2024, yMin:0, yMax:80,
+    source:'International Telecommunication Union', theme:'india-tech', region:'india',
+    note:'The jump after 2016 is Jio — free data for six months put a hundred million people online in a year.',
+    points:[[2000,0.5],[2005,2.4],[2010,7.5],[2014,15],[2016,22],[2018,34],[2020,43],[2022,52],[2024,58]]
+  },
+  {
+    id:'in-dr4', title:'Living longer in India',
+    question:'Life expectancy at birth in India',
+    yLabel:'Years', xLabel:'Year',
+    xMin:1950, xMax:2023, yMin:30, yMax:80,
+    source:'UN World Population Prospects', theme:'india-health', region:'india',
+    note:'From 35 to 70. An Indian born today will live roughly twice as long as one born at independence.',
+    points:[[1950,35.2],[1960,41.4],[1970,48.0],[1980,53.9],[1990,58.5],[2000,62.5],[2010,66.7],[2020,70.1],[2023,70.4]]
+  },
+  {
+    id:'in-dr5', title:'India gets richer',
+    question:'India\u2019s GDP per person, adjusted for inflation',
+    yLabel:'US$ (2015 money)', xLabel:'Year',
+    xMin:1960, xMax:2023, yMin:0, yMax:2500,
+    source:'World Bank national accounts', theme:'india-money', region:'india',
+    note:'Flat for thirty years, then a bend at 1991 — the year India opened its economy. One policy change, visible in the line.',
+    points:[[1960,330],[1970,390],[1980,430],[1991,520],[2000,760],[2010,1350],[2019,2100],[2020,1930],[2023,2240]]
+  },
+  {
+    id:'in-dr6', title:'Phones in India',
+    question:'Mobile subscriptions per 100 people in India',
+    yLabel:'Per 100 people', xLabel:'Year',
+    xMin:1995, xMax:2023, yMin:0, yMax:100,
+    source:'International Telecommunication Union', theme:'india-devices', region:'india',
+    note:'0.01 to 82 in under thirty years. India skipped landlines almost entirely — most people\u2019s first phone was mobile.',
+    points:[[1995,0.01],[2000,0.35],[2005,8],[2010,61],[2015,78],[2020,84],[2023,82]]
+  },
+
+  { id:'in-dr7', title:'UPI payments', question:'Monthly UPI transactions in India',
+    yLabel:'Transactions per month (billion)', xLabel:'Year',
+    xMin:2017, xMax:2024, yMin:0.05, yMax:20, log:true,
+    source:'NPCI monthly UPI statistics', theme:'india-money', region:'india',
+    note:'From 100 million a month to 16 billion in seven years. No payment system anywhere has scaled this fast.',
+    points:[[2017,0.1],[2018,0.62],[2019,1.3],[2020,2.2],[2021,4.6],[2022,7.8],[2023,11.7],[2024,16.6]] },
+  { id:'in-dr8', title:'Mobile data price', question:'Price of 1 GB of mobile data in India',
+    yLabel:'\u20b9 per GB', xLabel:'Year',
+    xMin:2013, xMax:2023, yMin:5, yMax:400, log:true,
+    source:'TRAI tariff reports', theme:'india-tech', region:'india',
+    note:'\u20b9269 to under \u20b910 in a decade \u2014 the cheapest mobile data on Earth. This one price change is why India came online.',
+    points:[[2013,269],[2014,224],[2015,226],[2016,152],[2017,19],[2018,13],[2019,11.8],[2021,9.2],[2023,9.0]] },
+  { id:'in-dr9', title:'Literacy in India', question:'Share of Indians aged 7+ who can read and write',
+    yLabel:'% literate', xLabel:'Year',
+    xMin:1951, xMax:2021, yMin:0, yMax:100,
+    source:'Census of India / NSO', theme:'india-edu', region:'india',
+    note:'18% to 78% in seventy years. Almost a straight line \u2014 the gains came steadily, not in one leap.',
+    points:[[1951,18.3],[1961,28.3],[1971,34.5],[1981,43.6],[1991,52.2],[2001,64.8],[2011,74.0],[2021,77.7]] }
+];

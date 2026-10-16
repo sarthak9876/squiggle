@@ -1,0 +1,64 @@
+.shell { min-height: 100%; display: flex; flex-direction: column;
+         /* viewport-fit + env() keeps content clear of the iPhone notch and home bar */
+         padding: 0 max(var(--gutter), env(safe-area-inset-left)) env(safe-area-inset-bottom); }
+/* z-index + its own background: nothing in the page may paint over the chrome. */
+.topbar { position: relative; z-index: 30; background: var(--paper);
+          display: flex; align-items: center; gap: var(--s3); width: 100%;
+          max-width: var(--maxw); margin: 0 auto; padding: var(--s4) 0; }
+.brand { display: flex; align-items: center; gap: 8px; background: none; border: 0;
+         cursor: pointer; padding: 6px; margin-left: -6px; border-radius: var(--r-sm); }
+.brand .hunchmark { flex: none; }
+.brandname { font-weight: 700; font-size: 1.1rem; letter-spacing: -.02em; }
+.spacer { flex: 1; }
+.streakchip { font-size: var(--t-small); font-weight: 600; background: var(--accent-soft);
+              color: var(--accent); padding: 5px 11px; border-radius: var(--r-pill); }
+.iconbtn { min-width: 40px; min-height: 40px; border-radius: var(--r-sm);
+           border: 1px solid var(--rule); background: none; cursor: pointer;
+           color: var(--ink-soft); font-size: 15px;
+           transition: color var(--d-fast), border-color var(--d-fast); }
+.iconbtn:hover { color: var(--ink); border-color: var(--rule-strong); }
+
+.main { flex: 1; width: 100%; max-width: var(--maxw); margin: 0 auto; padding-bottom: var(--s8); }
+/* The play column is narrower than the page so question text stays readable, but it
+   still grows well past the old 760px so charts have room. */
+.play, .results { max-width: var(--maxw-play); margin-inline: auto; width: 100%; }
+.foot { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: var(--s5) 0 var(--s6);
+        text-align: center; font-size: var(--t-micro); color: var(--ink-faint); }
+.stub { text-align: center; }
+.stubtext { color: var(--ink-soft); font-size: var(--t-small); margin: var(--s2) 0 var(--s4); }
+
+/* ── footer ── */
+.footlinks { display: flex; gap: var(--s4); justify-content: center; flex-wrap: wrap;
+             margin-bottom: var(--s3); }
+.footlinks button, .footlinks a { background: none; border: 0; padding: 4px; cursor: pointer;
+  color: var(--ink-soft); font: inherit; font-size: var(--t-small); text-decoration: none; }
+.footlinks button:hover, .footlinks a:hover { color: var(--accent); }
+.fine { margin-top: var(--s2); opacity: .75; }
+
+/* ── archive ── */
+.archive, .aboutpage { display: flex; flex-direction: column; gap: var(--s3);
+                       max-width: var(--maxw-play); margin-inline: auto; width: 100%; }
+.archgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+            gap: var(--s2); margin-top: var(--s3); }
+.archday { display: flex; flex-direction: column; align-items: center; gap: 2px;
+           padding: 10px 6px; border-radius: var(--r-md); border: 1px solid var(--rule);
+           background: var(--paper); cursor: pointer; min-height: 56px;
+           transition: border-color var(--d-fast), transform var(--d-fast); }
+.archday:hover { border-color: var(--accent); }
+.archday:active { transform: scale(.97); }
+.archday.today { border-color: var(--accent); border-width: 2px; }
+.archday.a { background: color-mix(in srgb, var(--good) 18%, transparent); }
+.archday.b { background: color-mix(in srgb, var(--warn) 18%, transparent); }
+.archday.c { background: color-mix(in srgb, #e8833a 18%, transparent); }
+.archday.d { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.archdate { font-size: var(--t-micro); color: var(--ink-soft); }
+.archscore { font-weight: 700; font-variant-numeric: tabular-nums; }
+.nextset { text-align: center; }
+
+/* ── Ad slots ────────────────────────────────────────────────────── */
+/* Space is reserved from the first paint so a late-filling unit cannot shove the
+   page down — layout shift is the thing ad scripts break first. */
+.adslot { position: relative; display: block; width: 100%; margin: var(--s4) 0;
+  background: var(--paper-sunk); border-radius: var(--r-sm); overflow: hidden; }
+.adlabel { position: absolute; top: 4px; left: 8px; font-size: 10px;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }

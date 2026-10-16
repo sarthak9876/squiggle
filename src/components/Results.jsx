@@ -1,0 +1,198 @@
+import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { fingerprint } from '../lib/bias.js';
+import { drawShareCard, shareText, challengeLink } from '../lib/sharecard.js';
+import { GAMES } from '../games.jsx';
+import { dayNumber, puzzleLabel } from '../lib/schedule.js';
+import { BRAND } from '../brand.js';
+import Countdown from './Countdown.jsx';
+import Mascot, { moodFor } from './Mascot.jsx';
+import AdSlot from './AdSlot.jsx';
+
+export default function Results({ answers, lineup, label, onHome, onAgain, onArchive, isDaily, kind = 'daily', day: dayProp }) {
+  const total = answers.reduce((a, b) => a + b.score, 0);
+  const max = answers.length * 100;
+  const fp = fingerprint(answers);
+  const day = dayProp != null ? dayProp : dayNumber();
+  const scores = answers.map(a => a.score);
+  const cardRef = useRef(null);
+  const [toast, setToast] = useState('');
+  const [name, setName] = useState(() => { try { return localStorage.getItem('sq.name') || ''; } catch { return ''; } });
+  const [waitlisted, setWaitlisted] = useState(() => { try { return localStorage.getItem('sq.ig') === '1'; } catch { return false; } });
+  const say = m => { setToast(m); setTimeout(() => setToast(''), 1800); };
+
+  useEffect(() => {
+    if (!cardRef.current) return;
+    const cv = drawShareCard(fp, { total, max, day, scores });
+    cardRef.current.innerHTML = '';
+    cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.borderRadius = '14px';
+    cardRef.current.appendChild(cv);
+  }, []);
+
+  /* Saving is a separate action from sharing. Web Share is the better path on a
+     phone, but it does not exist on desktop and it cannot put a file in Downloads
+     — which is exactly what someone editing a story later wants. */
+  const saveImage = () => {
+    const cv = drawShareCard(fp, { total, max, day, scores, format: 'story' });
+    cv.toBlob(blob => {
+      if (!blob) return say('Could not save');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `${BRAND.name.toLowerCase()}-${day}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      // Revoking immediately races the download in Safari; one tick is enough.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      say('Saved to your downloads');
+    }, 'image/png');
+  };
+
+  const copyChallenge = async () => {
+    try { localStorage.setItem('sq.name', name); } catch { /* private mode */ }
+    const link = challengeLink(name, total, day);
+    const text = `I scored ${total}/${max} on ${BRAND.name} ${puzzleLabel(day)}. Beat it:\n${link}`;
+    try {
+      if (navigator.share) { await navigator.share({ text }); return; }
+      await navigator.clipboard.writeText(text);
+      say('Copied!');
+    } catch (e) {
+      if (e?.name === 'AbortError') return;
+      try { await navigator.clipboard.writeText(text); say('Copied!'); } catch { say('Copy failed'); }
+    }
+  };
+
+  const joinWaitlist = () => {
+    // Stored locally for now: there is no backend on launch day, and a button that
+    // pretends to submit somewhere is worse than one that is honest about waiting.
+    try { localStorage.setItem('sq.ig', '1'); } catch { /* private mode */ }
+    setWaitlisted(true); say('You are on the list');
+  };
+
+  const doShare = async () => {
+    const text = shareText(fp, { total, max, day, scores });
+    try {
+      const cv = cardRef.current?.querySelector('canvas');
+      // Try the image first; a picture of your Fingerprint travels much further
+      // than text, and Web Share handles files on most phones.
+      if (cv && navigator.canShare) {
+        const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+        const file = new File([blob], `${BRAND.name.toLowerCase()}.png`, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], text });
+          return;
+        }
+      }
+      if (navigator.share) { await navigator.share({ text }); return; }
+      await navigator.clipboard.writeText(text);
+      say('Copied!');
+    } catch (e) {
+      if (e?.name === 'AbortError') return;
+      try { await navigator.clipboard.writeText(text); say('Copied!'); } catch { say('Copy failed'); }
+    }
+  };
+
+
+  const byMode = Object.entries(
+    answers.reduce((m, a) => { (m[a.mode] ||= []).push(a.score); return m; }, {})
+  ).map(([k, v]) => ({ k, mean: Math.round(v.reduce((x, y) => x + y, 0) / v.length) }))
+   .sort((a, b) => b.mean - a.mean);
+
+  return (
+    <motion.div className="results" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="card totalcard">
+        <Mascot mood={moodFor(Math.round(total / Math.max(1, answers.length)))} size={64} />
+        <p className="tlabel">{label}</p>
+        <p className="tbig">{total}<span className="tmax">/{max}</span></p>
+        <div className="sqrow">
+          {scores.map((s, i) => (
+            <motion.span key={i} className={'sq ' + band(s)}
+              initial={{ scale: 0 }} animate={{ scale: 1 }}
+              transition={{ delay: i * 0.035, type: 'spring', stiffness: 420, damping: 18 }} />
+          ))}
+        </div>
+      </div>
+
+      <div className="card fpcard">
+        <p className="shead">Your Bias Fingerprint</p>
+        <div className="fphead">
+          <span className="fpemo">{fp.emoji}</span>
+          <div>
+            <h3 className="fptitle">{fp.title}</h3>
+            <p className="fpblurb">{fp.blurb}</p>
+          </div>
+        </div>
+        <div className="fptags">{fp.tags.map(t => <span key={t} className="tag">{t}</span>)}</div>
+        <div ref={cardRef} className="cardpreview" aria-label="Your shareable result card" />
+        <div className="actions">
+          <button className="btn btn-primary grow" onClick={doShare}>Share result</button>
+          <button className="btn btn-ghost" onClick={saveImage} title="1080 × 1920, sized for stories">
+            Save image
+          </button>
+        </div>
+      </div>
+
+      <div className="card challengecard">
+        <p className="shead">Challenge a friend</p>
+        <p className="stubtext">
+          They get today’s exact set and your score to beat. No sign-up, no app.
+        </p>
+        <div className="challengerow">
+          <input className="namein" value={name} maxLength={24} placeholder="Your name (optional)"
+                 onChange={e => setName(e.target.value)} aria-label="Your name" />
+          <button className="btn btn-primary" onClick={copyChallenge}>Copy challenge link</button>
+        </div>
+      </div>
+
+      <div className="card igcard">
+        <p className="shead">{BRAND.name} on Instagram</p>
+        <p className="stubtext">
+          A daily question card, one a day, in your feed. Not built yet — leave your
+          flag here and it will be the first thing announced.
+        </p>
+        <button className="btn btn-ghost wide" onClick={joinWaitlist} disabled={waitlisted}>
+          {waitlisted ? '✓ You are on the list' : 'Tell me when it launches'}
+        </button>
+      </div>
+
+      <AdSlot slot="results" />
+
+      <div className="card">
+        <p className="shead">How you did, game by game</p>
+        <div className="statbars">
+          {byMode.map(r => (
+            <div key={r.k} className="sbar">
+              <span className="sbl">{GAMES[r.k].name}</span>
+              <span className="sbt"><motion.i style={{ background: GAMES[r.k].colour }}
+                initial={{ width: 0 }} animate={{ width: r.mean + '%' }} transition={{ duration: .5 }} /></span>
+              <span className="sbv">{r.mean}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {isDaily && (
+        <div className="card nextset">
+          <p className="shead">Next set in <Countdown /></p>
+          <p className="stubtext">Sixteen new questions at midnight, your time.</p>
+        </div>
+      )}
+
+      {/* Context-appropriate actions. "Play again" used to fire for every kind of
+          session, including archive ones that carry no mode to replay. */}
+      <div className="actions">
+        <button className="btn btn-ghost grow" onClick={onHome}>← Home</button>
+        {kind === 'archive' && (
+          <button className="btn btn-primary grow" onClick={onArchive}>Play another day →</button>
+        )}
+        {kind === 'practice' && onAgain && (
+          <button className="btn btn-primary grow" onClick={onAgain}>Play 5 more →</button>
+        )}
+      </div>
+      {toast && (
+        <motion.div className="toast" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          {toast}
+        </motion.div>
+      )}
+    </motion.div>
+  );
+}
+const band = s => s >= 85 ? 'a' : s >= 60 ? 'b' : s >= 35 ? 'c' : 'd';

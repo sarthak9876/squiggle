@@ -1,0 +1,41 @@
+/* Game icons. Idle they are still; on hover (or card focus) each one performs the
+   mechanic it represents. The animation IS the explanation. */
+.gi { width: 100%; height: 100%; display: block; }
+
+.gi-curve { stroke-dasharray: 100; stroke-dashoffset: 0; }
+.gi-card, .gi-g, .gi-sil, .gi-sil2, .gi-small, .gi-big,
+.gi-drop, .gi-fill, .gi-knob, .gi-odd-one, .gi-dot { transform-origin: center; }
+
+.gi-fill { clip-path: inset(0 45% 0 0); }
+
+/* Hover / keyboard-focus drives every loop from the card, not the svg, so the whole
+   target area triggers it. */
+.gcard:hover .gi-curve, .gcard:focus-visible .gi-curve { animation: drawline 1.5s var(--ease-out) infinite; }
+.gcard:hover .gi-c1,    .gcard:focus-visible .gi-c1    { animation: shuffle1 1.4s var(--ease-spring) infinite; }
+.gcard:hover .gi-c2,    .gcard:focus-visible .gi-c2    { animation: shuffle2 1.4s var(--ease-spring) infinite; }
+.gcard:hover .gi-c3,    .gcard:focus-visible .gi-c3    { animation: shuffle3 1.4s var(--ease-spring) infinite; }
+.gcard:hover .gi-drop,  .gcard:focus-visible .gi-drop  { animation: dropin 1.3s var(--ease-spring) infinite; }
+.gcard:hover .gi-fill,  .gcard:focus-visible .gi-fill  { animation: sweep 1.8s var(--ease-out) infinite; }
+.gcard:hover .gi-knob,  .gcard:focus-visible .gi-knob  { animation: knob 1.8s var(--ease-out) infinite; }
+.gcard:hover .gi-odd-one,.gcard:focus-visible .gi-odd-one { animation: wiggle 1.1s var(--ease-spring) infinite; }
+.gcard:hover .gi-g,     .gcard:focus-visible .gi-g     { animation: settle 1.6s var(--ease-spring) infinite; }
+.gcard:hover .gi-g2 { animation-delay: .08s } .gcard:hover .gi-g3 { animation-delay: .16s }
+.gcard:hover .gi-g4 { animation-delay: .24s } .gcard:hover .gi-g5 { animation-delay: .32s }
+.gcard:hover .gi-g6 { animation-delay: .4s }
+.gcard:hover .gi-sil,   .gcard:focus-visible .gi-sil   { animation: breathe 1.6s var(--ease-out) infinite; }
+.gcard:hover .gi-sil2,  .gcard:focus-visible .gi-sil2  { animation: breathe 1.6s var(--ease-out) .1s infinite; }
+.gcard:hover .gi-big,   .gcard:focus-visible .gi-big   { animation: grow 1.6s var(--ease-spring) infinite; }
+.gcard:hover .gi-small, .gcard:focus-visible .gi-small { animation: shrink 1.6s var(--ease-spring) infinite; }
+
+@keyframes drawline { 0%{stroke-dashoffset:100} 55%,100%{stroke-dashoffset:0} }
+@keyframes shuffle1 { 0%,100%{transform:translateY(0)} 45%{transform:translateY(22px)} }
+@keyframes shuffle2 { 0%,100%{transform:translateY(0)} 45%{transform:translateY(-11px)} }
+@keyframes shuffle3 { 0%,100%{transform:translateY(0)} 45%{transform:translateY(-11px)} }
+@keyframes dropin   { 0%{transform:translateY(-14px);opacity:0} 40%,100%{transform:none;opacity:1} }
+@keyframes sweep    { 0%,100%{clip-path:inset(0 70% 0 0)} 50%{clip-path:inset(0 12% 0 0)} }
+@keyframes knob     { 0%,100%{transform:translateX(-8px)} 50%{transform:translateX(9px)} }
+@keyframes wiggle   { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-13deg)} 75%{transform:rotate(13deg)} }
+@keyframes settle   { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-3px) scale(1.08)} }
+@keyframes breathe  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.07)} }
+@keyframes grow     { 0%,100%{transform:scale(1)} 50%{transform:scale(1.16)} }
+@keyframes shrink   { 0%,100%{transform:scale(1)} 50%{transform:scale(.8)} }

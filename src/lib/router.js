@@ -28,6 +28,8 @@ export function parse(pathname = location.pathname) {
     : { name: 'notfound', path: p };
   if (p === '/archive') return { name: 'archive' };
   if (p === '/about') return { name: 'about' };
+  if (p === '/privacy') return { name: 'privacy' };
+  if (p === '/terms') return { name: 'terms' };
   const a = p.match(/^\/archive\/(\d{4}-\d{2}-\d{2})$/);
   if (a) return { name: 'archive', date: a[1] };
   // Rendering home under /nonexistent-page is a lie: the URL says one thing and
@@ -42,6 +44,8 @@ export function href(route) {
     case 'game': return '/game/' + route.id;
     case 'archive': return route.date ? '/archive/' + route.date : '/archive';
     case 'about': return '/about';
+    case 'privacy': return '/privacy';
+    case 'terms': return '/terms';
     default: return '/';
   }
 }

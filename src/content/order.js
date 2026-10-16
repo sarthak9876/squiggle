@@ -126,11 +126,14 @@ export const ORDER = [
     source:'NASA JPL ephemeris',
     theme:'planets',
     note:'Voyager 1 has been flying since 1977 and is still only 0.06% of the way to the nearest star.' },
+  /* Minecraft's 0.30bn is copies SOLD — a different unit from free-app installs,
+     so it was being ranked against numbers it cannot be compared to. All five are
+     now free apps counted the same way. */
   { id:'o24', prompt:'Most downloads first', unit:'billion downloads',
-    items:[['TikTok',4.9,'🎵'],['Instagram',6.2,'📸'],['WhatsApp',6.0,'💬'],['Spotify',1.7,'🎧'],['Minecraft',0.3,'⛏️']],
+    items:[['Instagram',6.2,'\ud83d\udcf8'],['WhatsApp',6.0,'\ud83d\udcac'],['TikTok',4.9,'\ud83c\udfb5'],['Snapchat',3.0,'\ud83d\udc7b'],['Spotify',1.7,'\ud83c\udfa7']],
     source:'Sensor Tower all-time app downloads',
     theme:'social',
-    note:'Minecraft has the fewest downloads here and has still earned more than any of them per user.' },
+    note:'Four of these five are messaging or video. Spotify is the only one you open to listen rather than to look.' },
   { id:'o25', prompt:'Longest to decompose first', unit:'years',
     items:[['Glass bottle',1000000,'🍾'],['Plastic bottle',450,'🧴'],['Aluminium can',200,'🥫'],['Cigarette butt',10,'🚬'],['Banana peel',0.1,'🍌']],
     source:'US National Park Service',

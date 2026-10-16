@@ -9,12 +9,20 @@ import { motion } from 'framer-motion';
 const MOODS = {
   happy:   { mouth: 'M 26 44 Q 40 56 54 44', brow: 'M 24 26 Q 30 22 36 25  M 44 25 Q 50 22 56 26', tilt: -4 },
   neutral: { mouth: 'M 27 48 L 53 48',       brow: 'M 24 27 L 36 27  M 44 27 L 56 27',             tilt: 0 },
+  meh:     { mouth: 'M 26 50 Q 40 46 54 50', brow: 'M 24 25 Q 30 27 36 26  M 44 26 Q 50 27 56 25', tilt: 3 },
   sad:     { mouth: 'M 26 52 Q 40 42 54 52', brow: 'M 24 23 Q 30 28 36 27  M 44 27 Q 50 28 56 23', tilt: 5 },
   wow:     { mouth: 'M 40 48 m -8 0 a 8 9 0 1 0 16 0 a 8 9 0 1 0 -16 0', brow: 'M 23 22 Q 30 18 37 22  M 43 22 Q 50 18 57 22', tilt: 0 },
 };
 
+/* Five bands, not four, and the top one is reserved for 95+ so a near-perfect
+   answer does not wear the same face as a merely good one. The old mapping gave
+   96, 98 and 100 an identical expression. */
 export const moodFor = score =>
-  score >= 90 ? 'wow' : score >= 60 ? 'happy' : score >= 30 ? 'neutral' : 'sad';
+  score >= 95 ? 'wow'
+  : score >= 65 ? 'happy'
+  : score >= 40 ? 'neutral'
+  : score >= 15 ? 'meh'
+  : 'sad';
 
 export default function Mascot({ mood = 'neutral', size = 72, say }) {
   const m = MOODS[mood] || MOODS.neutral;

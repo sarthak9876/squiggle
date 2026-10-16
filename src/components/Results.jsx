@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { fingerprint } from '../lib/bias.js';
-import { drawShareCard, shareText, challengeLink } from '../lib/sharecard.js';
+import { drawShareCard, shareText, challengeLink, ensureCardFont } from '../lib/sharecard.js';
 import { GAMES } from '../games.jsx';
 import { dayNumber, puzzleLabel } from '../lib/schedule.js';
 import { BRAND } from '../brand.js';
@@ -22,16 +22,23 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
 
   useEffect(() => {
     if (!cardRef.current) return;
-    const cv = drawShareCard(fp, { total, max, day, scores });
-    cardRef.current.innerHTML = '';
-    cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.borderRadius = '14px';
-    cardRef.current.appendChild(cv);
+    let alive = true;
+    // Await the font, then draw — otherwise the shared PNG carries system-ui.
+    ensureCardFont().then(() => {
+      if (!alive || !cardRef.current) return;
+      const cv = drawShareCard(fp, { total, max, day, scores });
+      cardRef.current.innerHTML = '';
+      cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.borderRadius = '14px';
+      cardRef.current.appendChild(cv);
+    });
+    return () => { alive = false; };
   }, []);
 
   /* Saving is a separate action from sharing. Web Share is the better path on a
      phone, but it does not exist on desktop and it cannot put a file in Downloads
      — which is exactly what someone editing a story later wants. */
-  const saveImage = () => {
+  const saveImage = async () => {
+    await ensureCardFont();
     const cv = drawShareCard(fp, { total, max, day, scores, format: 'story' });
     cv.toBlob(blob => {
       if (!blob) return say('Could not save');

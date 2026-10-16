@@ -136,13 +136,18 @@ export const GROUPS = [
     source:null,
     theme:'sealife',
     note:'The category is the hidden word, not the object. Once you see web / net / trap it collapses at once.' },
+  /* Was scientists (Curie, Darwin, Hubble) vs telescopes (Webb, Kepler, Chandra).
+     Kepler and Chandrasekhar are scientists too, so swapping Hubble for Kepler
+     produced an equally valid partition that still scored as wrong. Nearly every
+     space telescope is named after a scientist, so the overlap is unavoidable —
+     the category had to go, not the items. */
   { id:'g15', prompt:'Sort these nine into three groups of three',
     groups:[{ label:'Video game characters', items:['Mario','Kirby','Link'] },
-            { label:'Famous scientists', items:['Curie','Darwin','Hubble'] },
-            { label:'Space telescopes', items:['Webb','Kepler','Chandra'] }],
+            { label:'Famous scientists', items:['Curie','Darwin','Pasteur'] },
+            { label:'Constellations', items:['Orion','Draco','Lyra'] }],
     source:null,
     theme:'missions',
-    note:'Hubble is both a scientist and a telescope — the trap is that nearly every space telescope is named after one.' },
+    note:'Pasteur has no telescope named after him, which is rarer than it sounds \u2014 almost every space telescope is named for a scientist.' },
   { id:'g16', prompt:'Sort these nine into three groups of three',
     groups:[{ label:'Chemical elements', items:['Neon','Argon','Krypton'] },
             { label:'Superman things', items:['Metropolis','Daily Planet','Kent'] },

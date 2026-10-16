@@ -11,6 +11,20 @@ import { BRAND } from '../brand.js';
            a 4:5 card would sit in a letterboxed grey band and look like a mistake.
    The story version is not a stretched post: the extra 570px goes into the layout
    as breathing room and a call to action, so it reads as made for the format. */
+/* The canvas must wait for the webfont. Canvas does not trigger a font load and
+   does not re-paint when one arrives, so drawing before it is ready silently
+   bakes the fallback into the PNG that gets shared. */
+export async function ensureCardFont() {
+  try {
+    if (!document.fonts) return;
+    await Promise.all([
+      document.fonts.load('700 96px "Space Grotesk"'),
+      document.fonts.load('400 38px "Space Grotesk"'),
+    ]);
+    await document.fonts.ready;
+  } catch { /* fall back to system-ui, which still renders */ }
+}
+
 export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) {
   const story = format === 'story';
   const W = 1080, H = story ? 1920 : 1350;
@@ -45,16 +59,16 @@ export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) 
   c.beginPath(); c.arc(880, 150, 26, 0, Math.PI * 2); c.fill();
 
   c.textAlign = 'center';
-  c.fillStyle = soft; c.font = '600 34px system-ui, sans-serif';
+  c.fillStyle = soft; c.font = '600 34px "Space Grotesk", system-ui, sans-serif';
   c.fillText('YOUR BIAS FINGERPRINT', W / 2, 380 + top);
 
-  c.font = '130px system-ui, sans-serif';
+  c.font = '130px "Space Grotesk", system-ui, sans-serif';
   c.fillText(fp.emoji, W / 2, 530 + top);
 
-  c.fillStyle = ink; c.font = '700 78px system-ui, sans-serif';
+  c.fillStyle = ink; c.font = '700 78px "Space Grotesk", system-ui, sans-serif';
   wrap(c, fp.title, W / 2, 650 + top, W - 180, 86);
 
-  c.fillStyle = soft; c.font = '400 38px system-ui, sans-serif';
+  c.fillStyle = soft; c.font = '400 38px "Space Grotesk", system-ui, sans-serif';
   wrap(c, fp.blurb, W / 2, 770 + top, W - 200, 52);
 
   /* Per-question squares — spoiler-free, same idea as a Wordle grid.
@@ -78,17 +92,17 @@ export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) 
     c.globalAlpha = 1;
   });
 
-  c.fillStyle = ink; c.font = '700 96px system-ui, sans-serif';
+  c.fillStyle = ink; c.font = '700 96px "Space Grotesk", system-ui, sans-serif';
   c.fillText(`${total}/${max}`, W / 2, 1180 + top);
 
-  c.fillStyle = soft; c.font = '500 34px system-ui, sans-serif';
+  c.fillStyle = soft; c.font = '500 34px "Space Grotesk", system-ui, sans-serif';
   c.fillText(`${BRAND.name} ${puzzleLabel(day)} · ${BRAND.domain}`, W / 2, 1250 + top);
 
   if (story) {
     // Stories are watched, not read. One line, large, at thumb height.
-    c.fillStyle = accent; c.font = '700 46px system-ui, sans-serif';
+    c.fillStyle = accent; c.font = '700 46px "Space Grotesk", system-ui, sans-serif';
     c.fillText('Can you beat this?', W / 2, 1640);
-    c.fillStyle = soft; c.font = '500 36px system-ui, sans-serif';
+    c.fillStyle = soft; c.font = '500 36px "Space Grotesk", system-ui, sans-serif';
     c.fillText(`${BRAND.domain} — new set every day`, W / 2, 1700);
   }
 

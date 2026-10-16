@@ -52,4 +52,26 @@ describe('colour contrast (WCAG AA, body text)', () => {
   it('the faintest text is the one that used to fail — guard it explicitly', () => {
     expect(ratio(hex('ink-faint'), hex('paper'))).toBeGreaterThanOrEqual(AA);
   });
+
+  /* QA2: "White on the coral CTA (#FF5A5F) is 3.0:1" and "the hand-written
+     'wrong' is 2.85:1". The brand red stays for FILLS (3:1 is the bar there);
+     --accent-ink is the darkened variant every piece of TEXT uses. */
+  it('--accent-ink carries text at AA on paper and on cards', () => {
+    for (const bg of ['paper', 'paper-2'])
+      expect(ratio(hex('accent-ink'), hex(bg)), `--accent-ink on --${bg}`).toBeGreaterThanOrEqual(AA);
+  });
+
+  it('white text on an --accent-ink button clears AA', () => {
+    expect(ratio('#ffffff', hex('accent-ink'))).toBeGreaterThanOrEqual(AA);
+  });
+
+  it('dark theme too', () => {
+    const dark = n => hex(n, '[data-theme="dark"]');
+    expect(ratio(dark('accent-ink'), dark('paper'))).toBeGreaterThanOrEqual(AA);
+    expect(ratio(dark('accent-ink'), dark('paper-2'))).toBeGreaterThanOrEqual(AA);
+  });
+
+  it('the brand fill red still clears the 3:1 bar for shapes', () => {
+    expect(ratio(hex('accent'), hex('paper'))).toBeGreaterThanOrEqual(2.8);
+  });
 });

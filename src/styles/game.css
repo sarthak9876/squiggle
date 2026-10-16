@@ -27,7 +27,7 @@
 .rof { color: var(--ink-faint); font-size: var(--t-small); }
 .rverdict { font-weight: 700; font-size: var(--t-small); }
 .tone-good { color: var(--good); } .tone-ink { color: var(--ink); }
-.tone-soft { color: var(--ink-soft); } .tone-accent { color: var(--accent); }
+.tone-soft { color: var(--ink-soft); } .tone-accent { color: var(--accent-ink); }
 /* Score bar fills LEFT to RIGHT with the score and takes its colour from the band,
    so the bar and the number always agree. The old one filled with "wrongness" from
    the right in red, which read as a failure even at 80. */
@@ -56,7 +56,7 @@
         display: flex; flex-direction: column; align-items: center; }
 .mark i { width: 2px; height: 10px; display: block; margin-bottom: 2px; }
 .mark.truth { color: var(--truth); font-weight: 700; } .mark.truth i { background: var(--truth); }
-.mark.mine  { color: var(--accent); font-weight: 700; } .mark.mine i  { background: var(--accent); }
+.mark.mine  { color: var(--accent-ink); font-weight: 700; } .mark.mine i  { background: var(--accent); }
 .simplebar { position: relative; height: 34px; border-radius: var(--r-sm); background: var(--rule);
              overflow: hidden; margin-top: var(--s3); }
 .simplebar .fill { position: absolute; inset: 0 auto 0 0; background: var(--truth); opacity: .35; }
@@ -89,7 +89,7 @@
 .sizecell .ghost { position: absolute; bottom: 42px; opacity: .28; filter: grayscale(1); line-height: 1; }
 .sizelab { font-size: var(--t-micro); color: var(--ink-faint); text-align: center; line-height: 1.4; }
 .sizelab b { color: var(--ink); }
-.sizecell.target .sizelab b { color: var(--accent); }
+.sizecell.target .sizelab b { color: var(--accent-ink); }
 .sizecell.target.revealed .sizelab b { color: var(--truth); }
 
 /* ═══════════ shadow ═══════════ */
@@ -228,7 +228,7 @@
 .qhead .combo { font-size: 12px; font-weight: 700; color: #b4480f;
   background: #ffe9d6; border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
 .finalflag { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--accent); margin: 0 0 4px; }
+  color: var(--accent-ink); margin: 0 0 4px; }
 .mascot { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; flex: none; }
 .mascotsay { font-size: 12px; color: var(--ink-faint); }
 .rhead .mascot { margin-right: 4px; }
@@ -275,7 +275,7 @@
 /* Cards are drag handles now, so they take the full width — a narrow target is
    a bad one on a phone, and the grip needs somewhere to sit. */
 .olist .ocard { width: 100%; justify-content: flex-start; gap: 10px; }
-.streaklost { font-size: var(--t-small); color: var(--accent); font-weight: 600; margin: 6px 0 0; }
+.streaklost { font-size: var(--t-small); color: var(--accent-ink); font-weight: 600; margin: 6px 0 0; }
 
 /* ── 404 + crash fallback ────────────────────────────────────────── */
 .notfound, .crashcard { text-align: center; max-width: 480px; margin: 40px auto; }
@@ -443,3 +443,22 @@
   margin-left: auto; margin-right: auto; }
 .sqrow .sq { width: auto; aspect-ratio: 1; }
 .readout .dimnote { font-size: var(--t-micro); color: var(--ink-faint); font-weight: 500; }
+
+/* ── Disabled CTA read as an error state in dark mode ─────────────────
+   A muddy maroon on a dark page looks like something went wrong. Neutral
+   surface + muted text says "not yet", which is what it means. */
+.btn-primary:disabled, .btn-primary[disabled] {
+  background: var(--paper-sunk); color: var(--ink-faint);
+  box-shadow: none; opacity: 1; cursor: not-allowed;
+}
+
+/* The light-theme slider track was near-black and visually heavier than the
+   thumb. Use the rule colour so the filled part is what draws the eye. */
+.slider { accent-color: var(--gc, var(--accent)); }
+.slider::-webkit-slider-runnable-track { background: var(--rule); }
+.slider::-moz-range-track { background: var(--rule); }
+
+/* The teaser slider was a 30px target with a tiny thumb. */
+.tryone .slider { height: 44px; }
+.tryone .slider::-webkit-slider-thumb { width: 28px; height: 28px; }
+.tryone .slider::-moz-range-thumb { width: 28px; height: 28px; }

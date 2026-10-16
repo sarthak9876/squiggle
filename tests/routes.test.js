@@ -24,11 +24,13 @@ describe('routing', () => {
     expect(parse('/results').name).toBe('results');
     expect(parse('/archive').name).toBe('archive');
     expect(parse('/about').name).toBe('about');
+    expect(parse('/privacy').name).toBe('privacy');
+    expect(parse('/terms').name).toBe('terms');
   });
 
   it('round-trips every route it can build', () => {
     for (const r of [{ name:'play' }, { name:'results' }, { name:'archive' }, { name:'about' },
-                     { name:'game', id:'share' }])
+                     { name:'privacy' }, { name:'terms' }, { name:'game', id:'share' }])
       expect(parse(href(r)).name).toBe(r.name);
   });
 });

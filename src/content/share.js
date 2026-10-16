@@ -238,7 +238,7 @@ export const SHARE = [
     unit:'are under 30', source:'UN World Population Prospects',
     theme:'india-youth', region:'india',
     note:'Over half. India has more people under 30 than the entire population of Europe.' },
-  { id:'in-s7', prompt:'What share of global IT services exports comes from India?', answer:55,
+  { id:'in-s7', prompt:'What share of the world\u2019s IT outsourcing work is done in India?', answer:55,
     unit:'from India', source:'NASSCOM Strategic Review',
     theme:'india-tech', region:'india',
     note:'About 55%. One industry, built in thirty years, that moves roughly $250 billion a year.' },

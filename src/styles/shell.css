@@ -12,7 +12,7 @@
 .spacer { flex: 1; }
 .streakchip { font-size: var(--t-small); font-weight: 600; background: var(--accent-soft);
               color: var(--accent); padding: 5px 11px; border-radius: var(--r-pill); }
-.iconbtn { min-width: 40px; min-height: 40px; border-radius: var(--r-sm);
+.iconbtn { min-width: 44px; min-height: 44px;   /* 44px is the floor, not 40 */ border-radius: var(--r-sm);
            border: 1px solid var(--rule); background: none; cursor: pointer;
            color: var(--ink-soft); font-size: 15px;
            transition: color var(--d-fast), border-color var(--d-fast); }
@@ -30,9 +30,12 @@
 /* ── footer ── */
 .footlinks { display: flex; gap: var(--s4); justify-content: center; flex-wrap: wrap;
              margin-bottom: var(--s3); }
-.footlinks button, .footlinks a { background: none; border: 0; padding: 4px; cursor: pointer;
+/* Footer links were ~30px tall. Padding brings them to 44 without
+   changing how they look. */
+.footlinks button, .footlinks a { background: none; border: 0; padding: 12px 8px; cursor: pointer;
+  min-height: 44px; display: inline-flex; align-items: center;
   color: var(--ink-soft); font: inherit; font-size: var(--t-small); text-decoration: none; }
-.footlinks button:hover, .footlinks a:hover { color: var(--accent); }
+.footlinks button:hover, .footlinks a:hover { color: var(--accent-ink); }
 .fine { margin-top: var(--s2); opacity: .75; }
 
 /* ── archive ── */
@@ -62,3 +65,11 @@
   background: var(--paper-sunk); border-radius: var(--r-sm); overflow: hidden; }
 .adlabel { position: absolute; top: 4px; left: 8px; font-size: 10px;
   letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* Legal pages: prose, capped for readability. */
+.legal .card { max-width: 65ch; margin: 0 auto; }
+.legal h2 { margin: 0 0 4px; }
+.legal h3 { margin: 20px 0 4px; font-size: var(--t-body); }
+.legal p { margin: 0 0 8px; color: var(--ink-soft); line-height: 1.65; }
+.legal code { background: var(--paper-sunk); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+.legalupd { font-weight: 600; color: var(--ink) !important; }

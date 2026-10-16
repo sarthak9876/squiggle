@@ -18,7 +18,17 @@
   --rule-strong:  #cfc6b2;
 
   /* ── accents ───────────────────────────────────────────── */
-  --accent:       #ff5a5f;   /* the squiggle red */
+  /* TWO reds on purpose.
+     --accent is the brand FILL: the squiggle, the dots, the tiles. Large shapes
+     and UI components only need 3:1, which it clears comfortably.
+     --accent-ink is the same red darkened until it clears 4.5:1 as TEXT on paper
+     and as a button background under white text. Measured, not guessed:
+       #ff5a5f  white-on 3.05:1, on-paper 2.85:1  -> both FAIL
+       #d4323f  white-on 4.85:1, on-paper 4.54:1  -> both PASS
+     Every piece of TEXT — the handwritten "wrong", the CTA label, links — uses
+     --accent-ink. Never --accent. */
+  --accent:       #ff5a5f;   /* the squiggle red — fills and shapes only */
+  --accent-ink:   #d4323f;   /* text and button backgrounds: AA on paper */
   --accent-soft:  #ffe8e8;
   --truth:        #2f6df6;   /* the real answer, always blue */
   --truth-soft:   #e4edff;
@@ -80,7 +90,7 @@
     --paper:#14141a; --paper-2:#1c1c24; --paper-sunk:#101016;
     --ink:#eceaf2; --ink-soft:#a3a3b2; --ink-faint:#82829a;
     --rule:#2d2d38; --rule-strong:#3d3d4c;
-    --accent:#ff6b70; --accent-soft:#3a1f22;
+    --accent:#ff6b70; --accent-ink:#ff8b8f; --accent-soft:#3a1f22;
     --truth:#6ea0ff; --truth-soft:#1a2440;
     --good:#3ecf7a; --warn:#f5a524;
     --g-draw:#ff6b70; --g-order:#9a80ff; --g-place:#2dd4bf; --g-share:#f5a524;
@@ -95,7 +105,7 @@
   --paper:#14141a; --paper-2:#1c1c24; --paper-sunk:#101016;
   --ink:#eceaf2; --ink-soft:#a3a3b2; --ink-faint:#82829a;
   --rule:#2d2d38; --rule-strong:#3d3d4c;
-  --accent:#ff6b70; --accent-soft:#3a1f22;
+  --accent:#ff6b70; --accent-ink:#ff8b8f; --accent-soft:#3a1f22;
   --truth:#6ea0ff; --truth-soft:#1a2440;
   --good:#3ecf7a; --warn:#f5a524;
   --g-draw:#ff6b70; --g-order:#9a80ff; --g-place:#2dd4bf; --g-share:#f5a524;

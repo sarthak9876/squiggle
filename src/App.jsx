@@ -8,8 +8,10 @@ import About, { CREDITS } from './components/About.jsx';
 import SquiggleMark from './components/SquiggleMark.jsx';
 import { BRAND } from './brand.js';
 import NotFound from './components/NotFound.jsx';
+import { Privacy, Terms } from './components/Legal.jsx';
 import { checkRunway } from './lib/runway.js';
 import { load, patch, playerId } from './lib/storage.js';
+import { isMuted, setMuted } from './lib/juice.js';
 import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, puzzleNumber } from './lib/schedule.js';
 import { POOLS } from './modes/index.js';
 import { GAMES } from './games.jsx';
@@ -29,6 +31,7 @@ export default function App() {
   const [answers, setAnswers] = useState([]);
   const [session, setSession] = useState(null);      // {kind:'daily'|'practice', mode?}
   const [theme, setTheme] = useState(() => load().theme || 'auto');
+  const [muted, setMutedState] = useState(isMuted);
   const [tick, setTick] = useState(0);
   const pid = useMemo(() => playerId(), []);
   const state = useMemo(() => load(), [tick, view]);
@@ -228,6 +231,8 @@ export default function App() {
       results: `Your result · ${BRAND.name}`,
       archive: `Archive · ${BRAND.name}`,
       about: `About · ${BRAND.name}`,
+      privacy: `Privacy · ${BRAND.name}`,
+      terms: `Terms · ${BRAND.name}`,
       notfound: `Page not found · ${BRAND.name}`,
     };
     document.title = T[route.name] || T.home;
@@ -304,7 +309,13 @@ export default function App() {
           <span className="brandname">{BRAND.name}</span>
         </button>
         <span className="spacer" />
-        {stats.streak > 0 && <span className="streakchip">{stats.streak}🔥</span>}
+        {stats.streak > 0 && <span className="streakchip" title="Day streak">{stats.streak}🔥</span>}
+        {/* Reachable BEFORE the first sound plays. It used to live inside the
+            reveal card, i.e. only after you had already been surprised by it. */}
+        <button className="iconbtn" aria-pressed={!muted}
+          onClick={() => { setMuted(!muted); setMutedState(!muted); }}
+          aria-label={muted ? 'Sound off. Turn sound on.' : 'Sound on. Turn sound off.'}
+          title={muted ? 'Sound off' : 'Sound on'}>{muted ? '🔇' : '🔊'}</button>
         {/* Was a three-way cycle where "system" and "dark" looked identical on a
             dark machine, with no label saying which you were on. Now it names the
             NEXT state, which is the only thing a toggle needs to tell you. */}
@@ -351,6 +362,8 @@ export default function App() {
           }} />
         )}
         {view === 'about' && <About onHome={goHome} />}
+        {view === 'privacy' && <Privacy onHome={goHome} />}
+        {view === 'terms' && <Terms onHome={goHome} />}
         {view === 'results' && canShowResults && (
           <Results answers={vAnswers} lineup={vLineup}
             kind={vSession.kind}
@@ -376,6 +389,8 @@ export default function App() {
         <nav className="footlinks">
           <button onClick={() => go({ name: 'archive' })}>Archive</button>
           <button onClick={() => go({ name: 'about' })}>About</button>
+          <button onClick={() => go({ name: 'privacy' })}>Privacy</button>
+          <button onClick={() => go({ name: 'terms' })}>Terms</button>
           {CREDITS.socials.map(s => (
             <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
           ))}

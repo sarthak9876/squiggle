@@ -97,7 +97,7 @@ export const DRAW = [
     xMin: 2011, xMax: 2024, yMin: 0, yMax: 320,
     source: "Netflix quarterly shareholder letters",
     theme:'streaming',
-    note: "Look at 2022 — the first subscriber loss in the company's history. The stock fell 35% in one day over a dip you can barely see on this chart.",
+    note: "Growth never actually reversed on an annual basis. The 35% one-day stock fall in 2022 was over a single QUARTER of losses — invisible at this scale, which is rather the point.",
     points: [[2011,23],[2013,41],[2015,70],[2017,110],[2019,167],[2020,204],[2021,222],[2022,231],[2023,260],[2024,302]]
   },
   {

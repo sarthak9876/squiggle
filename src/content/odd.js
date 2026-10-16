@@ -69,14 +69,15 @@ export const ODD = [
     note:'Swahili has around 18 million native speakers against hundreds of millions each for the others. It is enormous as a SECOND language.' },
 
   { id:'d7', prompt:'Which does not belong?', trueCount:1,
-    items:['Sun','Moon','Mars','Venus'], odd:1,
-    reasons:['It is the only one that does not orbit the Sun',       // TRUE
-             'It is the only one that makes its own light',          // false — that is the Sun
-             'It is the only one that is not a planet',              // false — the Sun is not either
-             'It is the only one visible without a telescope'], reason:0, // false — all four are
+    items:['Moon','Mars','Venus','Jupiter'], odd:0,
+    reasons:['It is the only one that orbits a planet, not the Sun',  // TRUE - the Moon
+             'It is the only gas giant',                              // Jupiter
+             'It is the only one hotter than 400\u00b0C',                  // Venus
+             'It is the only one with ice caps you can see from Earth'], // Mars
+    reason:0,
     source:'NASA solar system overview',
     theme:'planets',
-    note:'The Moon orbits Earth. Mars and Venus orbit the Sun, and the Sun is the thing being orbited.' },
+    note:'The Moon orbits Earth; everything else here orbits the Sun. That one fact is why it is a moon and they are planets.' },
 
   { id:'d8', prompt:'Which does not belong?', trueCount:1,
     items:['Python','Java','HTML','C++'], odd:2,

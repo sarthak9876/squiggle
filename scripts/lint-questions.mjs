@@ -8,7 +8,7 @@
      - the same answer or emoji twice in one day's set
    Exits non-zero so CI fails on a bad question rather than a player finding it. */
 import { POOLS } from '../src/modes/index.js';
-import { lineupFor, LAUNCH_DAY, uniqueDays } from '../src/lib/schedule.js';
+import { lineupFor, LAUNCH_DAY, uniqueDays, PER_DAY } from '../src/lib/schedule.js';
 
 const problems = [];
 const warnings = [];
@@ -90,6 +90,29 @@ for (let d = LAUNCH_DAY; d < LAUNCH_DAY + CYCLE; d++) {
       emoji.set(e, item.id);
     }
   }
+}
+
+/* CONTENT RUNWAY.
+   The ask was "no question repeats within 120 days". At 16 questions a day that
+   needs 1,920 questions and the bank holds 320 — short 1,600, and still short 86
+   in the thinnest pool even at 8 a day. So this check does NOT assert 120; it
+   asserts the cycle never SHRINKS, and prints the gap every run so the number
+   stays in front of whoever is writing content. Raise TARGET_DAYS as the bank
+   grows; the day it reaches 120 the original ask is met and this comment is moot. */
+const TARGET_DAYS = 120;
+const MIN_DAYS = 17;            // ratchet: today's cycle. Never let it drop.
+if (CYCLE < MIN_DAYS) {
+  fail('schedule', `cycle fell to ${CYCLE} days (floor is ${MIN_DAYS}) — a pool shrank`);
+}
+if (CYCLE < TARGET_DAYS) {
+  const per = Object.entries(POOLS).map(([m, p]) => {
+    const need = TARGET_DAYS * (PER_DAY[m] || 1);
+    return { m, short: Math.max(0, need - p.length) };
+  }).filter(x => x.short > 0).sort((a, b) => b.short - a.short);
+  const total = per.reduce((t, x) => t + x.short, 0);
+  console.warn(`\n\u26a0 content runway: ${CYCLE}-day cycle, target ${TARGET_DAYS}.`);
+  console.warn(`  ${total} more questions needed. Thinnest: ` +
+    per.slice(0, 3).map(x => `${x.m} +${x.short}`).join(', '));
 }
 
 if (warnings.length) {

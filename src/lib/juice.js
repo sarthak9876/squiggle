@@ -14,8 +14,12 @@ const reduced = () =>
   typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const MUTE_KEY = 'sq.mute';
+/* Default MUTED. Sound used to be on for everyone's first play, and the only way
+   off was a small speaker icon that appears after you have already heard it.
+   Unmuting is a deliberate act; being blasted in a lecture is not. '0' means the
+   player explicitly turned sound ON. */
 export const isMuted = () => {
-  try { return localStorage.getItem(MUTE_KEY) === '1'; } catch { return false; }
+  try { return localStorage.getItem(MUTE_KEY) !== '0'; } catch { return true; }
 };
 export const setMuted = m => {
   try { localStorage.setItem(MUTE_KEY, m ? '1' : '0'); } catch { /* private mode */ }

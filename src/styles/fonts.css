@@ -1,0 +1,32 @@
+/* SELF-HOSTED FONTS.
+
+   These used to load from fonts.googleapis.com, which sends every visitor's IP
+   address to Google on every page load — directly contradicting the footer's
+   "no account, no tracking, no data leaves your browser". That line is the
+   product's promise, so the fonts had to move rather than the line.
+
+   Both are variable fonts: one file each covers the whole weight range, Latin
+   subset only, which is why the pair is 73 KB rather than eight separate files.
+   `swap` so text paints immediately in the fallback and reflows when they land. */
+
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400 700;          /* variable range, not one static weight */
+  font-display: swap;
+  src: url('/fonts/space-grotesk-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Caveat';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/caveat-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}

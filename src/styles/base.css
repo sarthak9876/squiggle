@@ -20,7 +20,7 @@ body {
 h1,h2,h3,h4 { margin: 0; font-weight: 700; letter-spacing: -0.025em; line-height: 1.12; }
 p { margin: 0; }
 button { font: inherit; color: inherit; }
-a { color: var(--accent); }
+a { color: var(--accent-ink); }
 
 /* Focus is never removed, only restyled — keyboard players need to see where
    they are, and this is the single most common accessibility regression. */
@@ -47,3 +47,28 @@ a { color: var(--accent); }
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Typography floors ───────────────────────────────────────────────
+   12px copy is unreadable on a phone held at arm's length, and the smallest
+   text here carried the sources and the game descriptions — the bits worth
+   reading. Floors: 16px body, 14px meta, 15px links/buttons. */
+@media (max-width: 720px) {
+  body { font-size: 16px; }
+  .gamecard p, .gamecard .gdesc { font-size: 14px; }
+  .gamecard .gplay, .footlinks button, .footlinks a { font-size: 14px; }
+  .foot, .foot p, .fine { font-size: 13px; }
+  .rsrc, .fsrc, .stubtext { font-size: 13px; }
+  .btn { font-size: 15px; }
+}
+
+/* Numbers must not jitter while a score counts up or a clock ticks. */
+.rscore, .tbig, .bignum, .runscore, .countdown, .nextin b, .sbv, .archscore, .herostats b {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Caveat is a handwriting face — it stops being legible below ~28px. */
+.hand, .wrong, .firstday { font-size: max(28px, 1em); }
+
+/* 95 characters a line is a wall. 65ch is the readable range. */
+.rnote, .ftext, .stubtext, .herolead, .aboutbody p, .howto li { max-width: 65ch; }

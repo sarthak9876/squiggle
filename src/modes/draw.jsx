@@ -350,6 +350,23 @@ export const draw = {
   },
 };
 
+/* Round numbers, not evenly-divided ones.
+   Splitting a range into four gave ticks like 1.3, 2.5, 3.8 — arithmetically
+   fine and unreadable. Step up through 1/2/2.5/5 x 10^n and take whatever lands
+   inside the range, which is how a chart axis is meant to read. */
+function niceTicks(min, max, count = 5) {
+  const span = max - min;
+  if (!(span > 0)) return [min];
+  const raw = span / (count - 1);
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || 10 * mag;
+  const out = [];
+  for (let v = Math.ceil(min / step) * step; v <= max + step * 1e-9; v += step) {
+    out.push(+v.toFixed(10));
+  }
+  return out.length >= 2 ? out : [min, max];
+}
+
 function yTicks(p) {
   if (p.log) {
     const out = [];
@@ -357,7 +374,7 @@ function yTicks(p) {
     const step = Math.ceil(out.length / 6) || 1;
     return out.filter((_, i) => i % step === 0);
   }
-  return [0, 1, 2, 3, 4].map(i => p.yMin + (p.yMax - p.yMin) * i / 4);
+  return niceTicks(p.yMin, p.yMax);
 }
 function fmt(v) {
   const a = Math.abs(v);

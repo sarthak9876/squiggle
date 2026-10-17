@@ -100,13 +100,46 @@ describe('Size It Up — per-question range', () => {
       expect(size.score(q, { v: size.toSlider(q.answer, q), touched: true }), q.id).toBe(100);
   });
 
-  it('an untouched slider still cannot be submitted, and scores poorly', async () => {
+  it('an untouched slider still cannot be submitted, and never scores well', async () => {
     const { size } = await import('../src/modes/size.jsx');
     for (const q of POOLS.size) {
       const fresh = size.init(q);
+      // `ready` is the real guard — an untouched slider cannot be submitted at all.
       expect(size.ready(fresh), q.id).toBe(false);
-      expect(size.score(q, fresh), `${q.id} untouched`).toBeLessThanOrEqual(35);
+      // Belt and braces. The bound is 60 rather than 35 because each question's
+      // range is now asymmetric around its own answer (see rangeFor), so one
+      // fixed starting position cannot sit equally far from all 44 truths. The
+      // invariant that matters — that no single position is a winning one — is
+      // asserted properly in the test below.
+      expect(size.score(q, fresh), `${q.id} untouched`).toBeLessThanOrEqual(60);
     }
+  });
+
+  /* Regression guard for the midpoint exploit (found in pre-launch review).
+     rangeFor used to return t/5..t*5, and because the slider interpolates in
+     log space the geometric midpoint of that range is exactly t — so dragging
+     to dead centre scored 100 on 43 of 44 questions. This asserts the general
+     property, not just the midpoint: NO single slider position may be a good
+     answer across the pool. */
+  it('no fixed slider position beats actually knowing the answer', async () => {
+    const { size } = await import('../src/modes/size.jsx');
+    let best = { v: -1, mean: -1, wins: 0 };
+    for (let v = 0; v <= 1000; v += 10) {
+      const scores = POOLS.size.map(q => size.score(q, { v, touched: true }));
+      const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
+      if (mean > best.mean) best = { v, mean, wins: scores.filter(x => x >= 90).length };
+    }
+    // Measured at the time of the fix: best parking spot 40.8 mean / 8 of 44,
+    // against 73.5 for a player who is merely within 25% every time. The bug
+    // this replaces scored 99.6. Skill must stay comfortably ahead of parking.
+    expect(best.mean, `best parking spot v=${best.v}`).toBeLessThan(60);
+    expect(best.wins, 'questions a single position nearly-wins').toBeLessThanOrEqual(11);
+  });
+
+  it('the midpoint specifically is not the answer', async () => {
+    const { size } = await import('../src/modes/size.jsx');
+    for (const q of POOLS.size)
+      expect(size.score(q, { v: 500, touched: true }), `${q.id} midpoint`).toBeLessThan(95);
   });
 
   it('the live phrase names the reference in objects, not multiples', async () => {

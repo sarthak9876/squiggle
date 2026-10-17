@@ -4,6 +4,7 @@ import { logScore } from './contract.js';
 import { SIL } from '../content/emoji.js';
 import Emo from '../components/Emo.jsx';
 import { isMuted } from '../lib/juice.js';
+import { hash, rng } from '../lib/random.js';
 
 /* SIZE IT UP — scale one thing against another.
 
@@ -28,12 +29,36 @@ const STAGE = 150;          // px the reference occupies, fixed
 const FLOOR = 10;
 const STEPS = 1000;
 
-/* About 4x either side of the truth, widened a little so the answer is never at
-   an end of the travel, and clamped so a 100x question stays usable. */
+/* The travel around the truth, deliberately ASYMMETRIC.
+
+   It used to be t/5 .. t*5. Because the slider interpolates in log space, the
+   geometric midpoint of that range is sqrt((t/5)*(t*5)) = t exactly — so
+   dragging to dead centre scored 100 on 43 of 44 questions. A player finds that
+   once and the mode is over, and it quietly inflated every daily total by up to
+   199 of 1600 points (size holds 2 of the 16 slots).
+
+   Now the truth sits at a seeded 25-42% or 58-75% of the travel, never the
+   middle, and never the same fraction two questions running. SPAN stays ~1.4
+   decades so the feel of the drag is unchanged. Seeded by question id, so it is
+   stable across reloads and identical for every player that day. */
 export function rangeFor(item) {
   const t = item.answer;
-  const lo = Math.max(0.02, t / 5);
-  const hi = Math.min(400, t * 5);
+  const gen = rng(hash('size-range:' + String(item.id)));
+  const r = gen(), q = gen();
+  // Two bands with a gap across 0.5: an `at` near the middle would re-create
+  // the exact bug this replaces.
+  const at = r < 0.5 ? 0.20 + r * 0.52 : 0.54 + (r - 0.5) * 0.52;
+  /* The WIDTH varies per question too, and that is not cosmetic. With a fixed
+     span, slider position p always means "truth x 10^((p-at)*SPAN)", so one
+     position produced a similar relative error on every question and parking at
+     v=370 still beat 14 of 44. Varying the span decouples position from error. */
+  const span = 1.05 + q * 0.4;
+  let lo = Math.max(0.02, Math.pow(10, Math.log10(t) - at * span));
+  let hi = Math.min(400, Math.pow(10, Math.log10(t) + (1 - at) * span));
+  // The clamps above narrow the range, so re-assert that the truth stays inside
+  // it — otherwise a very small or very large answer becomes unreachable.
+  lo = Math.min(lo, t / 1.5);
+  hi = Math.max(hi, t * 1.5);
   return { lo, hi };
 }
 
@@ -108,8 +133,8 @@ function snap(r, item) {
 export const size = {
   /* Opens at the bottom of the range rather than on the answer, and `touched`
      keeps an unmoved slider unsubmittable. */
-  init: item => ({ v: Math.round(STEPS * 0.12), touched: false }),
-  clear: item => ({ v: Math.round(STEPS * 0.12), touched: false }),
+  init: item => ({ v: Math.round(STEPS * 0.06), touched: false }),
+  clear: item => ({ v: Math.round(STEPS * 0.06), touched: false }),
   ready: v => !!v.touched,
   score: (item, v) => logScore(toRatio(v.v, item), item.answer),
   signedError: (item, v) => Math.log10(toRatio(v.v, item) / item.answer) / 2,

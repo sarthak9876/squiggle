@@ -15,7 +15,7 @@ describe('Put In Order — the opening shuffle', () => {
     const bad = [];
     for (const q of POOLS.order) {
       const vals = q.items.map(x => x[1]);
-      const truth = q.items.map((_, i) => i).sort((a, b) => vals[b] - vals[a]);
+      const truth = q.items.map((_, i) => i).sort((a, b) => (vals[b] - vals[a]) * (q.asc ? -1 : 1));
       const { seq } = order.init(q);
       if (seq[0] === truth[0]) bad.push(`${q.id}: true first card opens in slot 1`);
       if (seq[seq.length - 1] === truth[truth.length - 1]) bad.push(`${q.id}: true last card opens last`);
@@ -30,7 +30,7 @@ describe('Put In Order — the opening shuffle', () => {
       const { seq } = order.init(q);
       let d = 0, t = 0;
       for (let i = 0; i < seq.length; i++)
-        for (let j = i + 1; j < seq.length; j++) { t++; if (vals[seq[i]] <= vals[seq[j]]) d++; }
+        for (let j = i + 1; j < seq.length; j++) { t++; if ((vals[seq[i]] - vals[seq[j]]) * (q.asc ? -1 : 1) <= 0) d++; }
       if (d / t < 0.6) thin.push(`${q.id}: only ${d}/${t} pairs scrambled`);
     }
     expect(thin, thin.join('\n')).toEqual([]);
@@ -44,8 +44,47 @@ describe('Put In Order — the opening shuffle', () => {
   it('still scores a correct answer 100', () => {
     for (const q of POOLS.order) {
       const vals = q.items.map(x => x[1]);
-      const seq = q.items.map((_, i) => i).sort((a, b) => vals[b] - vals[a]);
+      const seq = q.items.map((_, i) => i).sort((a, b) => (vals[b] - vals[a]) * (q.asc ? -1 : 1));
       expect(order.score(q, { seq }), q.id).toBe(100);
     }
+  });
+});
+
+/* Regression guard for the inverted-prompt bug found in pre-launch review.
+
+   The engine only ever scored descending-by-value, but six prompts ask for the
+   smallest first ("Closest to the Sun first", "Oldest company first"). A player
+   who answered those perfectly scored 0, and the reveal animated the cards into
+   the reversed order and presented it as fact — Neptune as the planet closest
+   to the Sun. Fixed with `asc: true` on those items; these tests assert the
+   property for the WHOLE pool so a new question cannot reintroduce it. */
+describe('Put In Order — prompt direction', () => {
+  it('answering correctly scores 100 on every question', async () => {
+    const { order } = await import('../src/modes/order.jsx');
+    for (const q of POOLS.order) {
+      const correct = q.items.map((_, i) => i)
+        .sort((a, b) => (q.asc ? q.items[a][1] - q.items[b][1] : q.items[b][1] - q.items[a][1]));
+      expect(order.score(q, { seq: correct, sel: null }), `${q.id} "${q.prompt}"`).toBe(100);
+    }
+  });
+
+  it('the reveal teaches the same order it scores', async () => {
+    const { order } = await import('../src/modes/order.jsx');
+    for (const q of POOLS.order) {
+      const correct = q.items.map((_, i) => i)
+        .sort((a, b) => (q.asc ? q.items[a][1] - q.items[b][1] : q.items[b][1] - q.items[a][1]));
+      // detail() counts pairs the same way score() does, so a perfect answer
+      // must report every pair right — if the reveal disagreed with the score,
+      // this is where it would show.
+      const d = order.detail(q, { seq: correct, sel: null });
+      const [got, total] = d.match(/\d+/g).map(Number);
+      expect(got, `${q.id} detail: ${d}`).toBe(total);
+    }
+  });
+
+  it('no opening position is worth free points', async () => {
+    const { order } = await import('../src/modes/order.jsx');
+    for (const q of POOLS.order)
+      expect(order.score(q, order.init(q)), `${q.id} untouched opening`).toBeLessThan(60);
   });
 });

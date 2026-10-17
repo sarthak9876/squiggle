@@ -17,7 +17,7 @@ function perfectAnswer(key, item, m) {
     case 'size':   return { v: m.toSlider(item.answer, item), touched: true };
     case 'shadow': return item.answer;
     case 'odd':    return { pick: item.odd, reason: item.reason };
-    case 'order':  return { seq: item.items.map((_, i) => i).sort((a, b) => item.items[b][1] - item.items[a][1]), sel: null };
+    case 'order':  return { seq: item.items.map((_, i) => i).sort((a, b) => (item.items[b][1] - item.items[a][1]) * (item.asc ? -1 : 1)), sel: null };
     case 'groups': return { layout: [], picked: [], locked: item.groups.map(g => g.items) };
     case 'place':  return { fx: (item.answer[0] - item.x.min) / (item.x.max - item.x.min),
                             fy: 1 - (item.answer[1] - item.y.min) / (item.y.max - item.y.min) };
@@ -102,7 +102,7 @@ describe('PUT IN ORDER scoring', () => {
   });
   it('every real question: correct order scores 100, reversed scores 0', () => {
     for (const item of POOLS.order) {
-      const best = item.items.map((_, i) => i).sort((a, b) => item.items[b][1] - item.items[a][1]);
+      const best = item.items.map((_, i) => i).sort((a, b) => (item.items[b][1] - item.items[a][1]) * (item.asc ? -1 : 1));
       expect(MODES.order.score(item, { seq: best, sel: null }), item.id).toBe(100);
       expect(MODES.order.score(item, { seq: best.slice().reverse(), sel: null }), item.id).toBe(0);
     }

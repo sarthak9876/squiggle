@@ -52,18 +52,18 @@ describe('per-game best', () => {
 /* QA2 #7: after submit the cards stayed in YOUR order, so the correct sequence was
    never actually shown — you had to re-sort five cards in your head. */
 describe('Put In Order reveals the true sequence', () => {
-  it('the truth order is strictly descending by value for every question', () => {
+  it('the truth order follows each question\'s own direction', () => {
     for (const q of POOLS.order) {
-      const truth = q.items.map((_, i) => i).sort((a, b) => q.items[b][1] - q.items[a][1]);
+      const truth = q.items.map((_, i) => i).sort((a, b) => (q.items[b][1] - q.items[a][1]) * (q.asc ? -1 : 1));
       const vals = truth.map(i => q.items[i][1]);
       for (let i = 1; i < vals.length; i++)
-        expect(vals[i - 1], `${q.id} not descending`).toBeGreaterThan(vals[i]);
+        expect((vals[i - 1] - vals[i]) * (q.asc ? -1 : 1), `${q.id} truth order wrong way`).toBeGreaterThan(0);
     }
   });
 
   it('a card the player misplaced is detectable, with its original position', () => {
     const q = POOLS.order[0];
-    const truth = q.items.map((_, i) => i).sort((a, b) => q.items[b][1] - q.items[a][1]);
+    const truth = q.items.map((_, i) => i).sort((a, b) => (q.items[b][1] - q.items[a][1]) * (q.asc ? -1 : 1));
     const yours = [...truth]; [yours[0], yours[1]] = [yours[1], yours[0]];
     const moved = truth.map((oi, pos) => ({ oi, pos, yourPos: yours.indexOf(oi) }))
                        .filter(x => x.yourPos !== x.pos);
@@ -73,7 +73,7 @@ describe('Put In Order reveals the true sequence', () => {
 
   it('a perfect answer flags nothing as moved', () => {
     const q = POOLS.order[0];
-    const truth = q.items.map((_, i) => i).sort((a, b) => q.items[b][1] - q.items[a][1]);
+    const truth = q.items.map((_, i) => i).sort((a, b) => (q.items[b][1] - q.items[a][1]) * (q.asc ? -1 : 1));
     expect(truth.filter((oi, pos) => truth.indexOf(oi) !== pos).length).toBe(0);
     expect(order.score(q, { seq: truth })).toBe(100);
   });

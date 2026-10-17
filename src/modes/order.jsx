@@ -4,6 +4,27 @@ import { emojiUrl } from '../lib/emojiUrl.js';
 import { shuffled } from '../lib/random.js';
 import { hash } from '../lib/random.js';
 
+/* WHICH WAY THE PROMPT READS.
+
+   Most prompts want the largest value first ("Heaviest animal first") and the
+   engine was written for only that. But six questions ask for the SMALLEST
+   first — "Closest to the Sun first" (Mercury, 58 Mkm), "Oldest company first"
+   (Nintendo, 1889), "Fastest to one million users first" (ChatGPT, 5 days) —
+   and for those the stored value is smallest-is-the-answer.
+
+   Without this flag a player who answered them perfectly scored 0, and the
+   reveal then animated the cards into the REVERSED order and presented it as
+   the truth: Neptune as the planet closest to the Sun, television as older than
+   the printing press. Marked with `asc: true` in the content file.
+
+   Note o19 ("Oldest first") is deliberately NOT asc — its values are years AGO,
+   so largest-first is already oldest-first. The flag describes the VALUES, not
+   the wording. */
+const dirOf = item => (item.asc ? -1 : 1);
+/** Should value `a` sit before value `b` for this item? Ties are never "before",
+ *  which keeps tie handling identical to the original strict comparison. */
+const before = (item, a, b) => (a - b) * dirOf(item) > 0;
+
 /** PUT IN ORDER — drag a card to move it, or tap two cards to swap them.
  *  Drag is what everybody reaches for first; tap-to-swap stays because it is the
  *  only thing that works with a keyboard and the only thing that works when a
@@ -21,13 +42,13 @@ function openingSeq(item) {
   const n = item.items.length;
   const vals = item.items.map(x => x[1]);
   const idx = item.items.map((_, i) => i);
-  // Correct order is DESCENDING by value, matching score()'s concordance test.
-  const truth = [...idx].sort((a, b) => vals[b] - vals[a]);
+  // Correct order follows the item's direction, matching score()'s concordance test.
+  const truth = [...idx].sort((a, b) => (vals[b] - vals[a]) * dirOf(item));
   const totalPairs = (n * (n - 1)) / 2;
   const discordant = seq => {
     let d = 0;
     for (let i = 0; i < seq.length; i++)
-      for (let j = i + 1; j < seq.length; j++) if (vals[seq[i]] <= vals[seq[j]]) d++;
+      for (let j = i + 1; j < seq.length; j++) if (!before(item, vals[seq[i]], vals[seq[j]])) d++;
     return d;
   };
   const needed = Math.ceil(totalPairs * 0.6);          // 6 of 10 for five cards
@@ -55,7 +76,7 @@ export const order = {
     const vals = v.seq.map(i => item.items[i][1]);
     let c = 0, d = 0;
     for (let i = 0; i < vals.length; i++)
-      for (let j = i + 1; j < vals.length; j++) (vals[i] > vals[j] ? c++ : d++);
+      for (let j = i + 1; j < vals.length; j++) (before(item, vals[i], vals[j]) ? c++ : d++);
     return c + d ? Math.max(0, Math.round(100 * (c - d) / (c + d))) : 0;
   },
   /** Pairs right, for the explanation line under the score. A bare number that
@@ -64,12 +85,12 @@ export const order = {
     const vals = v.seq.map(i => item.items[i][1]);
     let c = 0, t = 0;
     for (let i = 0; i < vals.length; i++)
-      for (let j = i + 1; j < vals.length; j++) { t++; if (vals[i] > vals[j]) c++; }
+      for (let j = i + 1; j < vals.length; j++) { t++; if (before(item, vals[i], vals[j])) c++; }
     return `${c} of ${t} pairs in the right order`;
   },
   extremity: () => 0.6,
   Component: ({ item, value, setValue, revealed }) => {
-    const truthOrder = item.items.map((_, i) => i).sort((a, b) => item.items[b][1] - item.items[a][1]);
+    const truthOrder = item.items.map((_, i) => i).sort((a, b) => (item.items[b][1] - item.items[a][1]) * dirOf(item));
     /* On reveal the cards used to stay in YOUR order with values bolted on, so to
        learn the answer you had to re-sort five cards in your head. Now they
        animate into the CORRECT order and each keeps a tag saying where you had

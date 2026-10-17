@@ -22,6 +22,15 @@ function previous() {
 }
 
 const write = (stars, note) => {
+  /* Only rewrite when the NUMBER changes. The note carries today's date, so
+     writing unconditionally dirtied the working tree on every build of a new
+     day even when the count was identical — which destroys `git status` as a
+     "do I have uncommitted work?" signal and makes a CI checkout diverge from
+     the repo for no reason. */
+  if (existsSync(OUT) && previous() === stars) {
+    console.log(`repo-stats: ${REPO} → ${stars} stars, unchanged (file left alone)`);
+    return;
+  }
   writeFileSync(OUT, `/* GENERATED at build time by scripts/fetch-stars.mjs — do not edit.
    ${note} */
 export const REPO_STATS = {

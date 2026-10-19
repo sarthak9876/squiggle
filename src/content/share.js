@@ -87,7 +87,7 @@ export const SHARE = [
     note:'21%. Most of the rest is nitrogen at 78% — the gas we barely think about makes up four fifths of every breath.' },
   // ── pop culture + internet ──────────────────────────────────────────────
   { id:'s16', prompt:'What share of YouTube videos get fewer than 1,000 views?', answer:88,
-    unit:'get under 1,000 views', source:'Pew Research Center, YouTube channel analysis',
+    unit:'get under 1,000 views', source:'Pex, State of YouTube 2019',
     theme:'streaming',
     note:'88%. The algorithm feels inescapable because you only ever see the 12% that escaped.' },
   { id:'s17', prompt:'What share of the world uses an Android phone rather than an iPhone?', answer:72,

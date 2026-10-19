@@ -34,7 +34,7 @@ export const SIL = {
   phone:'📱', key:'🔑', crown:'👑', leaf:'🍃', apple:'🍎', banana:'🍌',
   book:'📖', lightbulb:'💡', clock:'⏰', drop:'💧', earth:'🌍', moon:'🌕',
   /* India set */
-  cricket:'🏏', auto:'🛺', tajmahal:'🕌', mango:'🥭', curry:'🍛', tiger:'🐅',
+  cricket:'🏏', auto:'🛺', tajmahal:'🏛️', mango:'🥭', curry:'🍛', tiger:'🐅',
   diya:'🪔', rupee:'💰', temple:'🛕', spice:'🌶️',
   sun:'☀️', star:'⭐', football:'⚽', pizza:'🍕', guitar:'🎸', camera:'📷',
   // Added for size questions that were drawing the wrong thing entirely:

@@ -221,6 +221,10 @@
 .orderpreview { font-size: 13px; color: var(--ink-faint); margin: 10px 2px 0; line-height: 1.6; }
 .orderpreview b { color: var(--ink); }
 .hintline { font-size: 13px; color: var(--ink-faint); text-align: center; margin-top: 8px; }
+/* Hidden, NOT unmounted: this line sits above Submit, and removing it from the
+   flow on blur shifted the button mid-click and swallowed the press. */
+.kbhint { visibility: hidden; }
+.kbhint.on { visibility: visible; }
 
 /* ── Game feel: running score, combo, mascot, halfway ────────────── */
 .qhead .runscore { font-weight: 800; font-size: 13px; color: var(--gc, var(--ink));

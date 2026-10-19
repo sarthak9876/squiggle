@@ -331,18 +331,29 @@ export const draw = {
           onPointerCancel={() => { drawing.current = false; last.current = null; }} />
         {/* Submit used to just sit there greyed out with no explanation. Say what
             is missing and where to go. */}
-        {/* Keyboard players had no idea the canvas was drivable. */}
-        {!revealed && kbFocus && (
-          <p className="hintline">← → move along the years · ↑ ↓ set the value · Shift for fine steps</p>
+        {/* Keyboard players had no idea the canvas was drivable.
+            Kept MOUNTED and hidden rather than unmounted, because this line sits
+            directly above the Submit button: drawing focuses the canvas, pressing
+            Submit blurs it, and unmounting here moved the button up 28px between
+            mousedown and mouseup. The browser then retargets the click to the
+            card, so onClick never ran and Submit looked dead on the flagship
+            mode. Reserve the space and nothing moves mid-click. */}
+        {!revealed && (
+          <p className={'hintline kbhint' + (kbFocus ? ' on' : '')} aria-hidden={!kbFocus}>
+            ← → move along the years · ↑ ↓ set the value · Shift for fine steps
+          </p>
         )}
         {!revealed && (
           drawn === 0
             ? <p className="hintline">Draw a line across the chart — left to right.</p>
-            : !reachedEnd
+            : covered < 0.85
               ? <p className="hintline pulse">Keep going to {item.xMax} →{' '}
                   <span className="sub">{Math.round(covered * 100)}% drawn</span></p>
-              : covered < 0.85
-                ? <p className="hintline pulse">Fill the gaps in your line — {Math.round(covered * 100)}% drawn</p>
+              /* Once Submit is live the nudge must stop pulsing and stop reading
+                 like a blocker — a flashing "keep going" beside an enabled button
+                 is what made the dead click look deliberate. */
+              : !reachedEnd
+                ? <p className="hintline">You can submit now, or draw on to {item.xMax}.</p>
                 : null
         )}
       </>

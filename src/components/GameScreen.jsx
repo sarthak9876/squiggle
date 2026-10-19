@@ -152,11 +152,27 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
     return () => cancelAnimationFrame(raf);
   }, [revealed, score]);
 
-  // Keyboard: Enter submits, then Enter advances. Playable without a mouse.
+  /* Keyboard: Enter submits, then Enter advances. Playable without a mouse.
+
+     The Enter branch used to preventDefault() unconditionally on a WINDOW
+     listener, which cancelled native activation for every button and link while
+     this screen was mounted — Enter on a tile did nothing, Enter on a footer
+     link did nothing, and Enter on RESET submitted the question instead of
+     clearing it. Only act when focus is somewhere that has no Enter behaviour of
+     its own; a focused control handles its own key.
+
+     Escape called onQuit() outright, so the one key people press to dismiss a
+     dialog threw the run away — including from inside the "Leave this set?"
+     dialog that exists to prevent exactly that. It now toggles that dialog. */
   useEffect(() => {
     const onKey = e => {
-      if (e.key === 'Enter') { e.preventDefault(); revealed ? onNext() : submit(); }
-      if (e.key === 'Escape') onQuit();
+      if (e.key === 'Enter') {
+        const el = document.activeElement;
+        if (el && el.closest('button, a, input, select, textarea, [role="button"], [role="slider"]')) return;
+        e.preventDefault();
+        revealed ? onNext() : submit();
+      }
+      if (e.key === 'Escape') setConfirmQuit(q => !q);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -291,7 +307,8 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
         {revealed && (
           <motion.div className="card rcard" ref={rcardRef}
             initial={{ opacity: 0, y: 16 }}
-            // A miss shakes the card. Framer skips this under prefers-reduced-motion.
+            // A miss shakes the card. MotionConfig in App.jsx makes Framer honour
+            // prefers-reduced-motion; it does NOT do that by default.
             animate={score < 30 ? { opacity: 1, y: 0, x: [0, -9, 8, -5, 0] } : { opacity: 1, y: 0 }}
             transition={score < 30 ? { x: { duration: .36 } } : undefined}
             exit={{ opacity: 0 }}>

@@ -29,6 +29,10 @@
      --accent-ink. Never --accent. */
   --accent:       #ff5a5f;   /* the squiggle red — fills and shapes only */
   --accent-ink:   #d4323f;   /* text and button backgrounds: AA on paper */
+  /* Text ON an --accent-ink fill. The fill flips from dark red to light
+     pink between themes, so the readable text colour has to flip with it.
+     White on the dark-theme pink was 2.25:1 on the largest button we have. */
+  --on-accent:    #fff;
   --accent-soft:  #ffe8e8;
   --truth:        #2f6df6;   /* the real answer, always blue */
   --truth-soft:   #e4edff;
@@ -90,7 +94,7 @@
     --paper:#14141a; --paper-2:#1c1c24; --paper-sunk:#101016;
     --ink:#eceaf2; --ink-soft:#a3a3b2; --ink-faint:#82829a;
     --rule:#2d2d38; --rule-strong:#3d3d4c;
-    --accent:#ff6b70; --accent-ink:#ff8b8f; --accent-soft:#3a1f22;
+    --accent:#ff6b70; --accent-ink:#ff8b8f; --accent-soft:#3a1f22; --on-accent:#14141a;
     --truth:#6ea0ff; --truth-soft:#1a2440;
     --good:#3ecf7a; --warn:#f5a524;
     --g-draw:#ff6b70; --g-order:#9a80ff; --g-place:#2dd4bf; --g-share:#f5a524;
@@ -105,7 +109,7 @@
   --paper:#14141a; --paper-2:#1c1c24; --paper-sunk:#101016;
   --ink:#eceaf2; --ink-soft:#a3a3b2; --ink-faint:#82829a;
   --rule:#2d2d38; --rule-strong:#3d3d4c;
-  --accent:#ff6b70; --accent-ink:#ff8b8f; --accent-soft:#3a1f22;
+  --accent:#ff6b70; --accent-ink:#ff8b8f; --accent-soft:#3a1f22; --on-accent:#14141a;
   --truth:#6ea0ff; --truth-soft:#1a2440;
   --good:#3ecf7a; --warn:#f5a524;
   --g-draw:#ff6b70; --g-order:#9a80ff; --g-place:#2dd4bf; --g-share:#f5a524;

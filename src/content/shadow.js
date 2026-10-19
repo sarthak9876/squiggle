@@ -7,7 +7,7 @@
 export const SHADOW = [
   { id:'h1', prompt:'Which of these lives the longest?',
     options:['mouse','dog','horse','tortoise'], answer:3,
-    source:'Nielsen & Hedeholm, Science 2016',
+    source:'AnAge database, Human Ageing Genomic Resources',
     theme:'bugs',
     note:'A giant tortoise can pass 150 years. The mouse beside it gets about two.' },
   { id:'h2', prompt:'Which is the heaviest animal?',

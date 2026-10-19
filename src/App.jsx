@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+/* framer-motion defaults to reducedMotion:'never' — it ignores the OS setting
+   unless told otherwise, and the CSS * rule in base.css cannot reach it because
+   framer writes inline styles every frame. One wrapper covers every animation. */
+import { MotionConfig } from 'framer-motion';
 import Home from './components/Home.jsx';
 import GameScreen from './components/GameScreen.jsx';
 import Results from './components/Results.jsx';
@@ -304,6 +308,7 @@ export default function App() {
   }, [route.name, route.id]);
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="shell">
       <header className="topbar">
         <button className="brand" onClick={goHome} aria-label={BRAND.name + ' home'}>
@@ -420,5 +425,6 @@ export default function App() {
         </p>
       </footer>
     </div>
+    </MotionConfig>
   );
 }

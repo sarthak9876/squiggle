@@ -17,7 +17,7 @@
        font-family: inherit; transition: transform var(--d-fast) var(--ease-spring),
        box-shadow var(--d-fast), background var(--d-fast); }
 .btn:active { transform: scale(.97); }
-.btn-primary { background: var(--accent-ink); color: #fff; box-shadow: var(--shadow-pop); }
+.btn-primary { background: var(--accent-ink); color: var(--on-accent); box-shadow: var(--shadow-pop); }
 .btn-primary:hover { transform: translateY(-2px); }
 .btn-ghost { background: transparent; color: var(--ink); border: 2px solid var(--rule-strong); }
 .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }

@@ -527,3 +527,9 @@
   background: var(--paper-sunk); border-left: 3px solid var(--accent);
   color: var(--ink-soft); font-size: var(--t-micro); line-height: 1.55; }
 .hintbox b { color: var(--ink); margin-right: 6px; }
+
+/* Shapes Only tiles. The silhouette is the answer, so give it room and a
+   colour that reads on both themes; the tile itself carries the selection
+   state, not the shape. */
+.m-shadow .sil { margin: 0 auto; background-color: var(--ink); }
+.m-shadow .shadowopt[aria-pressed="true"] .sil { background-color: var(--accent-ink); }

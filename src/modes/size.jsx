@@ -247,7 +247,7 @@ export const size = {
                 transition={{ type: 'spring', stiffness: 200, damping: 26 }}>
                 {/* Grey silhouette, not the colour cartoon: the eye must compare
                     HEIGHT against the red object, not two clashing palettes. */}
-                <Sil name={item.ref.key} size="100%" tone="ink" label={item.ref.label} />
+                <Sil name={item.ref.key} size="100%" tone="ink" label={item.ref.label} fallbackToColour={false} />
               </motion.div>
               <span className="sizelab">{item.ref.label}<br /><b>{refLabel(item)}</b></span>
             </div>
@@ -264,7 +264,7 @@ export const size = {
                 aria-label={item.prompt}
                 aria-valuemin={0} aria-valuemax={STEPS} aria-valuenow={value.v}
                 aria-valuetext={text}>
-                <Sil name={item.target.key} size="100%" tone="accent" label={item.target.label} />
+                <Sil name={item.target.key} size="100%" tone="accent" label={item.target.label} fallbackToColour={false} />
                 {/* No grab dot. It was anchored to the BOX, but the silhouette
                     is masked with `contain` and so rarely fills it — the dot
                     ended up floating in empty space beside the shape, reading

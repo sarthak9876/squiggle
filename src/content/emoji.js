@@ -44,3 +44,21 @@ export const SIL = {
   india: '\ud83c\uddee\ud83c\uddf3', uk: '\ud83c\uddec\ud83c\udde7',
   tv: '\ud83d\udcfa',
 };
+
+/* Icons whose IDENTITY is carried by colour or inner detail, not by outline.
+
+   Audited by rendering all 64 as silhouettes and looking at them: `earth`,
+   `football`, `moon` and `tenniscourt` all reduce to the same plain circle;
+   `india` and `uk` are flags, so the outline is a bare rounded rectangle and
+   the colour IS the content; `cheetah`, `tiger` and `lion` collapse into one
+   another as generic big cats; `mango`, `curry`, `book` and `tree` become
+   featureless blobs.
+
+   Shapes Only asks you to identify the picture, so a silhouette there would be
+   a correctness bug, not a style choice. These keep their colours. */
+export const SIL_UNSAFE = new Set([
+  'earth', 'football', 'moon', 'tenniscourt',
+  'india', 'uk',
+  'cheetah', 'tiger', 'lion',
+  'mango', 'curry', 'book', 'tree',
+]);

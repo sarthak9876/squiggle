@@ -1,5 +1,7 @@
 import { SIL } from '../content/emoji.js';
 import Emo from '../components/Emo.jsx';
+import Sil from '../components/Sil.jsx';
+import { SIL_UNSAFE } from '../content/emoji.js';
 import { shuffled, hash } from '../lib/random.js';
 
 /** SHAPES ONLY — four pictures, no labels. The one mode playable without reading.
@@ -18,7 +20,19 @@ export const shadow = {
   score: (item, v) => (v === item.answer ? 100 : 0),
   extremity: () => 1,            // a pick is always a full commitment
   displayOrder: orderOf,
-  Component: ({ item, value, setValue, revealed }) => (
+  Component: ({ item, value, setValue, revealed }) => {
+  /* Silhouette or colour is decided PER QUESTION, never per icon.
+
+     Deciding per icon shipped an answer tell: on "which is the fastest?" the
+     cheetah is the one option whose identity needs its spots, so it alone
+     stayed coloured — surrounded by three white silhouettes, and it was the
+     ANSWER. A player could score without reading anything.
+
+     So: if any option in this question needs its colour, they all keep it. The
+     tiles stay consistent with each other, which is the only thing that
+     matters here. */
+  const useSil = !item.options.some(k => SIL_UNSAFE.has(k));
+  return (
     <div className="m-shadow">
       {orderOf(item).map((i, slot) => {
         const key = item.options[i];
@@ -34,11 +48,14 @@ export const shadow = {
              stays unlabelled on screen; the accessible name never was the puzzle. */
           aria-label={key}
           aria-pressed={value === i}>
-          <Emo name={key} size={64} alt={revealed ? key : ''} className="bigemo" />
+          {useSil
+            ? <Sil name={key} size={64} label={revealed ? key : 'option'} className="bigemo" fallbackToColour={false} />
+            : <Emo name={key} size={64} alt={revealed ? key : ''} className="bigemo" />}
           <span className="cap">{revealed ? key : ''}</span>
         </button>
         );
       })}
     </div>
-  ),
+  );
+  },
 };

@@ -17,8 +17,19 @@
    isolated document and does not inherit the page's colour. Masking sidesteps
    that entirely, and lets one asset be grey in the reference slot and accent
    red in the answer slot. */
-export default function Sil({ name, size = 32, tone = 'ink', label, className = '' }) {
+import Emo from './Emo.jsx';
+import { SIL_UNSAFE } from '../content/emoji.js';
+
+export default function Sil({ name, size = 32, tone = 'ink', label, className = '', fallbackToColour = true }) {
   if (!name) return null;
+  /* Some shapes do not survive being flattened — four different round things
+     all become the same circle, and a flag becomes a blank rectangle. Where the
+     picture IS the question (Shapes Only), fall back to the colour icon rather
+     than ship an unanswerable tile. Size It Up passes fallbackToColour={false}:
+     there the label and the scale carry the meaning, so a consistent two-tone
+     comparison matters more than the inner detail. */
+  if (fallbackToColour && SIL_UNSAFE.has(name))
+    return <Emo name={name} size={size} alt={label ?? name} className={className} />;
   const url = `url(/emoji/${name}.svg)`;
   return (
     <span

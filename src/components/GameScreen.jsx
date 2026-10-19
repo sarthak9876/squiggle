@@ -325,6 +325,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
               <span className="spacer" />
               <span className={'rverdict tone-' + vTone}>{vLabel}</span>
               <button className="mutebtn" aria-pressed={muted} title={muted ? 'Sound off' : 'Sound on'}
+                aria-label={muted ? 'Sound off. Turn sound on.' : 'Sound on. Turn sound off.'}
                 onClick={() => { setMuted(!muted); setMute(!muted); }}>{muted ? '🔇' : '🔊'}</button>
             </div>
             {/* Wrongness meter — 0% is perfect. Framing the gap rather than the score

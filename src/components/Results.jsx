@@ -135,7 +135,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
         {/* The image preview below already shows the emoji, title and blurb, so
             repeating them above was the same claim twice and doubled the page
             height. Only the tags survive here — they are not on the card. */}
-        <p className="shead">Your Bias Fingerprint</p>
+        <h2 className="shead">Your Bias Fingerprint</h2>
         <div className="fptags">{fp.tags.map(t => <span key={t} className="tag">{t}</span>)}</div>
         <div ref={cardRef} className="cardpreview" aria-label="Your shareable result card" />
         <div className="actions">
@@ -147,7 +147,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
       </div>
 
       <div className="card challengecard">
-        <p className="shead">Challenge a friend</p>
+        <h2 className="shead">Challenge a friend</h2>
         <p className="stubtext">
           They get today’s exact set and your score to beat. No sign-up, no app.
         </p>

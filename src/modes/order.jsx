@@ -65,9 +65,13 @@ function openingSeq(item) {
 }
 
 export const order = {
-  init: item => ({ seq: openingSeq(item), sel: null }),
-  clear: item => ({ seq: item.items.map((_, i) => i), sel: null }),
-  ready: () => true,
+  init: item => ({ seq: openingSeq(item), sel: null, touched: false }),
+  clear: item => ({ seq: item.items.map((_, i) => i), sel: null, touched: false }),
+  /* Every other mode shows a disabled "Pick an answer" until you act. This one
+     alone shipped a live "Submit", so the most discoverable thing on the screen
+     was a button that scored a scrambled opening — roughly zero — before the
+     player had moved a single card. A move is now required. */
+  ready: v => !!v.touched,
   score: (item, v) => {
     // Proper Kendall tau: (concordant - discordant) / total, which runs -1..+1 and
     // is clamped to 0. The previous version used concordant/total, which is
@@ -141,7 +145,7 @@ export const order = {
         // spliced the wrong card and the drag stalled after one step.
         const [card] = seq.splice(from, 1);
         seq.splice(to, 0, card);
-        return { seq, sel: null };
+        return { seq, sel: null, touched: true };
       });
     };
 
@@ -150,11 +154,13 @@ export const order = {
       drag.current = { from: null, moved: false, y0: 0 };
       if (revealed || d.moved) return;        // a real drag already did its work
       setValue(prev => {                      // otherwise it was a tap
+        // Selecting a card is not yet an answer — only an actual swap is, so
+        // `touched` is set on the swap branch alone.
         if (prev.sel === null) return { ...prev, sel: pos };
         if (prev.sel === pos) return { ...prev, sel: null };   // tap again to cancel
         const seq = prev.seq.slice();
         [seq[prev.sel], seq[pos]] = [seq[pos], seq[prev.sel]];
-        return { seq, sel: null };            // selection always clears after a swap
+        return { seq, sel: null, touched: true };   // selection always clears after a swap
       });
     };
 

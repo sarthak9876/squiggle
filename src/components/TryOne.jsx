@@ -7,7 +7,7 @@ import { dayNumber } from '../lib/schedule.js';
  *  A first-time visitor plays in under three seconds without a click-through —
  *  the single highest-leverage thing on a landing page for a game, because the
  *  product IS the demo. Deliberately a slider: no instructions needed. */
-export default function TryOne({ onFinish }) {
+export default function TryOne({ onFinish, onPlay }) {
   const q = SHARE[dayNumber() % SHARE.length];
   const [val, setVal] = useState(50);
   const [done, setDone] = useState(false);
@@ -39,6 +39,15 @@ export default function TryOne({ onFinish }) {
               You said <b>{val}%</b> · it is <b className="t">{q.answer}%</b>
             </p>
             <p className="trynote">{q.note}</p>
+            {/* This is the highest-intent moment on the landing page: the
+                player has just answered something and seen the real number.
+                It used to end here, with no way forward — the demo sold the
+                game and then dropped the person holding it. */}
+            {onPlay && (
+              <button type="button" className="btn btn-primary wide tryplay" onClick={onPlay}>
+                Play today's 16 <span className="arrow">→</span>
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

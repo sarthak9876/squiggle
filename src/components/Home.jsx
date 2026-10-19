@@ -75,7 +75,7 @@ export default function Home({ stats, onPlayDaily, onPlayGame, playedToday, prog
 
       <motion.section className="card tryblock" variants={riseIn}>
         <h2 className="shead">Try one right now</h2>
-        <TryOne />
+        <TryOne onPlay={onPlayDaily} />
       </motion.section>
 
       <motion.section variants={riseIn}>

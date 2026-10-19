@@ -6,7 +6,9 @@
    first twelve questions here shipped with two or three true reasons — "the Pyramids
    are the only one not on the modern wonders list" was the key, but "the only one in
    Africa" was equally true, so the player was punished for being right.
-   `trueCount` records the hand-check. validate.js refuses anything but 1.
+   `trueCount` records the hand-check — and nothing verifies it (there is no
+   validate.js; this comment used to claim one). See the note below on why that
+   matters.
 
    But trueCount is an ATTESTATION, not a check — it is a number the author types,
    and nothing can verify it, because "is this sentence also true of the outlier?"

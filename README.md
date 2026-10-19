@@ -29,19 +29,21 @@ npm install
 npm run dev          # http://localhost:5173
 npm run build        # production bundle into dist/
 npm run preview      # serve the production bundle
-npm test             # 115 tests
-npm run lint:questions   # content checks — fails CI on a bad question
+npm test             # unit + content tests
+npm run lint:questions   # content checks — run before shipping questions
 ```
 
 ## How it is put together
 
 - **React 18 + Vite.** No router, no state library, no UI kit. Five routes and a
   hand-rolled History API router cost fewer bytes than the dependency would.
-- **Deterministic scheduling.** `src/lib/schedule.js` deals every player the same
-  slots in the same order, but which *question* lands in each slot is seeded by a
-  local player id — so scores are comparable and there is no answer key to leak.
-  Guarantees: no repeat within a day, none across a 17-day cycle, one theme per
-  day, and at least four India-relevant questions daily.
+- **Deterministic scheduling.** `src/lib/schedule.js` deals *every* player the
+  same sixteen questions in the same order on a given day, seeded by a global
+  salt plus the day number. It is a shared daily on purpose — a per-player
+  shuffle was tried and removed, because it silently broke the one thing the
+  share card promises: that your emoji grid is comparable with everyone else's.
+  Guarantees: no repeat within a day, none across the cycle, one theme per day,
+  and at least four India-relevant questions daily.
 - **The mode contract.** `src/modes/contract.js`. Every game implements
   `init / ready / score / Component` and optionally `detail / signedError /
   numeric / clear`. Adding a ninth game means writing one file; the game screen

@@ -88,3 +88,31 @@ describe('Put In Order — prompt direction', () => {
       expect(order.score(q, order.init(q)), `${q.id} untouched opening`).toBeLessThan(60);
   });
 });
+
+/* Regression guard: Order used to ship `ready: () => true`.
+
+   Every other mode shows a disabled "Pick an answer" until the player acts.
+   Order alone had a live "Submit", so the most prominent control on the screen
+   scored the deliberately-scrambled opening — roughly zero — before the player
+   had moved anything, and then explained "4 of 10 pairs in the right order". */
+describe('Put In Order — submit gating', () => {
+  it('cannot be submitted before a move', async () => {
+    const { order } = await import('../src/modes/order.jsx');
+    for (const q of POOLS.order) expect(order.ready(order.init(q)), q.id).toBe(false);
+  });
+
+  it('can be submitted once a card has moved', async () => {
+    const { order } = await import('../src/modes/order.jsx');
+    for (const q of POOLS.order) {
+      const v = order.init(q);
+      const seq = v.seq.slice();
+      [seq[0], seq[1]] = [seq[1], seq[0]];
+      expect(order.ready({ ...v, seq, touched: true }), q.id).toBe(true);
+    }
+  });
+
+  it('clear() returns to an unsubmittable state', async () => {
+    const { order } = await import('../src/modes/order.jsx');
+    for (const q of POOLS.order) expect(order.ready(order.clear(q)), q.id).toBe(false);
+  });
+});

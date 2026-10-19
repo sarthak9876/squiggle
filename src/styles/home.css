@@ -117,3 +117,7 @@
 @media (prefers-reduced-motion: reduce) {
   .sqhero .crawl, .sqhero .crawlhead { animation: none; }
 }
+
+/* The demo's follow-through. Full width so it reads as the next step rather
+   than a footnote under the answer. */
+.tryplay { margin-top: 14px; }

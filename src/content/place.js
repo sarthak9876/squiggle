@@ -7,7 +7,12 @@
         If the answer assumes "black, no sugar, one cup", the prompt says so.
      2. No reference dot within 0.15 of the answer in normalised space. A dot that
         close either gives the answer away or crowds it into an unreadable pile.
-   validate.js enforces both. Run it before shipping new questions. */
+   Rule 2 is enforced for real: tests/scorers.test.js asserts no reference sits
+   within 0.15 of the answer, and that no answer is pinned to an axis edge.
+   Rule 1 is a WRITING rule — no tool can tell whether a prompt is ambiguous —
+   so it holds only as far as the author read it aloud. (There is no validate.js;
+   this comment used to claim one.) Run `npm run lint:questions` before
+   shipping new questions. */
 export const PLACE = [
   { id:'p1', prompt:'Where does an ADULT HUMAN belong?', item:'Adult human', emoji:'🧍',
     x:{label:'Average lifespan (years)',min:0,max:200}, y:{label:'Adult weight (kg)',min:0,max:600},

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { logScore } from './contract.js';
 import { SIL } from '../content/emoji.js';
 import Emo from '../components/Emo.jsx';
+import Sil from '../components/Sil.jsx';
 import { isMuted } from '../lib/juice.js';
 import { hash, rng } from '../lib/random.js';
 
@@ -244,7 +245,9 @@ export const size = {
               <motion.div className="refbox"
                 animate={{ width: refPx, height: refPx }}
                 transition={{ type: 'spring', stiffness: 200, damping: 26 }}>
-                <Emo name={item.ref.key} size="100%" className="emo" />
+                {/* Grey silhouette, not the colour cartoon: the eye must compare
+                    HEIGHT against the red object, not two clashing palettes. */}
+                <Sil name={item.ref.key} size="100%" tone="ink" label={item.ref.label} />
               </motion.div>
               <span className="sizelab">{item.ref.label}<br /><b>{refLabel(item)}</b></span>
             </div>
@@ -261,8 +264,13 @@ export const size = {
                 aria-label={item.prompt}
                 aria-valuemin={0} aria-valuemax={STEPS} aria-valuenow={value.v}
                 aria-valuetext={text}>
-                <Emo name={item.target.key} size="100%" />
-                {!revealed && <span className="grabdot" aria-hidden="true" />}
+                <Sil name={item.target.key} size="100%" tone="accent" label={item.target.label} />
+                {/* The dot is a drag affordance, not information. On a small
+                    object a fixed 16px dot is half the silhouette and reads as
+                    a rendering bug, so it only appears once there is room. The
+                    whole shape stays draggable either way, and the slider is
+                    always there. */}
+                {!revealed && targetPx >= 56 && <span className="grabdot" aria-hidden="true" />}
               </motion.div>
               <span className="sizelab">{item.target.label}<br />
                 <b>{revealed ? `${fmtX(item.answer)}×` : '?'}</b></span>

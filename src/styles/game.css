@@ -501,3 +501,32 @@
 .sizephrase { text-align: center; font-size: var(--t-small); color: var(--ink-soft);
   margin: 2px 0 8px; min-height: 1.4em; }
 @media (prefers-reduced-motion: reduce) { .sizescene { transition: none; } }
+
+/* ── Silhouettes (Size It Up) ─────────────────────────────────────
+   One colour per role so the eye compares SHAPE and HEIGHT, not palette.
+   mask-size is `contain` so an icon never distorts when the box is resized by
+   the drag, and bottom-centred so every object stands on the same ground line —
+   without a shared baseline a height comparison is meaningless. */
+.sil { display: block; flex: none;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center bottom; mask-position: center bottom;
+  -webkit-mask-size: contain; mask-size: contain; }
+.sil-ink    { background-color: var(--ink-soft); }    /* the fixed reference */
+.sil-accent { background-color: var(--accent); }      /* the thing you resize */
+
+/* ── Hint ────────────────────────────────────────────────────────
+   Deliberately quiet: a player who knows the subject should not be nagged by
+   it, and a player who doesn't should find it exactly where the confusion is —
+   under the prompt, before the controls. */
+.hintbtn { display: inline-flex; align-items: center; gap: 8px;
+  min-height: 36px; padding: 4px 12px; margin: 2px 0 10px;
+  background: none; border: 1px dashed var(--rule-strong); border-radius: 999px;
+  color: var(--ink-soft); font: inherit; font-size: var(--t-micro); cursor: pointer;
+  transition: color .15s, border-color .15s; }
+.hintbtn:hover { color: var(--ink); border-color: var(--ink-faint); }
+.hintbtn:focus-visible { outline: 3px solid var(--accent-ink); outline-offset: 2px; }
+.hintcost { font-weight: 700; color: var(--accent-ink); }
+.hintbox { margin: 2px 0 12px; padding: 10px 14px; border-radius: var(--r-sm);
+  background: var(--paper-sunk); border-left: 3px solid var(--accent);
+  color: var(--ink-soft); font-size: var(--t-micro); line-height: 1.55; }
+.hintbox b { color: var(--ink); margin-right: 6px; }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MODES, promptOf, noteOf, sourceOf } from '../modes/index.js';
+import { MODES, promptOf, noteOf, sourceOf, hintOf } from '../modes/index.js';
 import { GAMES } from '../games.jsx';
 import Reveal from './Reveal.jsx';
 import Mascot, { moodFor } from './Mascot.jsx';
@@ -8,6 +8,7 @@ import { react, isMuted, setMuted } from '../lib/juice.js';
 import { CROWD_ENABLED } from '../lib/flags.js';
 import { reportLink } from '../lib/report.js';
 import { dayNumber } from '../lib/schedule.js';
+import { HINT_KEEP, applyHint } from '../lib/hint.js';
 
 /* A face for the fact. Picked from the question's own theme so it is never
    random, and it gives the card a flash of colour that a paragraph cannot. */
@@ -51,6 +52,11 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
   const [shown, setShown] = useState(0);              // count-up display
   const [muted, setMute] = useState(isMuted);
   const [confirmQuit, setConfirmQuit] = useState(false);
+  /* A hint is offered only where the question names something a player may
+     simply never have heard of ("measured at Mauna Loa"). Not knowing WHAT is
+     being asked is frustration, not difficulty — but being told costs points,
+     so it stays a real choice. */
+  const [hinted, setHinted] = useState(false);
   const rcardRef = useRef(null);
   const barRef = useRef(null);
 
@@ -91,15 +97,18 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
     let ok = false;
     try { ok = mode.ready(value, slot.item); } catch { ok = false; }
     if (revealed || !ok) return;
-    const s = mode.score(slot.item, value);
+    const raw = mode.score(slot.item, value);
+    // A hinted answer still counts, at three quarters. Harsh enough to be a
+    // decision, mild enough that taking the hint beats closing the tab.
+    const s = applyHint(raw, hinted);
     setScore(s); setRevealed(true);
     onAnswer({
-      mode: slot.mode, score: s,
+      mode: slot.mode, score: s, hinted,
       signedError: mode.signedError?.(slot.item, value),
       extremity: mode.extremity?.(slot.item, value),
       magnitude: mode.magnitude?.(slot.item),
     });
-  }, [revealed, value, slot, mode, onAnswer]);
+  }, [revealed, value, slot, mode, onAnswer, hinted]);
 
   /* On a 900px-tall screen the reveal card pushed Next below the fold and the run
      felt stalled. Scroll the reveal into view instead of leaving it to luck. */
@@ -224,6 +233,14 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
         {isLast && <p className="finalflag">Final question</p>}
         <h2 className="qtext">{promptOf(slot.item)}</h2>
         <p className="qhow">{game.how}</p>
+
+        {hintOf(slot.item) && !revealed && (
+          hinted
+            ? <p className="hintbox"><b>Hint</b> {hintOf(slot.item)}</p>
+            : <button type="button" className="hintbtn" onClick={() => setHinted(true)}>
+                What is this? <span className="hintcost">−{Math.round((1 - HINT_KEEP) * 100)}%</span>
+              </button>
+        )}
 
         <AnimatePresence mode="wait">
           <motion.div key={idx} className="stage"

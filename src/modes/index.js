@@ -25,3 +25,7 @@ export const POOLS = { draw: DRAW, order: ORDER, place: PLACE, share: SHARE,
 export const promptOf = item => item.prompt || item.question || '';
 export const noteOf   = item => item.note || '';
 export const sourceOf = item => item.source || '';
+/* Optional one-line context for a question that names something a player may
+   never have heard of. Absent on most questions — the hint button only appears
+   where this is set, so adding one is a content decision, not a code change. */
+export const hintOf   = item => item.hint || '';

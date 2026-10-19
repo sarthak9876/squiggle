@@ -60,6 +60,7 @@ export const DRAW = [
     id: 6,
     title: "Reading the air",
     question: "Carbon dioxide in the atmosphere, measured at Mauna Loa",
+    hint: "Mauna Loa is a volcano in Hawaii. Its observatory has measured the air continuously since 1958 \u2014 the longest unbroken CO2 record there is.",
     yLabel: "parts per million", xLabel: "Year",
     xMin: 1958, xMax: 2024, yMin: 300, yMax: 440,
     source: "NOAA Global Monitoring Laboratory (Keeling Curve)",

@@ -32,12 +32,15 @@ export default function RepoLink() {
      rather than print a wrong zero. */
   return (
     <a className="repolink" href={url} target="_blank" rel="noopener noreferrer"
-       aria-label={stars == null
+       aria-label={!stars
          ? 'Squiggle on GitHub — source code'
          : `Squiggle on GitHub — ${stars} ${stars === 1 ? 'star' : 'stars'}`}
        title="Source on GitHub">
       <GitHubMark />
-      {stars != null && (
+      {/* `null` means the build could not reach GitHub. ZERO means it reached it
+          and the honest answer is nobody has starred this yet — which on a launch
+          page is a worse signal than showing nothing. Both hide the count. */}
+      {stars > 0 && (
         <span className="repostars">
           <span className="star" aria-hidden="true">★</span>{short(stars)}
         </span>

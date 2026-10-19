@@ -59,7 +59,6 @@ export const groups = {
         for (let j = i + 1; j < set.length; j++) { total++; if (groupOf(set[i]) === groupOf(set[j])) right++; }
     return total ? Math.round(100 * right / total) : 0;
   },
-  extremity: () => 1,
   detail: (item, v) => {
     const groupOf = l => item.groups.findIndex(x => x.items.includes(l));
     let right = 0, total = 0;

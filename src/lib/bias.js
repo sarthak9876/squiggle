@@ -19,12 +19,12 @@ const TYPES = [
     test: b => b.magnitudeLean > 0.15 },
   { id:'hedger',   emoji:'⚖️', title:'The Fence-Sitter',
     blurb:'You park near the middle and hope. It is safe. It is rarely right.',
-    test: b => b.extremity < 0.3 },
+    test: b => b.extremity !== null && b.extremity < 0.3 },
   /* Was "The Swinger", which to a 15-24 audience reads as a sexual term — and
      this title goes on a card built to be screenshotted into group chats. */
   { id:'gambler',  emoji:'🎢', title:'The Rollercoaster',
     blurb:'All or nothing. When you are right, you are really right.',
-    test: b => b.extremity > 0.72 },
+    test: b => b.extremity !== null && b.extremity > 0.72 },
   { id:'shape',    emoji:'📈', title:'The Shape Reader',
     blurb:'You feel how things move even when you cannot name the number.',
     test: b => b.byMode.draw > 65 && b.byMode.size > 60 },
@@ -38,6 +38,13 @@ const TYPES = [
 
 const FALLBACK = { id:'learner', emoji:'🌱', title:'The Fresh Eyes',
   blurb:'Not enough guesses yet to read you. Play a full day and we will.' };
+
+/* Matching none of the tests above is a real outcome, not an error, so it needs
+   a type of its own. It used to fall through to `hedger`, which told a player
+   who had committed hard on every slider that they "park near the middle and
+   hope" — a verdict they had not earned, on the one card built to be shared. */
+const MIXED = { id:'mixed', emoji:'🎲', title:'The Mixed Bag',
+  blurb:'No single bias owns you. You are wrong in a different direction every time.' };
 
 /**
  * @param {{mode:string, score:number, signedError?:number, magnitude?:number}[]} answers
@@ -63,6 +70,7 @@ export function fingerprint(input) {
   for (const m in byMode) modeAvg[m] = Math.round(byMode[m].reduce((x,y)=>x+y,0) / byMode[m].length);
 
   const signed = answers.filter(a => typeof a.signedError === 'number');
+  const committed = answers.filter(a => typeof a.extremity === 'number');
   const mean = arr => arr.length ? arr.reduce((x,y)=>x+y,0) / arr.length : 0;
 
   const b = {
@@ -71,12 +79,14 @@ export function fingerprint(input) {
     magnitudeLean: mean(signed.map(a => a.signedError)),
     // Only on questions about the state of the world (poverty, literacy, vaccines).
     worldLean: mean(signed.filter(a => a.magnitude === 'world').map(a => a.signedError)),
-    // How far from the safe middle you are willing to go.
-    extremity: mean(answers.map(a => typeof a.extremity === 'number' ? a.extremity : 0.5)),
+    // How far from the safe middle you are willing to go. Only the continuous
+    // modes report it — a multiple-choice pick is always a full commitment, so
+    // counting it as extremity 1 measured the mode, not the player.
+    extremity: committed.length ? mean(committed.map(a => a.extremity)) : null,
     byMode: { draw:0, order:0, place:0, share:0, odd:0, groups:0, shadow:0, size:0, ...modeAvg },
   };
 
-  const hit = TYPES.find(t => { try { return t.test(b); } catch { return false; } }) || TYPES[3];
+  const hit = TYPES.find(t => { try { return t.test(b); } catch { return false; } }) || MIXED;
   return {
     id: hit.id, emoji: hit.emoji, title: hit.title, blurb: hit.blurb,
     lean: b.magnitudeLean, accuracy: b.accuracy, byMode: b.byMode,

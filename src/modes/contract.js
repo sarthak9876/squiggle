@@ -17,7 +17,14 @@
      signedError(item, value)   -> negative = guessed low, positive = guessed high.
                                    This, not the raw score, is what makes a fingerprint
                                    readable: direction is a personality, size is noise.
-     extremity(item, value)     -> 0..1, how far from the safe middle they committed
+     extremity(item, value)     -> 0..1, how far from the safe middle they committed.
+                                   ONLY implement it where the player can choose how
+                                   far to go — a slider, an axis, a drawn line. A
+                                   multiple-choice pick is always a full commitment,
+                                   so returning a constant measures the MODE, not the
+                                   player, and averaging it put a 0.45 floor under the
+                                   metric that made the Fence-Sitter unreachable.
+                                   Pinned by tests/bias.test.js.
      numeric(item, value)       -> { truth, guess } for the crowd distribution.
                                    Omit when the question has no number line
                                    (odd-one-out, groups) and the reveal falls back

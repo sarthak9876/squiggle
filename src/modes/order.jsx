@@ -92,7 +92,6 @@ export const order = {
       for (let j = i + 1; j < vals.length; j++) { t++; if (before(item, vals[i], vals[j])) c++; }
     return `${c} of ${t} pairs in the right order`;
   },
-  extremity: () => 0.6,
   Component: ({ item, value, setValue, revealed }) => {
     const truthOrder = item.items.map((_, i) => i).sort((a, b) => (item.items[b][1] - item.items[a][1]) * dirOf(item));
     /* On reveal the cards used to stay in YOUR order with values bolted on, so to

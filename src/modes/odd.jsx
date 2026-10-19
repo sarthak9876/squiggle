@@ -27,7 +27,6 @@ export const odd = {
   },
   ready: v => v.pick !== null && v.reason !== null,
   score: (item, v) => (v.pick === item.odd ? 50 : 0) + (v.reason === item.reason ? 50 : 0),
-  extremity: () => 1,
   /** Display order only. `pick` and `reason` always hold the TRUE index, so
    *  scoring, the share card and every stored answer are untouched by this. */
   displayOrder: item => ({

@@ -18,7 +18,6 @@ export const shadow = {
     : `You picked the ${item.options[v]}. The answer is the ${item.options[item.answer]}.`,
   ready: v => v !== null,
   score: (item, v) => (v === item.answer ? 100 : 0),
-  extremity: () => 1,            // a pick is always a full commitment
   displayOrder: orderOf,
   Component: ({ item, value, setValue, revealed }) => {
   /* Silhouette or colour is decided PER QUESTION, never per icon.

@@ -265,12 +265,12 @@ export const size = {
                 aria-valuemin={0} aria-valuemax={STEPS} aria-valuenow={value.v}
                 aria-valuetext={text}>
                 <Sil name={item.target.key} size="100%" tone="accent" label={item.target.label} />
-                {/* The dot is a drag affordance, not information. On a small
-                    object a fixed 16px dot is half the silhouette and reads as
-                    a rendering bug, so it only appears once there is room. The
-                    whole shape stays draggable either way, and the slider is
-                    always there. */}
-                {!revealed && targetPx >= 56 && <span className="grabdot" aria-hidden="true" />}
+                {/* No grab dot. It was anchored to the BOX, but the silhouette
+                    is masked with `contain` and so rarely fills it — the dot
+                    ended up floating in empty space beside the shape, reading
+                    as a rendering artefact. The hint line under the stage
+                    ("Drag the picture, or use the slider") carries the
+                    affordance, and the whole shape stays draggable. */}
               </motion.div>
               <span className="sizelab">{item.target.label}<br />
                 <b>{revealed ? `${fmtX(item.answer)}×` : '?'}</b></span>

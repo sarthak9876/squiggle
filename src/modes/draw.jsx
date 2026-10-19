@@ -336,8 +336,13 @@ export const draw = {
             directly above the Submit button: drawing focuses the canvas, pressing
             Submit blurs it, and unmounting here moved the button up 28px between
             mousedown and mouseup. The browser then retargets the click to the
-            card, so onClick never ran and Submit looked dead on the flagship
-            mode. Reserve the space and nothing moves mid-click. */}
+            nearest common ancestor, so onClick never ran.
+
+            Measured on a 54px button: pressing the top 10% or 30% still landed,
+            because the button kept covering that point after the jump; pressing
+            the middle or lower half — where people actually aim — was swallowed.
+            So it read as an intermittently dead button, which is worse to report
+            than a consistently dead one. Reserve the space and nothing moves. */}
         {!revealed && (
           <p className={'hintline kbhint' + (kbFocus ? ' on' : '')} aria-hidden={!kbFocus}>
             ← → move along the years · ↑ ↓ set the value · Shift for fine steps

@@ -172,11 +172,11 @@ export const GROUPS = [
 
   { id:'g19', prompt:'Sort these nine into three groups of three',
     groups:[{ label:'Planets', items:['Venus','Neptune','Mercury'] },
-            { label:'Roman gods', items:['Juno','Vesta','Janus'] },
+            { label:'Roman gods', items:['Vulcan','Minerva','Bacchus'] },
             { label:'NASA missions', items:['Apollo','Voyager','Cassini'] }],
     source:'NASA mission archive',
     theme:'planets',
-    note:'Apollo and Cassini are gods too. NASA named its missions after the same pantheon the planets came from.' },
+    note:'Apollo is a god as well as a mission \u2014 but Vulcan, Minerva and Bacchus never flew, so the sets resolve one way. Cassini was an astronomer, not a god.' },
   /* Was Score / Canasta / Jetty / Buoy / Mooring, with a Gettysburg reference in
      the note — fine for 40+, a bounce for the 15-24 audience this is built for.
      Same wordplay trick (Bridge belongs to two of these, Poker to three), words
@@ -198,10 +198,10 @@ export const GROUPS = [
   { id:'g22', prompt:'Sort these nine into three groups of three',
     groups:[{ label:'Things with a keyboard', items:['Piano','Laptop','Organ'] },
             { label:'Things with a bridge', items:['Guitar','Nose','Dentist'] },
-            { label:'Things with a neck', items:['Bottle','Giraffe','Violin'] }],
-    source:null,
-    theme:'wildlife',
-    note:'A guitar has all three — a bridge, a neck, and no keyboard. The decoys are what make the sets resolve one way only.' },
+            { label:'Things with a neck', items:['Bottle','Giraffe','Shirt'] }],
+    source:'Everyday usage',
+    theme:'modern',
+    note:'A guitar has a neck too \u2014 but a bottle, a giraffe and a shirt have no bridge, so only one arrangement works. A violin would have broken that.' },
   { id:'g23', prompt:'Sort these nine into three groups of three',
     groups:[{ label:'Greenhouse gases', items:['Methane','Nitrous oxide','Ozone'] },
             { label:'Noble gases', items:['Helium','Argon','Xenon'] },

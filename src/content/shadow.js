@@ -34,7 +34,7 @@ export const SHADOW = [
     options:['bicycle','car','plane','rocket'], answer:0,
     source:'Encyclopaedia Britannica, history of transport',
     theme:'missions',
-    note:'The bicycle, by about seventy years. The pedal bicycle came in the 1860s; the car in 1886.' },
+    note:'The bicycle, by about twenty years. The pedal bicycle came in the 1860s; the car in 1886. Count from the 1817 running machine and the gap is nearer seventy.' },
   { id:'h7', prompt:'Which produces the least CO2 per passenger-kilometre?',
     options:['car','bus','train','bicycle'], answer:3,
     source:'International Energy Agency',

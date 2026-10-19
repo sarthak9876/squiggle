@@ -50,7 +50,7 @@ export const GROUPS = [
   { id:'g5', prompt:'Sort these nine into three groups of three',
     groups:[
       { label:'Card suits', items:['Hearts','Clubs','Diamonds'] },
-      { label:'Garden tools', items:['Spade','Rake','Hoe'] },
+      { label:'Garden tools', items:['Spade','Rake','Trowel'] },
       { label:'Organs', items:['Liver','Kidney','Lung'] }],
     source:null,
     theme:'health',

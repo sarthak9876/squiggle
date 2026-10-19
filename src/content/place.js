@@ -260,7 +260,7 @@ export const PLACE = [
     source:'UN World Urbanization Prospects / IMD rainfall normals',
     theme:'india-cities', region:'india',
     note:'Bengaluru is drier than Chennai and far drier than Mumbai. Its water problem is not that it rains little \u2014 it is that it has no river.' },
-  { id:'in-p5', prompt:'Where does the TAJ MAHAL belong?', item:'Taj Mahal', emoji:'\ud83d\udd4c',
+  { id:'in-p5', prompt:'Where does the TAJ MAHAL belong?', item:'Taj Mahal', emoji:'\ud83c\udfdb\ufe0f',   // U+1F3DB classical building, matching emoji.js:37 — a mausoleum, not a mosque
     x:{ label:'Year completed', min:0, max:2050 },
     y:{ label:'Visitors per year (millions)', min:0, max:12 },
     answer:[1653, 6.5],

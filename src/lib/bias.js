@@ -8,7 +8,9 @@
  *              lean:number, confidence:number, tags:string[] }} Fingerprint */
 
 const TYPES = [
-  { id:'doom',     emoji:'🌧️', title:'The Doom Optimist',
+  /* Was "The Doom Optimist", which contradicted its own blurb one line down —
+     thinking the world is worse than it is, is pessimism. */
+  { id:'doom',     emoji:'🌧️', title:'The Doomsayer',
     blurb:'You think the world is worse than it is. It usually is not.',
     test: b => b.worldLean < -0.18 },
   { id:'skeptic',  emoji:'🔍', title:'The Big-Number Skeptic',

@@ -94,10 +94,20 @@ export const SHARE = [
     unit:'use Android', source:'StatCounter Global Stats',
     theme:'devices',
     note:'72%. iPhone dominates the US and Japan and almost nowhere else — which is why the internet feels American.' },
-  { id:'s18', prompt:'What share of Spotify artists earn more than $1,000 a year from it?', answer:5,
-    unit:'earn over $1,000/yr', source:'Spotify Loud & Clear report',
-    theme:'streaming',
-    note:'About 5%. Roughly 11 million artists upload; around 66,000 clear a thousand dollars.' },
+  /* s18 removed. It asked what share of Spotify artists clear $1,000 a year and
+     answered 5%; Spotify's own Loud & Clear (2024 streams) says 2.3%, and the
+     note's own figures (66,000 of 11 million) worked out to 0.6% — three numbers,
+     none of them agreeing. 66,000 was the $10,000 tier, not the $1,000 one.
+
+     The true answer cannot be used here: every SHARE answer must sit above 2 and
+     below 97 (tests/scorers.test.js:141), because an answer at the rail is won by
+     dragging the slider to the end. 2.3% is exactly that. Rounding it up to 3 to
+     satisfy the rule would overstate it by 30% and contradict the note, which is
+     the defect this edit set out to remove.
+
+     The fact is worth keeping — it belongs in PUT IN ORDER, ranking the earnings
+     tiers (1,450 artists over $1M · 12,500 over $100k · 71,200 over $10k), where
+     an extreme distribution is the point rather than a problem. */
   /* The "80% have never flown" figure is repeated everywhere and sourced almost
      nowhere. Replaced with a number that is actually measured and published. */
   { id:'s19', prompt:'What share of the world\u2019s people took a flight in a typical year before 2020?', answer:11,

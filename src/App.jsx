@@ -15,7 +15,7 @@ import { BRAND } from './brand.js';
 import NotFound from './components/NotFound.jsx';
 import { Privacy, Terms } from './components/Legal.jsx';
 import { checkRunway } from './lib/runway.js';
-import { load, patch, playerId } from './lib/storage.js';
+import { load, patch, playerId, mergeInflight } from './lib/storage.js';
 import { isMuted, setMuted } from './lib/juice.js';
 import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, puzzleNumber } from './lib/schedule.js';
 import { slotKey } from './lib/slotkey.js';
@@ -154,7 +154,8 @@ export default function App() {
     // Saved after every single answer, not at the end. A refresh at question 7
     // used to throw the whole run away.
     if (session?.kind === 'daily' && !session.replay) {
-      patch(s => ({ ...s, inflight: { day, idx: next.length, answers: next } }));
+      // Longer list wins — see mergeInflight. A second tab must not roll you back.
+      patch(s => ({ ...s, inflight: mergeInflight(s.inflight, next, day) }));
     } else if (session?.kind === 'practice') {
       patch(s => ({
         ...s,

@@ -8,6 +8,13 @@
 .brand { display: flex; align-items: center; gap: 8px; background: none; border: 0;
          cursor: pointer; padding: 6px; margin-left: -6px; border-radius: var(--r-sm); }
 .brand .sqmark { flex: none; }
+/* The topbar is one non-wrapping row, so below ~300px the last control (the
+   theme toggle) was pushed off the right edge and could not be tapped. Dropping
+   the wordmark frees ~70px against a 24px overflow; the logo still identifies
+   the app and the brand button keeps its accessible name. */
+@media (max-width: 320px) {
+  .brandname { display: none; }
+}
 .brandname { font-weight: 700; font-size: 1.1rem; letter-spacing: -.02em; }
 .spacer { flex: 1; }
 .streakchip { font-size: var(--t-small); font-weight: 600; background: var(--accent-soft);

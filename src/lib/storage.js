@@ -26,3 +26,20 @@ export function playerId() {
   }
   return s.pid;
 }
+
+/** Merge this tab's in-progress answers with whatever is already stored.
+
+    Two tabs share one storage key. patch() re-reads, so sibling keys survive,
+    but the inflight VALUE was last-writer-wins: a tab left open on question 6
+    wrote its shorter list over storage already holding 8, and the player watched
+    a reload roll them backwards.
+
+    Both tabs play the same lineup in the same order and a day's answers only
+    ever grow, so length IS progress and the longer list wins. A stale tab's
+    duplicate answer is dropped, which is correct — the other tab already
+    recorded that question. Stored answers from a DIFFERENT day never apply. */
+export function mergeInflight(stored, next, day) {
+  const have = stored && stored.day === day ? (stored.answers || []) : [];
+  const answers = next.length >= have.length ? next : have;
+  return { day, idx: answers.length, answers };
+}

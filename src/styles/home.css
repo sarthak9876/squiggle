@@ -99,6 +99,10 @@
 /* The wave drifts and bobs so the hero has a pulse; the head dot runs the same
    loop a beat late, which is what makes it read as one creature moving rather
    than a picture wobbling. Compositor-only properties, so it is free. */
+/* Fixed width=300 in the markup. On a 280px screen (a folded Galaxy Fold, or a
+   narrow split view) that hung 36px off the right edge. The viewBox already
+   carries the aspect ratio, so capping the rendered width is the whole fix. */
+.sqhero { max-width: 100%; height: auto; }
 .sqhero .crawl { animation: crawl 7s ease-in-out infinite; transform-box: fill-box;
                  transform-origin: center; will-change: transform; }
 .sqhero .crawlhead { animation: crawlhead 7s ease-in-out infinite .55s;

@@ -100,3 +100,24 @@
    so 420 was dropping it while it still fit. Below 360 the header does start to
    crowd, and the icon alone carries it. */
 @media (max-width: 359px) { .repostars { display: none; } }
+
+/* "A new version is ready." Sits above the sticky action bar so it can never
+   cover the button someone is reaching for mid-question. */
+.swtoast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 60;
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px 10px 16px; border-radius: var(--r-md);
+  background: var(--ink); color: var(--paper);
+  box-shadow: 0 8px 24px rgb(0 0 0 / .28); font-size: var(--t-small);
+  max-width: calc(100vw - 32px);
+}
+.swtoast button {
+  border: 0; border-radius: var(--r-sm); cursor: pointer;
+  padding: 7px 12px; font: inherit; font-weight: 700;
+  background: var(--accent-ink); color: var(--on-accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .swtoast { animation: swtoast-in .22s ease-out; }
+  @keyframes swtoast-in { from { opacity: 0; transform: translate(-50%, 10px) } }
+}

@@ -7,7 +7,12 @@
    Strategy: cache-first for the shell (instant repeat loads, works on a plane),
    network-first for navigation so a deploy is picked up rather than pinned forever.
    The cache name carries a version — bump it to force every client to refresh. */
-const VERSION = 'squiggle-v2.0.0';
+/* Replaced at build time (see stampServiceWorker in vite.config.js) with a hash
+   of the entry bundle, so the name changes exactly when the code does. The
+   literal below is the DEV value: in `vite dev` the worker is never registered,
+   and if this file is ever served unstamped the name is still valid — it just
+   stops changing, which the build warns about. */
+const VERSION = 'squiggle-__BUILD__';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest'];
 
 self.addEventListener('install', e => {

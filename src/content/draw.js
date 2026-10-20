@@ -76,7 +76,7 @@ export const DRAW = [
     xMin: 2001, xMax: 2022, yMin: 100, yMax: 100000000, log: true,
     source: "NIH National Human Genome Research Institute",
     theme:'health',
-    note: "Note the cliff at 2008 — that is next-generation sequencing arriving. Costs fell far faster than Moore's Law, which is the dotted line biologists expected.",
+    note: "Note the cliff at 2008 — that is next-generation sequencing arriving. Costs fell far faster than Moore's Law, which biologists had expected it to follow.",
     points: [[2001,95000000],[2003,50000000],[2005,10000000],[2007,9000000],[2008,1000000],[2010,47000],[2012,7700],[2015,1500],[2019,940],[2022,600]]
   },
   {

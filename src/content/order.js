@@ -91,10 +91,15 @@ export const ORDER = [
     theme:'energy',
     note:'An espresso has less caffeine than a mug of filter coffee — it is concentrated, not larger.' },
   { id:'o17', prompt:'Longest first', unit:'km',
-    items:[['Nile',6650,'🏞️'],['Great Wall of China',21196,'🧱'],['Trans-Siberian Railway',9289,'🚂'],['UK coastline',12429,'🏖️'],['Panama Canal',82,'🚢']],
+    // Dropped the UK coastline and the Great Wall. Both have two defensible
+    // numbers — the coastline paradox gives anything from 12,429 to ~31,000 km
+    // depending on the ruler, and the Wall is 21,196 km with every branch or
+    // ~8,850 for the main wall. A question scored on ORDER cannot rest on a
+    // figure that depends on who did the measuring.
+    items:[['Trans-Siberian Railway',9289,'🚂'],['Nile',6650,'🏞️'],['Route 66',3940,'🛣️'],['Great Barrier Reef',2300,'🪸'],['Panama Canal',82,'🚢']],
     source:'Geographical surveys',
     theme:'rail',
-    note:'The Great Wall beats every river on Earth. The Panama Canal is 82 km and changed world trade more than any of them.' },
+    note:'The Trans-Siberian crosses eight time zones. The Panama Canal is 82 km and changed world trade more than any of the others.' },
   { id:'o18', prompt:'Most expensive to make, first', unit:'US$ millions',
     items:[['Avengers: Endgame',356,'🎬'],['Cyberpunk 2077',174,'🎮'],['Avatar',237,'🎥'],['One Boeing 737 MAX',121,'✈️'],['Mars Ingenuity helicopter',85,'🚁']],
     source:'Studio and manufacturer figures',
@@ -155,10 +160,14 @@ export const ORDER = [
     theme:'geography',
     note:'Russia spans eleven time zones, and its eastern tip is closer to Alaska than to Moscow.' },
   { id:'o30', prompt:'Loudest first', unit:'decibels',
-    items:[['Krakatoa eruption',310,'🌋'],['Rocket launch',180,'🚀'],['Jet engine at 30m',140,'✈️'],['Rock concert',110,'🎸'],['Normal speech',60,'🗣️']],
+    // Krakatoa was listed at 310 dB, which cannot happen in air: above about
+    // 194 dB the wave's low-pressure half would have to go below a vacuum, so
+    // the number is not loud, it is impossible. 172 dB is the real figure, and
+    // it was measured 160 km from the island — which is the better fact anyway.
+    items:[['Rocket launch',180,'🚀'],['Krakatoa at 160 km',172,'🌋'],['Jet engine at 30m',140,'✈️'],['Rock concert',110,'🎸'],['Normal speech',60,'🗣️']],
     source:'NOAA / OSHA noise exposure data',
     theme:'missions',
-    note:'Krakatoa in 1883 was heard 5,000 km away and burst the eardrums of sailors 65 km out. It is the loudest sound in recorded history.' },
+    note:'172 dB was measured 160 km away, where a jet engine would be inaudible. Krakatoa burst the eardrums of sailors 65 km out and was heard 5,000 km away.' },
 
   { id:'in-o1', prompt:'Most populated Indian city first', unit:'million people',
     items:[['Delhi',33,'🏛️'],['Mumbai',21,'🌊'],['Kolkata',15,'🌉'],['Bengaluru',13,'💻'],['Chennai',11,'🏖️']],

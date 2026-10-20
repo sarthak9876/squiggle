@@ -132,8 +132,11 @@ export const SHARE = [
     note:'The average player is around 36 and roughly half are women. The teenage-boy stereotype is two decades stale.' },
 
   // ── science + numbers ───────────────────────────────────────────────────
-  { id:'s24', prompt:'What share of your DNA do you share with a banana?', answer:50,
-    unit:'shared with a banana', source:'US National Human Genome Research Institute',
+  // The prompt asked about DNA and the note answered about GENES, which are
+  // different claims — the widely repeated "50% of your DNA" is itself the
+  // myth. The prompt now asks what the 50% actually measures.
+  { id:'s24', prompt:'What share of your genes have a recognisable counterpart in a banana?', answer:50,
+    unit:'of genes', source:'US National Human Genome Research Institute',
     theme:'nutrition',
     note:'Around 50% of genes have a recognisable counterpart. Life reuses its parts relentlessly.' },
   { id:'s25', prompt:'What share of the cells in your body are actually human?', answer:43,

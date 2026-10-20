@@ -61,7 +61,9 @@ export const SHADOW = [
     theme:'bugs',
     note:'A city bus is about 12 tonnes — twice an elephant and eight times a car.' },
   { id:'h12', prompt:'Which of these is heaviest?',
-    options:['cat','chicken','rabbit','dog'], answer:3,
+    // Was cat / chicken / rabbit / dog. A chihuahua weighs under 3 kg and a
+    // Maine Coon reaches 11, so the answer depended on which dog you pictured.
+    options:['mouse','chicken','rabbit','dog'], answer:3,
     source:'American Kennel Club / zoological records',
     theme:'birds',
     note:'A medium dog is about 30 kg — six times a house cat and fifteen times a chicken.' },
@@ -205,8 +207,11 @@ export const SHADOW = [
     options:['mango','spice','curry','diya'], answer:0,
     source:'FAO production statistics', theme:'india-farming', region:'india',
     note:'India grows about half the world\u2019s mangoes \u2014 some 25 million tonnes a year.' },
-  { id:'h45', prompt:'Which of these is coldest?',
+  { id:'h45', prompt:'Which of these is coldest at night?',
+    // "Coldest" alone was wrong: the Moon's DAY side reaches 127 C, hotter than
+    // anywhere on Earth. The night side is the -173 C the note talks about, so
+    // the question now asks what the answer actually measures.
     options:['moon','sun','earth','star'], answer:0,
     source:'NASA planetary fact sheets', theme:'moonsun',
-    note:'The Moon\u2019s night side reaches \u2212173\u00b0C. With no atmosphere there is nothing to hold the heat.' },
+    note:'The Moon\u2019s night side reaches \u2212173\u00b0C, and its day side +127\u00b0C. With no atmosphere there is nothing to carry heat from one to the other.' },
 ];

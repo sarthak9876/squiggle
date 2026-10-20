@@ -17,13 +17,21 @@
    git log). The only reliable test is reading all four reasons aloud against the
    odd item and asking "could a smart player defend this one?".
 
-   Judged acceptable on that pass, but worth a second opinion if they ever read as
-   unfair: d14 Australia "the only one with a desert" (Greenland is a polar desert);
-   d18 Mediterranean "the only one in the northern hemisphere" (the Atlantic is
-   partly northern, so literally false); d19 Visa "the only one that is regulated";
-   d25 peanut "the only one that is not a nut botanically" (almonds and cashews are
-   not true nuts either, so it is false — but it reads as true); in-d4 yen "the only
-   one that is not a decimal currency"; d31 drum "the only one you hit". */
+   Six were listed here as "judged acceptable, but worth a second opinion if they
+   ever read as unfair". An outside retest on 2026-10-21 gave that second opinion
+   and called them out, so they are rewritten rather than re-judged. The shared
+   defect: a distractor that is TECHNICALLY false but READS as true, which
+   punishes the player who knows the most — exactly backwards.
+     d14 Australia "the only one with a desert"        -> Greenland is a polar desert
+     d18 Mediterranean "only one in the northern hemisphere" -> it IS the only one
+                                                        entirely north
+     d19 Visa "the only one that is regulated"          -> a judgement, not a fact
+     d25 peanut "not a nut botanically"                 -> almonds and cashews are
+                                                        not true nuts either
+     d31 drum "the only one you hit"                    -> a piano is struck too
+     d33 Nairobi, every distractor a one-word negation of the true reason
+   A distractor must be false ON ITS OWN TERMS, not false by technicality and not
+   the true reason with a word flipped. */
 export const ODD = [
   { id:'d1', prompt:'Which does not belong?', trueCount:1,
     items:['Tomato','Cucumber','Pumpkin','Lettuce'], odd:3,
@@ -166,8 +174,12 @@ export const ODD = [
     items:['Greenland','New Guinea','Borneo','Australia'], odd:3,
     reasons:['It is the only one classed as a continent rather than an island', // TRUE
              'It is the only one in the southern hemisphere',        // false — New Guinea and Borneo straddle it
-             'It is the only one with no land border',               // false - Greenland and Borneo... Borneo has three
-             'It is the only one with a desert'], reason:0,          // false - Greenland is a polar desert
+             // Was 'the only one with no land border'. Since the 2022 Hans
+             // Island settlement Greenland HAS a land border with Canada, which
+             // made that statement true of Australia as well — two correct
+             // reasons, only one of which scored.
+             'It is the only one with glaciers',                     // false - Greenland is almost entirely ice
+             'It is the only one with an active volcano'], reason:0, // false - New Guinea has several; mainland Australia has none
     source:'Encyclopaedia Britannica, continents and islands',
     theme:'demography',
     note:'Australia is the largest landmass that counts as a continent, which is precisely why Greenland gets to be called the largest island.' },
@@ -202,7 +214,10 @@ export const ODD = [
   { id:'d18', prompt:'Which does not belong?', trueCount:1,
     items:['Pacific','Atlantic','Mediterranean','Indian'], odd:2,
     reasons:['It is the only sea rather than an ocean',
-             'It is the only one in the northern hemisphere',
+             // Was 'the only one in the northern hemisphere' — the Mediterranean
+             // IS the only one lying entirely north of the equator, so a careful
+             // player could defend it. This one is simply false.
+             'It is the only one deeper than 5,000 metres',
              'It is the only one bordered by Europe',
              'It is the only saltwater one'], reason:0,
     source:'International Hydrographic Organization, Limits of Oceans and Seas',
@@ -211,8 +226,10 @@ export const ODD = [
   { id:'d19', prompt:'Which does not belong?', trueCount:1,
     items:['Bitcoin','Ethereum','Visa','Dogecoin'], odd:2,
     reasons:['It is the only one that is a company rather than a currency',
-             'It is the only one you can spend in shops',
-             'It is the only one that is regulated',
+             // Was 'the only one you can spend in shops', which reads as plainly
+             // true of Visa. Same defect as the six above, caught on the re-read.
+             'It is the only one that runs on a blockchain', // false - Visa is the one that does not
+             'It is the only one with a fixed supply',   // false - that is Bitcoin, capped at 21 million
              'It is the only one older than 2010'], reason:0,
     source:'Bank for International Settlements / CoinMarketCap',
     theme:'economy',
@@ -268,8 +285,13 @@ export const ODD = [
   { id:'d25', prompt:'Which does not belong?', trueCount:1,
     items:['Peanut','Almond','Walnut','Cashew'], odd:0,
     reasons:['It is the only one that grows underground',
-             'It is the only one that causes allergies',
-             'It is the only one that is not a nut botanically',
+             // Peanut allergy is the famous one, so this read as true even though
+             // tree-nut allergies are just as real.
+             'It is the only one grown in the United States', // false - all four are
+             // Was 'the only one that is not a nut botanically'. Almonds and
+             // cashews are drupe seeds, so it is false — but it reads as true,
+             // which punishes the player who knows the most.
+             'It is the only one pressed for cooking oil', // false - almond and walnut oil are both sold
              'It is the only one eaten roasted'], reason:0,
     source:'Royal Horticultural Society',
     theme:'nutrition',
@@ -406,7 +428,7 @@ export const ODD = [
   { id:'d31', prompt:'Which does not belong?', trueCount:1,
     items:['Guitar','Piano','Drum','Violin'], odd:2,
     reasons:['It is the only one with no strings',          // TRUE - the drum
-             'It is the only one you hit',                  // false - piano hammers hit strings
+             'It is the only one found in an orchestra',  // false - all four are                  // false - piano hammers hit strings
              'It is the only one with no keys',             // false - guitar and violin have none
              'It is the only one made of wood'],            // false - most are
     reason:0, source:'Hornbostel-Sachs instrument classification', theme:'culture',
@@ -421,10 +443,15 @@ export const ODD = [
     note:'HTML is a markup language \u2014 it describes structure, it cannot compute anything.' },
   { id:'d33', prompt:'Which does not belong?', trueCount:1,
     items:['Mumbai','Shanghai','Dubai','Nairobi'], odd:3,
-    reasons:['It is the only one not on a coast',           // TRUE - Nairobi is inland
-             'It is the only one in Asia',                  // false - three are
-             'It is the only one with a metro',             // false - all four have one
-             'It is the only one with a stock exchange'],           // false - all four have one
+    /* The distractors were all NEGATIONS of the true reason: "the only one in
+       Asia" when Nairobi is the only one NOT in Asia, "the only one with a
+       metro" when it is the only one without. Flipping one word off a true
+       statement tests reading speed, not knowledge, and reads as a typo. These
+       are false on their own terms instead. */
+    reasons:['It is the only one not on a coast',              // TRUE - Nairobi is inland
+             'It is the only one with more than ten million people', // false - Mumbai and Shanghai do, Nairobi has ~5.5m
+             "It is the only one that is its country's largest city", // false - Mumbai is India's largest
+             'It is the only one built on a river delta'],     // false - none are; Nairobi sits on a highland plateau
     reason:0, source:'National geographic surveys', theme:'cities',
     note:'Nairobi sits 1,795 m above sea level and 480 km from the sea. The other three are ports.' },
   { id:'d34', prompt:'Which does not belong?', trueCount:1,

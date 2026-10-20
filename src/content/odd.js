@@ -87,10 +87,16 @@ export const ODD = [
 
   { id:'d7', prompt:'Which does not belong?', trueCount:1,
     items:['Moon','Mars','Venus','Jupiter'], odd:0,
+    /* Every distractor here used to be TRUE of a different item — "the only gas
+       giant" of Jupiter, "hotter than 400C" of Venus, "visible ice caps" of
+       Mars. A player who picked Jupiter and "the only gas giant", both correct,
+       scored 0. trueCount:1 was simply false. These three are now false of ALL
+       four: three of them ARE named after Roman gods, all four have been
+       reached by spacecraft, and all four are visible without a telescope. */
     reasons:['It is the only one that orbits a planet, not the Sun',  // TRUE - the Moon
-             'It is the only gas giant',                              // Jupiter
-             'It is the only one hotter than 400\u00b0C',                  // Venus
-             'It is the only one with ice caps you can see from Earth'], // Mars
+             'It is the only one named after a Roman god',            // false - Mars, Venus and Jupiter are
+             'It is the only one a spacecraft has reached',           // false - all four
+             'It is the only one you can see without a telescope'],   // false - all four
     reason:0,
     source:'NASA solar system overview',
     theme:'planets',
@@ -99,7 +105,7 @@ export const ODD = [
   { id:'d8', prompt:'Which does not belong?', trueCount:1,
     items:['Python','Java','HTML','C++'], odd:2,
     reasons:['It is the only one that is a markup language, not a programming language', // TRUE
-             'It is the only one that is not compiled',              // false — Python is interpreted too
+             'It is the only one maintained by a standards body',    // false — C++ is ISO-standardised
              'It is the only one named after an animal',             // false — Python is
              'It is the only one created after 2000'], reason:0,     // false — all predate 2000
     source:'W3C HTML specification',
@@ -418,7 +424,7 @@ export const ODD = [
     reasons:['It is the only one not on a coast',           // TRUE - Nairobi is inland
              'It is the only one in Asia',                  // false - three are
              'It is the only one with a metro',             // false - all four have one
-             'It is the only one with the world’s tallest building'],                // false - so is Nairobi, uniquely... see note
+             'It is the only one with a stock exchange'],           // false - all four have one
     reason:0, source:'National geographic surveys', theme:'cities',
     note:'Nairobi sits 1,795 m above sea level and 480 km from the sea. The other three are ports.' },
   { id:'d34', prompt:'Which does not belong?', trueCount:1,

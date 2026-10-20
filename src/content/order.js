@@ -56,11 +56,7 @@ export const ORDER = [
     source:'File-size reference, Blu-ray Disc Association',
     theme:'devices',
     note:'One 4K film is about a million copies of this page — and about 64,000 novels, because text is astonishingly small.' },
-  { id:'o11', prompt:'Hottest first', unit:'°C',
-    items:[['Sun surface',5500,'☀️'],['Lava',1100,'🌋'],['Oven, max',250,'🔥'],['Boiling water',100,'💧'],['Human body',37,'🌡️']],
-    source:'NOAA / NASA temperature references',
-    theme:'moonsun',
-    note:'The Sun’s core is 15 million °C — nearly 3000 times its own surface.' },
+  /* o11 removed: near-duplicate of o15 "Hottest first" — same lava, oven and boiling water */
   { id:'o12', prompt:'Most spoken as a first language, first', unit:'million speakers',
     // Plain cards on purpose. These carried 🇨🇳/🇪🇸/🇬🇧/🇮🇳/🇸🇦, but a language is not a country —
     // Spanish is not Spain and English is not the UK — and five identical speech
@@ -81,7 +77,7 @@ export const ORDER = [
     theme:'moonsun',
     note:'Nintendo started making playing cards in 1889 — before the lightbulb was common and 80 years before the Moon landing.' },
   { id:'o15', prompt:'Hottest first', unit:'°C',
-    items:[['Lightning bolt',30000,'⚡'],['Sun surface',5500,'☀️'],['Lava',1100,'🌋'],['Candle flame',1000,'🕯️'],['Boiling water',100,'💧']],
+    items:[['Lightning bolt',30000,'⚡'],['Sun surface',5500,'☀️'],['Lava',1100,'🌋'],['Oven at full heat',250,'🍞'],['Boiling water',100,'💧']],
     source:'NOAA / physics reference data',
     theme:'moonsun',
     note:'A lightning bolt is about five times hotter than the surface of the Sun — for roughly 30 microseconds.' },
@@ -216,10 +212,7 @@ export const ORDER = [
     items:[['Jakarta',41.9],['Dhaka',36.6],['Tokyo',33.4],['Delhi',30.2],['Shanghai',29.6]],
     source:'UN World Urbanization Prospects 2025', theme:'india-cities', region:'india',
     note:'Jakarta is the largest city on Earth, and Tokyo \u2014 the answer everyone gives \u2014 is now third. All five are in Asia.' },
-  { id:'o35', prompt:'Hottest first', unit:'\u00b0C',
-    items:[['Lightning bolt',30000],['Sun surface',5500],['Lava',1200],['Oven at max',250],['Boiling water',100]],
-    source:'NASA / USGS', theme:'climate',
-    note:'A lightning bolt is five times hotter than the surface of the Sun, for about thirty microseconds.' },
+  /* o35 removed: near-duplicate of o15, and it listed lava at 1,200 where o15 says 1,100 */
   { id:'o36', prompt:'Most time asleep per day first', unit:'hours asleep',
     items:[['Koala',20],['Cat',15],['Dog',11],['Human',8],['Giraffe',4.5]],
     source:'Siegel (2005), Nature \u2014 mammalian sleep', theme:'animals',

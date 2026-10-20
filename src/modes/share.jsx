@@ -13,7 +13,10 @@ const PEOPLE = /\b(people|person|population|indians?|adults?|children|kids|playe
 export const share = {
   init: () => ({ v: 50, touched: false }),
   clear: () => ({ v: 50, touched: false }),
-  ready: v => !!v.touched,
+  /* Was `!!v.touched`, so the slider's own starting value could not be
+     submitted: a player who believes the answer is 50 had to drag away and back
+     to prove they meant it. 50 is a real answer like any other. */
+  ready: () => true,
   score: (item, v) => clamp(Math.round(100 - Math.abs(v.v - item.answer) * 2.5), 0, 100),
   // Signed in percentage points, normalised — "you guess high" is the readable fact.
   signedError: (item, v) => (v.v - item.answer) / 100,

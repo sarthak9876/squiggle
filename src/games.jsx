@@ -69,31 +69,35 @@ export const ICONS = {
   ),
 };
 
+/* `cta` is the DISABLED label on the submit button — what this game needs from
+   you before it can be answered. It said "Pick an answer" on every game,
+   including Draw The Curve, where you draw, and the two slider games, where
+   there is nothing to pick. */
 export const GAMES = {
   shadow: { key:'shadow', name:'Shapes Only',   rule:'Four pictures, no labels. Pick one.',
             how:'Tap the picture that answers the question. Nothing to read.',
-            colour:'var(--g-shadow)', order:1 },
+            cta:'Pick a picture', colour:'var(--g-shadow)', order:1 },
   size:   { key:'size',   name:'Size It Up',    rule:'Scale one thing against another.',
             how:'Drag the slider until the two match. Weight and area questions are drawn to scale, not to length.',
-            colour:'var(--g-size)', order:2 },
+            cta:'Move the slider', colour:'var(--g-size)', order:2 },
   groups: { key:'groups', name:'Make The Sets', rule:'Nine things, three hidden sets.',
             how:'Tap three that belong together. They lock. Tap a locked set to break it.',
-            colour:'var(--g-groups)', order:3 },
+            cta:'Make three sets', colour:'var(--g-groups)', order:3 },
   draw:   { key:'draw',   name:'Draw The Curve',rule:'Freehand real data on blank axes.',
             how:'Drag across the chart, left to right. The real data appears over your line.',
-            colour:'var(--g-draw)', order:4 },
+            cta:'Draw your line', colour:'var(--g-draw)', order:4 },
   place:  { key:'place',  name:'Place The Dot', rule:'Drop a thing between two axes.',
             how:'Tap where it belongs. The grey dots are there to help you judge it.',
-            colour:'var(--g-place)', order:5 },
+            cta:'Place the dot', colour:'var(--g-place)', order:5 },
   share:  { key:'share',  name:'What Share?',   rule:'Guess a percentage. No sums.',
             how:'Drag the slider until the dots look right.',
-            colour:'var(--g-share)', order:6 },
+            cta:'Move the slider', colour:'var(--g-share)', order:6 },
   odd:    { key:'odd',    name:'Odd One Out',   rule:'Spot it, then say why.',
             how:'Pick the one that does not fit, then pick the reason. Both halves score.',
-            colour:'var(--g-odd)', order:7 },
+            cta:'Pick one, then why', colour:'var(--g-odd)', order:7 },
   order:  { key:'order',  name:'Put In Order',  rule:'Five cards, right sequence.',
             how:'Drag a card to move it — or tap two cards to swap them.',
-            colour:'var(--g-order)', order:8 },
+            cta:'Arrange the cards', colour:'var(--g-order)', order:8 },
 };
 
 export const GAME_LIST = Object.values(GAMES).sort((a, b) => a.order - b.order);

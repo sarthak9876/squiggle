@@ -67,6 +67,13 @@ export const toRatio = (v, item) => {
   const { lo, hi } = rangeFor(item);
   return Math.pow(10, Math.log10(lo) + (v / STEPS) * (Math.log10(hi) - Math.log10(lo)));
 };
+/** How many slider steps equal a given RATIO change on this question's scale.
+ *  5% is 5% whether the span is one decade or one and a half. */
+export const stepsForRatio = (ratio, item) => {
+  const { lo, hi } = rangeFor(item);
+  const span = Math.log10(hi) - Math.log10(lo);
+  return Math.max(1, Math.round(STEPS * Math.log10(ratio) / span));
+};
 export const toSlider = (r, item) => {
   const { lo, hi } = rangeFor(item);
   return Math.round(STEPS * (Math.log10(r) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo)));
@@ -218,9 +225,16 @@ export const size = {
 
     const onKey = e => {
       if (revealed) return;
-      const step = e.shiftKey ? 25 : 5;
+      /* A FIXED step cannot mean a fixed amount: the slider is logarithmic and
+         its span varies per question (1.05 to 1.45 decades), so `5` moved
+         anywhere from 1.3% to 1.6% — ten presses took 0.37x to 0.38x. Derive
+         the step from the span so an arrow is always the same RATIO change. */
+      const step = stepsForRatio(e.shiftKey ? 1.25 : 1.05, item);
+      const page = stepsForRatio(1.25, item);
       if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); setValue({ v: Math.min(STEPS, value.v + step), touched: true }); }
       if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); setValue({ v: Math.max(0, value.v - step), touched: true }); }
+      if (e.key === 'PageUp')   { e.preventDefault(); setValue({ v: Math.min(STEPS, value.v + page), touched: true }); }
+      if (e.key === 'PageDown') { e.preventDefault(); setValue({ v: Math.max(0, value.v - page), touched: true }); }
     };
 
     const text = livePhrase(item, revealed ? item.answer : r);

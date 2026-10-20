@@ -7,8 +7,12 @@ import AdSlot from './AdSlot.jsx';
 import { SLOTS } from '../lib/schedule.js';
 import { BRAND } from '../brand.js';
 
-const stagger = { show: { transition: { staggerChildren: 0.045 } } };
-const riseIn  = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: .4 } } };
+const stagger = { show: { transition: { staggerChildren: 0.035 } } };
+const riseIn  = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: .28 } } };
+/* The hero does NOT fade. It is the first thing anyone sees, and starting it at
+   zero opacity meant the page read as broken for about a second before it
+   finished painting itself. It rises a little; it is never invisible. */
+const heroIn  = { hidden: { opacity: 1, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: .22 } } };
 
 export default function Home({ stats, onPlayDaily, onPlayGame, playedToday, progress, preLaunch }) {
   const isNew = !stats.days;
@@ -16,7 +20,7 @@ export default function Home({ stats, onPlayDaily, onPlayGame, playedToday, prog
   return (
     <motion.div className="home" initial="hidden" animate="show" variants={stagger}>
 
-      <motion.section className="hero" variants={riseIn}>
+      <motion.section className="hero" variants={heroIn}>
         <SquiggleHero />
         <h1 className="herotitle">
           Eight ways to be <span className="hand wrong">wrong</span> about the world

@@ -5,7 +5,7 @@ import { SIL } from '../content/emoji.js';
 import { GAMES } from '../games.jsx';
 import Reveal from './Reveal.jsx';
 import Mascot, { moodFor } from './Mascot.jsx';
-import { react, isMuted, setMuted } from '../lib/juice.js';
+import { react } from '../lib/juice.js';
 import { CROWD_ENABLED } from '../lib/flags.js';
 import { reportLink } from '../lib/report.js';
 import { dayNumber } from '../lib/schedule.js';
@@ -40,10 +40,20 @@ const factIcon = item => {
   return FACT_ICONS[tail] || '\ud83d\udca1';
 };
 
-const verdict = s =>
-  s >= 95 ? ['Spot on', 'good'] : s >= 85 ? ['Very close', 'good'] :
-  s >= 65 ? ['Close', 'ink'] : s >= 40 ? ['Some of it', 'soft'] :
-  s >= 15 ? ['Not quite', 'soft'] : ['Nowhere near', 'accent'];
+/* Distance words only make sense where the answer IS a distance. Shapes Only
+   scores 0 or 100 and Odd One Out 0, 50 or 100 — "nowhere near" a four-way pick
+   reads as mockery rather than feedback. */
+const PICKED = { shadow: true, odd: true };
+const verdict = (s, mode) => {
+  if (PICKED[mode]) {
+    return s >= 100 ? ['Correct', 'good']
+         : s > 0    ? ['Half right', 'soft']
+         : ['Wrong pick', 'accent'];
+  }
+  return s >= 95 ? ['Spot on', 'good'] : s >= 85 ? ['Very close', 'good'] :
+         s >= 65 ? ['Close', 'ink'] : s >= 40 ? ['Some of it', 'soft'] :
+         s >= 15 ? ['Not quite', 'soft'] : ['Nowhere near', 'accent'];
+};
 
 /** One question at a time. Knows nothing about any specific game — it only speaks
  *  the mode contract, which is what keeps this file small while eight very different
@@ -57,7 +67,6 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
   const [revealed, setRevealed] = useState(false);
   const [score, setScore] = useState(0);
   const [shown, setShown] = useState(0);              // count-up display
-  const [muted, setMute] = useState(isMuted);
   const [confirmQuit, setConfirmQuit] = useState(false);
   /* A hint is offered only where the question names something a player may
      simply never have heard of ("measured at Mauna Loa"). Not knowing WHAT is
@@ -185,7 +194,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
     return () => window.removeEventListener('keydown', onKey);
   }, [revealed, submit, onNext, onQuit]);
 
-  const [vLabel, vTone] = verdict(score);
+  const [vLabel, vTone] = verdict(score, slot.mode);
   // Guarded: a thrown predicate used to unmount the entire app with no error
   // boundary above it. Failing closed (not ready) is always safe.
   let ready = false;
@@ -284,7 +293,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
             {/* One line, always. "Make your guess" wrapped to three lines at 360px
                 and tripled the bar's height. */}
             <button className="btn btn-primary grow cta" onClick={submit} disabled={!ready}>
-              {ready ? 'Submit' : 'Pick an answer'}
+              {ready ? 'Submit' : (game.cta || 'Pick an answer')}
             </button>
           </div>
         )}
@@ -330,10 +339,11 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
               <span className="rscore">{shown}</span>
               <span className="rof">/ 100</span>
               <span className="spacer" />
+              {/* The sound toggle used to sit here, immediately after the
+                  verdict, so it read as one phrase: "Spot on 🔇". The header
+                  already carries a sound toggle; this was a duplicate in the
+                  worst possible place. */}
               <span className={'rverdict tone-' + vTone}>{vLabel}</span>
-              <button className="mutebtn" aria-pressed={muted} title={muted ? 'Sound off' : 'Sound on'}
-                aria-label={muted ? 'Sound off. Turn sound on.' : 'Sound on. Turn sound off.'}
-                onClick={() => { setMuted(!muted); setMute(!muted); }}>{muted ? '🔇' : '🔊'}</button>
             </div>
             {/* Wrongness meter — 0% is perfect. Framing the gap rather than the score
                 keeps the game's own joke running. */}
@@ -341,14 +351,26 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
               {/* Explicit 0 start: the bar rendered at its CSS width for one frame
                   before framer took over, which read as a score that then dropped. */}
               <motion.span className="sfill" style={{ width: 0 }} initial={{ width: 0 }}
-                animate={{ width: score + '%' }} transition={{ duration: .6, delay: .1 }} />
+                animate={{ width: score + '%' }} transition={{ duration: .35, delay: .05 }} />
             </div>
-            {mode.detail && <p className="rdetail">{mode.detail(slot.item, value)}</p>}
+            {mode.detail && (
+              <p className="rdetail">
+                {mode.detail(slot.item, value)}
+                {/* Without this, "9 of 9 pairs correctly grouped" sat beside
+                    75/100 and read as a scoring bug rather than the hint cost
+                    the player chose to pay. */}
+                {hinted && (
+                  <span className="rhint">
+                    {' '}Hint taken — {Math.round((1 - HINT_KEEP) * 100)}% off, so {Math.round(score / HINT_KEEP)} became {score}.
+                  </span>
+                )}
+              </p>
+            )}
             {/* The note is the payload — the bit people screenshot. It was the
                 third grey paragraph in a row and read as small print. */}
             <motion.div className="funfact"
               initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: .25 }}>
+              transition={{ delay: .12, duration: .25 }}>
               <span className="ficon" aria-hidden="true">{factIcon(slot.item)}</span>
               <div>
                 <p className="flabel">Did you know</p>

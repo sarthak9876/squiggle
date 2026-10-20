@@ -112,7 +112,7 @@
 
 .shadowopt:hover:not(:disabled) { background: color-mix(in srgb, var(--gc) 4%, transparent); transform: translateY(-2px); }
 .shadowopt:active:not(:disabled) { transform: scale(.97); }
-.shadowopt.sel { border-color: var(--gc); background: color-mix(in srgb, var(--gc) 9%, transparent); }
+.shadowopt.sel { border-color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); }
 .shadowopt.ok  { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
 .shadowopt.bad { border-color: var(--accent); }
 .shadowopt.dim { opacity: .38; }
@@ -127,7 +127,7 @@
 .opt.wide { text-align: left; font-size: var(--t-small); }
 .opt:hover:not(:disabled) { background: color-mix(in srgb, var(--gc) 4%, transparent); }
 .opt:active:not(:disabled) { transform: scale(.98); }
-.opt.sel { border-color: var(--gc); background: color-mix(in srgb, var(--gc) 10%, transparent); }
+.opt.sel { border-color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, transparent); }
 .opt.ok  { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
 .opt.bad { border-color: var(--accent); opacity: .7; }
 .stage2 { font-size: var(--t-small); font-weight: 600; color: var(--gc); margin: var(--s4) 0 var(--s2); }
@@ -139,7 +139,7 @@
          border: 2px solid var(--rule); background: var(--paper); cursor: pointer; text-align: left;
          transition: transform var(--d-fast) var(--ease-spring), border-color var(--d-fast); }
 .ocard:hover:not(:disabled) { background: color-mix(in srgb, var(--gc) 4%, transparent); }
-.ocard.sel { border-color: var(--gc); transform: translateX(8px); }
+.ocard.sel { border-color: var(--ink); transform: translateX(8px); }
 .ocard.ok { border-color: var(--good); } .ocard.bad { border-color: var(--accent); }
 .oemo { font-size: 22px; } .orank { color: var(--ink-faint); font-size: var(--t-micro); width: 14px; }
 .olabel { flex: 1; } .oval { font-size: var(--t-micro); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
@@ -150,7 +150,10 @@
          background: var(--paper); cursor: pointer; font-size: var(--t-small); font-weight: 500;
          transition: transform var(--d-fast) var(--ease-spring), border-color var(--d-fast); }
 .gitem:hover:not(:disabled) { background: color-mix(in srgb, var(--gc) 4%, transparent); }
-.gitem.sel { border-color: var(--gc); transform: scale(.94); }
+.gitem.sel { border-color: var(--ink); transform: scale(.94); }
+/* A locked tile keeps its set colour on hover. The generic hover fill replaced
+   it with a dark background behind dark text, and the label disappeared. */
+.gitem.locked:hover:not(:disabled) { background: inherit; outline: 2px solid var(--ink); outline-offset: 1px; }
 .gitem.locked, .gitem.t0, .gitem.t1, .gitem.t2 { color: #15151a; font-weight: 700; border-color: transparent; }
 .gitem.g0, .gitem.t0 { background: #f0b429; } .gitem.g1, .gitem.t1 { background: #4fa3e3; }
 .gitem.g2, .gitem.t2 { background: #7bc67b; }
@@ -333,8 +336,13 @@
 /* Hover = a background tint. Selected = a strong border, a thicker weight and a
    tick. They used to share one declaration, so the tile under the cursor read as
    already chosen on a question you had not answered. */
+/* SELECTED is not CORRECT. --gc is the game's own colour and Shapes Only's is
+   #12a150 — green, which is exactly what "right answer" means on the reveal. So
+   picking a tile painted it the colour of a correct answer before anything had
+   been scored, and a checkmark beside your choice read as "you got it" rather
+   than "this is the one you chose". Selection is now a neutral ink outline in
+   every mode; green and red belong to the reveal alone. */
 .opt.sel, .shadowopt.sel, .gitem.sel, .ocard.sel { border-width: 3px; font-weight: 700; }
-.opt.sel::after, .ocard.sel::after { content: '✓'; margin-left: 8px; color: var(--gc); font-weight: 800; }
 /* :focus-visible, not :focus — a mouse click left a ring stuck on swapped cards. */
 .opt:focus, .shadowopt:focus, .gitem:focus, .ocard:focus, .dot:focus { outline: none; }
 .opt:focus-visible, .shadowopt:focus-visible, .gitem:focus-visible,
@@ -557,3 +565,6 @@
    state, not the shape. */
 .m-shadow .sil { margin: 0 auto; background-color: var(--ink); }
 .m-shadow .shadowopt[aria-pressed="true"] .sil { background-color: var(--accent-ink); }
+
+/* The hint cost, said out loud next to the score it explains. */
+.rhint { color: var(--warn); font-weight: 600; }

@@ -53,15 +53,31 @@ function openingSeq(item) {
   };
   const needed = Math.ceil(totalPairs * 0.6);          // 6 of 10 for five cards
 
-  let best = null, bestD = -1;
+  /* Maximising discordant pairs sounds right and is wrong: the arrangement with
+     the MOST discordant pairs is the exact reverse, so this handed out boards
+     whose whole solution was "reverse it". A playtest hit one — Hottest first
+     opening as water, candle, lava, lightning, sun.
+
+     Reject both degenerate orders outright and aim for a MIDDLING scramble
+     rather than the worst one. */
+  const sortedSeq = truth.map((_, i) => i);
+  const same = (a, b) => a.every((v, i) => v === b[i]);
+  const reversed = [...sortedSeq].reverse();
+  const degenerate = seq => same(seq.map(i => idx.indexOf(i)), sortedSeq)
+                         || same(seq.map(i => idx.indexOf(i)), reversed);
+
+  let best = null, bestScore = Infinity;
   for (let c = 0; c < 60; c++) {
     const seq = shuffled(idx, hash(`${item.id}:start:${c}`));
+    if (degenerate(seq)) continue;
     const d = discordant(seq);
-    if (d > bestD) { bestD = d; best = seq; }
+    // Closest to "needed" wins, rather than the most scrambled of all.
+    const score = Math.abs(d - needed);
+    if (score < bestScore) { bestScore = score; best = seq; }
     const endsMoved = seq[0] !== truth[0] && seq[n - 1] !== truth[n - 1];
     if (d >= needed && endsMoved) return seq;
   }
-  return best;    // pathological pool (ties everywhere): take the most scrambled
+  return best || shuffled(idx, hash(`${item.id}:start:fallback`));
 }
 
 export const order = {

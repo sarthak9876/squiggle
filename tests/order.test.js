@@ -116,3 +116,21 @@ describe('Put In Order — submit gating', () => {
     for (const q of POOLS.order) expect(order.ready(order.clear(q)), q.id).toBe(false);
   });
 });
+
+/* The opening shuffle maximised discordant pairs, and the arrangement with the
+   MOST discordant pairs is the exact reverse — so it handed out boards whose
+   entire solution was "reverse it". A playtest hit one: Hottest first opening
+   as water, candle, lava, lightning, sun. */
+describe('the opening board is never the answer or its mirror', () => {
+  it('no question opens sorted or exactly reversed', () => {
+    const bad = [];
+    for (const q of POOLS.order) {
+      const vals = order.init(q).seq.map(i => q.items[i][1]);
+      const asc  = vals.every((x, i, a) => i === 0 || a[i - 1] <= x);
+      const desc = vals.every((x, i, a) => i === 0 || a[i - 1] >= x);
+      if (q.asc ? desc : asc) bad.push(`${q.id}: opens in the answer order`);
+      if (q.asc ? asc : desc) bad.push(`${q.id}: opens exactly reversed`);
+    }
+    expect(bad, bad.join(' | ')).toEqual([]);
+  });
+});

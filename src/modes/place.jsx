@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
+import { niceTicks } from '../lib/ticks.js';
 import { clamp } from './contract.js';
 import { loadEmojiImage } from '../lib/emojiUrl.js';
 
@@ -127,12 +128,30 @@ export const place = {
 
       c.clearRect(0, 0, w, h);
       c.font = '12px ' + V('--font-ui');
+
+      /* Gridlines at ROUND values, not at quarters of the range. The old loop
+         put a line at every i/4, so a 0-55 axis was labelled 0 / 14 / 28 / 41 /
+         55 and a 0-30 axis had its fourth line at 22.5 printed as "23" — the
+         label disagreed with the line it pointed at. niceTicks returns values,
+         and fx/fy put each one where it actually belongs. */
+      const xs = niceTicks(item.x.min, item.x.max);
+      const ys = niceTicks(item.y.min, item.y.max);
+      const fx = v => px((v - item.x.min) / (item.x.max - item.x.min));
+      const fy = v => py(1 - (v - item.y.min) / (item.y.max - item.y.min));
+
       c.strokeStyle = V('--rule'); c.lineWidth = 1;
-      for (let i = 0; i <= 4; i++) {
-        const y = Math.round(py(i / 4)) + .5, x = Math.round(px(i / 4)) + .5;
+      for (const v of ys) {
+        const y = Math.round(fy(v)) + .5;
         c.beginPath(); c.moveTo(P.l, y); c.lineTo(w - P.r, y); c.stroke();
+      }
+      for (const v of xs) {
+        const x = Math.round(fx(v)) + .5;
         c.beginPath(); c.moveTo(x, P.t); c.lineTo(x, h - P.b); c.stroke();
       }
+      /* Frame the plot. The old grid always had a line on all four sides because
+         i ran 0..4 inclusive; round ticks do not necessarily reach the ends, and
+         without this the top and right edges just stopped. */
+      c.strokeRect(P.l + .5, P.t + .5, w - P.r - P.l - .5, h - P.b - P.t - .5);
       c.strokeStyle = V('--rule-strong');
       c.beginPath(); c.moveTo(P.l + .5, P.t); c.lineTo(P.l + .5, h - P.b + .5); c.lineTo(w - P.r, h - P.b + .5); c.stroke();
 
@@ -142,15 +161,9 @@ export const place = {
       c.fillStyle = V('--ink-faint');
       c.font = '12px ' + V('--font-ui');
       c.textAlign = 'right'; c.textBaseline = 'middle';
-      for (let i = 0; i <= 4; i++) {
-        const v = item.y.max - (i / 4) * (item.y.max - item.y.min);
-        c.fillText(tick(v, item.y.label), P.l - 7, py(i / 4));
-      }
+      for (const v of ys) c.fillText(tick(v, item.y.label), P.l - 7, fy(v));
       c.textAlign = 'center'; c.textBaseline = 'top';
-      for (let i = 0; i <= 4; i++) {
-        const v = item.x.min + (i / 4) * (item.x.max - item.x.min);
-        c.fillText(tick(v, item.x.label), px(i / 4), h - P.b + 7);
-      }
+      for (const v of xs) c.fillText(tick(v, item.x.label), fx(v), h - P.b + 7);
 
       c.fillStyle = V('--ink-faint'); c.textAlign = 'center'; c.textBaseline = 'top';
       c.fillText(item.x.label, (P.l + w - P.r) / 2, h - P.b + 30);
@@ -177,11 +190,18 @@ export const place = {
         c.fillStyle = V('--ink-faint');
         c.beginPath(); c.arc(x, y, 3.5, 0, Math.PI * 2); c.fill();
         const tw = c.measureText(r[0]).width;
-        const spots = [[x + 8, y], [x - 8 - tw, y], [x - tw / 2, y - 13], [x - tw / 2, y + 13]];
+        /* Try the side with room FIRST. The right-hand spot was always tried
+           first, so a dot near the right edge got a name that just fitted inside
+           the 2px margin — Germany at 93% and NASA at 26 of 30 both ended flush
+           against the border and read as clipped. A dot past the midpoint reaches
+           left instead, and the margin is 6px so nothing kisses the edge. */
+        const rightFirst = x < (P.l + w - P.r) / 2;
+        const side = [[x + 8, y], [x - 8 - tw, y]];
+        const spots = [...(rightFirst ? side : side.reverse()), [x - tw / 2, y - 13], [x - tw / 2, y + 13]];
         let placed = false;
         for (const s of spots) {
           const box = { x: s[0] - 2, y: s[1] - 7, x2: s[0] + tw + 2, y2: s[1] + 7 };
-          if (box.x >= 2 && box.x2 <= w - 2 && box.y >= P.t - 6 && box.y2 <= h - P.b + 18 && free(box)) {
+          if (box.x >= 6 && box.x2 <= w - 6 && box.y >= P.t - 6 && box.y2 <= h - P.b + 18 && free(box)) {
             c.textAlign = 'left'; c.fillText(r[0], s[0], s[1]); taken.push(box); placed = true; break;
           }
         }

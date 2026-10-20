@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { clamp } from './contract.js';
+import { niceTicks } from '../lib/ticks.js';
 import { rng, hash } from '../lib/random.js';
 
 /* DRAW THE CURVE — freehand real data on blank axes.
@@ -175,7 +176,23 @@ export const draw = {
         c.fillStyle = V('--ink-faint'); c.fillText(fmt(tv), P.l - 8, y);
       }
       c.textAlign = 'center'; c.textBaseline = 'top'; c.fillStyle = V('--ink-faint');
-      for (const f of [0, .5, 1]) c.fillText(String(Math.round(item.xMin + (item.xMax - item.xMin) * f)), fx(f), h - P.b + 8);
+      /* The ends stay, because the instructions name them ("keep going to 2023")
+         and a player needs to know where the line has to reach. The MIDDLE label
+         was the plain midpoint, so a 1950-2023 axis read 1950 / 1987 / 2023 —
+         1987 being nothing in particular. Snap it to the nearest round value and
+         draw it where that value actually sits, dropping it if it would collide
+         with an end label. */
+      const mid = (item.xMin + item.xMax) / 2;
+      const xt = niceTicks(item.xMin, item.xMax);
+      // Seed from the first TICK. Seeding from `mid` itself makes the accumulator
+      // distance zero, so no candidate can ever beat it and the label stayed on
+      // the raw midpoint — which is exactly the number this was meant to replace.
+      const xmid = xt.reduce((a, v) => Math.abs(v - mid) < Math.abs(a - mid) ? v : a, xt[0]);
+      const span = item.xMax - item.xMin;
+      for (const v of [item.xMin, xmid, item.xMax]) {
+        if (v === xmid && Math.min(Math.abs(v - item.xMin), Math.abs(v - item.xMax)) < span * 0.12) continue;
+        c.fillText(String(Math.round(v)), fx((v - item.xMin) / span), h - P.b + 8);
+      }
 
       /* Every question carries yLabel and xLabel ("US$ per watt", "Year") and
          nothing ever drew them, so the y axis read 0.1 / 1 / 10 / 100 with no
@@ -449,23 +466,6 @@ export const draw = {
     );
   },
 };
-
-/* Round numbers, not evenly-divided ones.
-   Splitting a range into four gave ticks like 1.3, 2.5, 3.8 — arithmetically
-   fine and unreadable. Step up through 1/2/2.5/5 x 10^n and take whatever lands
-   inside the range, which is how a chart axis is meant to read. */
-function niceTicks(min, max, count = 5) {
-  const span = max - min;
-  if (!(span > 0)) return [min];
-  const raw = span / (count - 1);
-  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
-  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || 10 * mag;
-  const out = [];
-  for (let v = Math.ceil(min / step) * step; v <= max + step * 1e-9; v += step) {
-    out.push(+v.toFixed(10));
-  }
-  return out.length >= 2 ? out : [min, max];
-}
 
 function yTicks(p) {
   if (p.log) {

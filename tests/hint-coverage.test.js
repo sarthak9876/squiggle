@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { POOLS } from '../src/modes/index.js';
+import { lineupFor, LAUNCH_DAY, uniqueDays } from '../src/lib/schedule.js';
 
 /* The hint mechanism exists so that a question naming something you have never
    heard of is difficulty rather than frustration (src/lib/hint.js). It shipped
@@ -77,5 +78,38 @@ describe('a hint never hands over its own answer', () => {
       expect(q.hint.length, `${q.id} hint`).toBeGreaterThan(24);
       expect(q.hint.length, `${q.id} hint`).toBeLessThan(220);
     }
+  });
+});
+
+describe('every day of the cycle is playable from outside India', () => {
+  /* Coverage over the POOL is not the same as coverage over what a player
+     actually MEETS. The scheduler deals 16 of 364 a day under an India quota, so
+     the question that matters is whether any single day can put an India
+     question a stranger cannot attempt in a mode that scores it zero. */
+  const CLIFF = new Set(['groups', 'odd', 'order']);
+  // Tagged india because India is one ITEM among global ones, not because the
+  // question asks for India knowledge.
+  const GLOBAL = new Set(['o4', 'o28', 'in-o7', 'o34', 'o39', 'g17', 'd35', 'in-d4']);
+
+  it('no day deals an unhinted India question into a mode that scores a stranger zero', () => {
+    const bad = [];
+    const days = uniqueDays(POOLS).days;
+    for (let i = 0; i < days; i++)
+      for (const slot of lineupFor(POOLS, 'p', LAUNCH_DAY + i))
+        if (slot.item?.region === 'india' && CLIFF.has(slot.mode)
+            && !slot.item.hint && !GLOBAL.has(slot.item.id))
+          bad.push(`day ${i + 1}: ${slot.mode}/${slot.item.id}`);
+    expect(bad, 'India questions with no way in').toEqual([]);
+  });
+
+  it('hints stay a quiet minority of the day, not the mechanic', () => {
+    // If most of a day carried a hint the 25% cost would become the normal path.
+    const days = uniqueDays(POOLS).days;
+    let total = 0;
+    for (let i = 0; i < days; i++)
+      total += lineupFor(POOLS, 'p', LAUNCH_DAY + i).filter(s => s.item?.hint).length;
+    const perDay = total / days;
+    expect(perDay).toBeGreaterThan(0.5);
+    expect(perDay).toBeLessThan(6);
   });
 });

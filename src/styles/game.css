@@ -7,7 +7,7 @@
 .pip.now  { background: var(--gc, var(--accent)); }
 
 .qhead { display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s2); }
-.qcount { font-size: var(--t-micro); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+.qcount { font-size: var(--t-micro); color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .gtag { font-size: var(--t-micro); font-weight: 600; padding: 3px 9px; border-radius: var(--r-pill);
         background: color-mix(in srgb, var(--gc) 14%, transparent); color: var(--gc); margin-left: auto; }
 .qtext { font-size: var(--t-title); margin-bottom: 5px; }
@@ -93,11 +93,23 @@
 .sizecell.target.revealed .sizelab b { color: var(--truth); }
 
 /* ═══════════ shadow ═══════════ */
-.m-shadow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+/* The tiles were 445x122 letterboxes holding a 64px picture — about a seventh of
+   the tile's width, adrift in the middle of a form field. In a game where the
+   PICTURE IS THE QUESTION, the picture has to be the thing you see. Squared the
+   tile up and more than doubled the artwork. */
+.m-shadow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .shadowopt { display: flex; flex-direction: column; align-items: center; justify-content: center;
-             gap: 6px; padding: 18px 8px; min-height: 122px; border-radius: var(--r-md);
+             gap: 10px; padding: 20px 12px;
+             /* No aspect-ratio: combined with a max-height it shrank the tile's
+                WIDTH too, leaving gaps in the grid. The artwork sets the height
+                and the grid sets the width, which is the right way round when
+                the picture is the question. */
+             min-height: 150px;
+             --icon: clamp(72px, 14vw, 132px);
+             border-radius: var(--r-md);
              border: 2px solid var(--rule); background: var(--paper); cursor: pointer;
              transition: transform var(--d-fast) var(--ease-spring), border-color var(--d-fast); }
+
 .shadowopt:hover:not(:disabled) { background: color-mix(in srgb, var(--gc) 4%, transparent); transform: translateY(-2px); }
 .shadowopt:active:not(:disabled) { transform: scale(.97); }
 .shadowopt.sel { border-color: var(--gc); background: color-mix(in srgb, var(--gc) 9%, transparent); }
@@ -155,7 +167,7 @@
 /* ═══════════ results ═══════════ */
 .results { display: flex; flex-direction: column; gap: var(--s3); }
 .totalcard { text-align: center; }
-.tlabel { font-size: var(--t-micro); letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); }
+.tlabel { font-size: var(--t-micro); color: var(--ink-faint); }
 .tbig { font-size: clamp(3rem, 12vw, 4.4rem); font-weight: 700; line-height: 1.05;
         font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
 .tmax { font-size: .35em; color: var(--ink-faint); font-weight: 500; }
@@ -231,7 +243,7 @@
   background: var(--paper-2); border-radius: 999px; padding: 2px 10px; }
 .qhead .combo { font-size: 12px; font-weight: 700; color: #b4480f;
   background: #ffe9d6; border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
-.finalflag { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+.finalflag { font-size: 12px; font-weight: 800; 
   color: var(--accent-ink); margin: 0 0 4px; }
 .mascot { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; flex: none; }
 .mascotsay { font-size: 12px; color: var(--ink-faint); }
@@ -342,8 +354,8 @@
   border: 1.5px solid color-mix(in srgb, var(--gc, var(--accent)) 26%, transparent);
   border-radius: var(--r-md, 14px); padding: 12px 14px; margin: 10px 0 2px; }
 .funfact .ficon { font-size: 26px; line-height: 1.1; flex: none; }
-.funfact .flabel { margin: 0 0 2px; font-size: 11px; font-weight: 800;
-  letter-spacing: .09em; text-transform: uppercase;
+.funfact .flabel { margin: 0 0 3px; font-size: 12px; font-weight: 700;
+  
   color: color-mix(in srgb, var(--gc, var(--accent)) 72%, var(--ink)); }
 .funfact .ftext { margin: 0; font-size: var(--t-small); line-height: 1.6; color: var(--ink); }
 .funfact .fsrc { margin: 7px 0 0; font-size: var(--t-micro); color: var(--ink-faint); }
@@ -496,7 +508,7 @@
 .sizegrab:focus-visible { outline: 3px solid var(--accent-ink); outline-offset: 3px; }
 /* A visible handle, so "you can grab this" is not a secret. */
 .zoombadge { position: absolute; top: 6px; right: 8px; z-index: 2;
-  font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+  font-size: 10px; 
   color: var(--ink-faint); background: var(--paper-2);
   border: 1px solid var(--rule); border-radius: 999px; padding: 2px 8px; }
 .sizephrase { text-align: center; font-size: var(--t-small); color: var(--ink-soft);

@@ -205,7 +205,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
           </p>
           <p className="halfline sub">{half} questions to go.</p>
           <button className="btn btn-primary wide" onClick={() => setHalfSeen(true)}>
-            Keep going <span className="arrow">→</span>
+            Keep going
           </button>
         </div>
       </motion.div>
@@ -233,7 +233,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
               slider on a 667px screen. */}
           <button className="quitx" onClick={() => setConfirmQuit(true)}
                   aria-label="Leave this set" title="Leave this set">✕</button>
-          <span className="qcount">{label} · {idx + 1} of {lineup.length}</span>
+          <span className="qcount">{idx + 1} of {lineup.length}</span>
           {answers.length > 0 && (
             <span className="runscore" title="Your score so far">{runTotal} pts</span>
           )}
@@ -364,7 +364,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
                 like it had stalled. It now rides the bottom of the viewport. */}
             <div className="stickynext">
               <button className="btn btn-primary wide" onClick={onNext}>
-                {idx + 1 >= lineup.length ? 'See your result' : 'Next question'} <span className="arrow">→</span>
+                {idx + 1 >= lineup.length ? 'See your result' : 'Next question'}
               </button>
             </div>
           </motion.div>

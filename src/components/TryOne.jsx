@@ -45,7 +45,7 @@ export default function TryOne({ onFinish, onPlay }) {
                 game and then dropped the person holding it. */}
             {onPlay && (
               <button type="button" className="btn btn-primary wide tryplay" onClick={onPlay}>
-                Play today's 16 <span className="arrow">→</span>
+                Play today's 16
               </button>
             )}
           </motion.div>

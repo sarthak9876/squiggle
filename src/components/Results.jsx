@@ -213,10 +213,10 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
       <div className="actions">
         <button className="btn btn-ghost grow" onClick={onHome}>← Home</button>
         {kind === 'archive' && (
-          <button className="btn btn-primary grow" onClick={onArchive}>Play another day →</button>
+          <button className="btn btn-primary grow" onClick={onArchive}>Play another day</button>
         )}
         {kind === 'practice' && onAgain && (
-          <button className="btn btn-primary grow" onClick={onAgain}>Play 5 more →</button>
+          <button className="btn btn-primary grow" onClick={onAgain}>Play 5 more</button>
         )}
       </div>
       {toast && (

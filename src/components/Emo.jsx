@@ -20,6 +20,8 @@ export default function Emo({ name, size = 32, alt, className = '' }) {
       src={`/emoji/${name}.svg`}
       width={size}
       height={size}
+      /* Same as Sil: the attribute is the default, CSS may size it responsively. */
+      style={{ width: `var(--icon, ${size}px)`, height: 'auto' }}
       alt={alt ?? name}
       draggable="false"
       loading="lazy"

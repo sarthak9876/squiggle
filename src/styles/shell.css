@@ -70,8 +70,7 @@
    page down — layout shift is the thing ad scripts break first. */
 .adslot { position: relative; display: block; width: 100%; margin: var(--s4) 0;
   background: var(--paper-sunk); border-radius: var(--r-sm); overflow: hidden; }
-.adlabel { position: absolute; top: 4px; left: 8px; font-size: 10px;
-  letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+.adlabel { position: absolute; top: 4px; left: 8px; font-size: 10px; color: var(--ink-faint); }
 
 /* Legal pages: prose, capped for readability. */
 .legal .card { max-width: 65ch; margin: 0 auto; }

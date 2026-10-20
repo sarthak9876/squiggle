@@ -28,9 +28,8 @@ export default function Home({ stats, onPlayDaily, onPlayGame, playedToday, prog
 
         <button className="btn btn-primary btn-xl" onClick={onPlayDaily}>
           {playedToday ? "See today's result"
-            : progress > 0 ? `Continue · ${progress} of ${SLOTS.length}`
+            : progress > 0 ? `Continue from ${progress} of ${SLOTS.length}`
             : "Play today's 16"}
-          <span className="arrow">→</span>
         </button>
         {/* Honest about what this is before 20 Oct, rather than numbering a
             pre-launch set as if the game had already shipped. */}
@@ -87,7 +86,7 @@ export default function Home({ stats, onPlayDaily, onPlayGame, playedToday, prog
               <span className="giconwrap">{ICONS[g.key]({ c: g.colour })}</span>
               <span className="gname">{g.name}</span>
               <span className="grule">{g.rule}</span>
-              <span className="gplay">Play 5 →</span>
+              <span className="gplay">Play 5</span>
             </button>
           ))}
         </div>

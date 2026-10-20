@@ -78,4 +78,14 @@ a { color: var(--accent-ink); }
 .hand, .wrong, .firstday { font-size: max(28px, 1em); }
 
 /* 95 characters a line is a wall. 65ch is the readable range. */
-.rnote, .ftext, .stubtext, .herolead, .aboutbody p, .howto li { max-width: 65ch; }
+/* 65ch is the readable measure and it stays. `pretty` keeps it while rebalancing
+   the last lines, so a sentence can no longer leave two words stranded on a line
+   of their own ("...by over a / thousand years."), which reads as a mistake even
+   though the wrap itself is correct. Unsupported browsers simply wrap as before. */
+.rnote, .ftext, .stubtext, .herolead, .aboutbody p, .howto li {
+  max-width: 65ch;
+  text-wrap: pretty;
+}
+/* Headings get `balance`, which evens the lines outright — worth the extra cost
+   on short text, and it is capped at a few lines by the spec. */
+.qtext, .herotitle, .shead, .halfcard h2 { text-wrap: balance; }

@@ -130,7 +130,7 @@ export const SHADOW = [
   { id:'h35', prompt:'Which of these went to space first?',
     options:['cat','dog','horse','cheetah'], answer:1, source:'NASA / Smithsonian space history',
     theme:'missions',
-    note:'Both, in fact — Laika in 1957 and Félicette in 1963 — but the dog went first and became far more famous.' },
+    note:'Both, in fact — a Soviet dog called Laika in 1957, then a French cat called Félicette in 1963. The dog went first, and is the one everyone remembers.' },
   { id:'h36', prompt:'Which of these holds the most water?',
     options:['bottle','cup','drop','tree'], answer:3, source:'US Forest Service',
     theme:'icewater',

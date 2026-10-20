@@ -34,8 +34,10 @@ export default function Sil({ name, size = 32, tone = 'ink', label, className = 
   return (
     <span
       className={`sil sil-${tone} ${className}`}
+      /* `--icon` lets the surrounding CSS size the artwork responsively; the
+         `size` prop stays the default for every caller that does not set it. */
       style={{
-        width: size, height: size,
+        width: `var(--icon, ${size}px)`, height: `var(--icon, ${size}px)`,
         WebkitMaskImage: url, maskImage: url,
       }}
       /* The shape carries meaning, so it needs a name for anyone who cannot see

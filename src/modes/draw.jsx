@@ -348,19 +348,17 @@ export const draw = {
             ← → move along the years · ↑ ↓ set the value · Shift for fine steps
           </p>
         )}
-        {!revealed && (
-          drawn === 0
-            ? <p className="hintline">Draw a line across the chart — left to right.</p>
+        {/* One row, four states, never absent. The last state used to be null, so
+            the row vanished exactly when the drawing was finished — which is the
+            moment someone reaches for Submit. */}
+        <p className={'hintline' + (!revealed && drawn > 0 && covered < 0.85 ? ' pulse' : '')}>
+          {revealed ? '\u00a0'
+            : drawn === 0 ? 'Draw a line across the chart — left to right.'
             : covered < 0.85
-              ? <p className="hintline pulse">Keep going to {item.xMax} →{' '}
-                  <span className="sub">{Math.round(covered * 100)}% drawn</span></p>
-              /* Once Submit is live the nudge must stop pulsing and stop reading
-                 like a blocker — a flashing "keep going" beside an enabled button
-                 is what made the dead click look deliberate. */
-              : !reachedEnd
-                ? <p className="hintline">You can submit now, or draw on to {item.xMax}.</p>
-                : null
-        )}
+              ? <>Keep going to {item.xMax} → <span className="sub">{Math.round(covered * 100)}% drawn</span></>
+            : !reachedEnd ? `You can submit now, or draw on to ${item.xMax}.`
+            : '\u00a0'}
+        </p>
       </>
     );
   },

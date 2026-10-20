@@ -289,8 +289,12 @@ export const size = {
                onChange={e => setFromRatio(toRatio(+e.target.value, item))}
                className="slider" aria-label={item.prompt + ' (slider)'}
                aria-valuetext={text} />
-        {!revealed && !value.touched &&
-          <p className="hintline">Drag the picture, or use the slider.</p>}
+        {/* Rendered ALWAYS, emptied when there is nothing to say. Unmounting it
+            the moment you touched the slider lifted Submit about 40px, out from
+            under a finger already moving toward it. Reserve the row. */}
+        <p className="hintline" aria-hidden={revealed || value.touched}>
+          {!revealed && !value.touched ? 'Drag the picture, or use the slider.' : '\u00a0'}
+        </p>
       </div>
     );
   },

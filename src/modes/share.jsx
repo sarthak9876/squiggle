@@ -80,8 +80,10 @@ export const share = {
       <input type="range" min="0" max="100" value={value.v} disabled={revealed}
              onChange={e => setValue({ v: +e.target.value, touched: true })} className="slider"
              aria-label={item.prompt} />
-      {!revealed && !value.touched &&
-        <p className="hintline">Drag the slider, or tap the dots.</p>}
+      {/* Always rendered — see size.jsx. An unmounting helper row moves Submit. */}
+      <p className="hintline" aria-hidden={revealed || value.touched}>
+        {!revealed && !value.touched ? 'Drag the slider, or tap the dots.' : '\u00a0'}
+      </p>
     </div>
     );
   },

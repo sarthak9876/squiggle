@@ -232,7 +232,11 @@
 .ocard.dragging { opacity: .85; transform: scale(1.02); box-shadow: var(--shadow-2); z-index: 2; }
 .orderpreview { font-size: 13px; color: var(--ink-faint); margin: 10px 2px 0; line-height: 1.6; }
 .orderpreview b { color: var(--ink); }
-.hintline { font-size: 13px; color: var(--ink-faint); text-align: center; margin-top: 8px; }
+/* min-height so an EMPTY helper row still holds its line. Without it the row
+   collapses when its text clears and every control below it jumps up — which is
+   how a real click on Submit landed on nothing. */
+.hintline { font-size: 13px; color: var(--ink-faint); text-align: center;
+            margin-top: 8px; min-height: 1.35em; }
 /* Hidden, NOT unmounted: this line sits above Submit, and removing it from the
    flow on blur shifted the button mid-click and swallowed the press. */
 .kbhint { visibility: hidden; }

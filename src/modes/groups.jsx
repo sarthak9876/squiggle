@@ -126,11 +126,21 @@ export const groups = {
         </div>
         {revealed && (
           <div className="gkey">
-            {item.groups.map((g, i) => (
-              <div key={g.label} className="gkeyrow">
-                <span className={'gsw t' + i} /><b>{g.label}</b> — {g.items.join(', ')}
-              </div>
-            ))}
+            {item.groups.map((g, i) => {
+              /* The swatch must use the PLAYER's set index, not the truth index.
+                 Tiles are coloured by the set the player built (see above), while
+                 this legend used its own position in item.groups — so the moment
+                 someone locked their sets in a different order from the answer
+                 key, the legend said "IPL teams" in yellow beside green IPL
+                 tiles. verdict.match maps player set -> truth group; the legend
+                 needs the inverse of it. */
+              const mine = verdict.match.findIndex(truthIdx => truthIdx === i);
+              return (
+                <div key={g.label} className="gkeyrow">
+                  <span className={'gsw t' + (mine >= 0 ? mine : i)} /><b>{g.label}</b> — {g.items.join(', ')}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

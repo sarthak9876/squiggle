@@ -7,38 +7,40 @@ import Reveal from './Reveal.jsx';
 import Mascot, { moodFor } from './Mascot.jsx';
 import { react } from '../lib/juice.js';
 import { CROWD_ENABLED } from '../lib/flags.js';
-import { reportLink } from '../lib/report.js';
+import { reportLink, reportText } from '../lib/report.js';
 import { dayNumber } from '../lib/schedule.js';
 import { HINT_KEEP, applyHint } from '../lib/hint.js';
 
-/* A face for the fact. Picked from the question's own theme so it is never
-   random, and it gives the card a flash of colour that a paragraph cannot. */
-const FACT_ICONS = {
-  space:'\ud83d\ude80', planets:'\ud83e\ude90', moonsun:'\u2600\ufe0f', missions:'\ud83d\udef0\ufe0f',
-  animals:'\ud83d\udc3e', wildlife:'\ud83d\udc06', sealife:'\ud83d\udc0b', birds:'\ud83d\udc26', bugs:'\ud83d\udc1b',
-  pets:'\ud83d\udc36', fossil:'\ud83e\uddb4', biology:'\ud83e\uddec', health:'\u2764\ufe0f', disease:'\ud83e\udda0',
-  food:'\ud83c\udf5b', nutrition:'\ud83e\udd57', drinks:'\u2615', farming:'\ud83c\udf3e',
-  money:'\ud83d\udcb0', economy:'\ud83d\udcc8', prices:'\ud83c\udff7\ufe0f', tech:'\ud83d\udcbb', web:'\ud83c\udf10',
-  devices:'\ud83d\udcf1', social:'\ud83d\udcac', streaming:'\ud83c\udfac', film:'\ud83c\udfa5',
-  energy:'\u26a1', renewables:'\ud83c\udf1e', climate:'\ud83c\udf21\ufe0f', warming:'\ud83d\udd25',
-  geography:'\ud83d\uddfa\ufe0f', cities:'\ud83c\udfd9\ufe0f', demography:'\ud83d\udc65', history:'\ud83d\udcdc',
-  ancient:'\ud83c\udffa', inventions:'\ud83d\udca1', language:'\ud83d\udde3\ufe0f', culture:'\ud83c\udfad',
-  sport:'\ud83c\udfc5', rail:'\ud83d\ude82', road:'\ud83d\ude97', aviation:'\u2708\ufe0f', space2:'\ud83c\udf0c',
-  icewater:'\ud83e\uddca', batteries:'\ud83d\udd0b', lifestyle:'\ud83c\udfe0', modern:'\u2728',
+/* A face for the fact — but ONLY when the question already carries one.
+
+   This used to look the icon up from the question's `theme`. A theme is a
+   SCHEDULING device: it exists so two questions about the same neighbourhood do
+   not land on the same day, and its name describes the neighbourhood, not the
+   subject. "Loudest first" is themed `missions`, so Krakatoa got a satellite.
+   "Which of these is heaviest?" is themed `birds`, so a question about a dog got
+   a bird. A tortoise's lifespan got a caterpillar. Every one of those was a
+   confident, wrong picture next to a true sentence, which is exactly the tell
+   that makes a page look machine-made.
+
+   Mapping an icon per question by hand is 286 judgements, and a wrong one is
+   worse than none. So: take the artwork the question ALREADY has — Place The
+   Dot's own emoji, Size It Up's subject, the picture Shapes Only is asking you
+   to identify, the card Put In Order puts first — and when there is no such
+   thing, render nothing. Four of the eight modes have a real subject; the other
+   four get a plain fact, which reads fine. */
+const factIcon = (item, mode) => {
+  if (item?.emoji) return item.emoji;                               // Place The Dot
+  const key = item?.target?.key || item?.key;                       // Size It Up
+  if (key && SIL[key]) return SIL[key];
+  if (mode === 'shadow' && Array.isArray(item?.options)) {          // the answer's picture
+    return SIL[item.options[item.answer]] || '';
+  }
+  if (mode === 'order' && Array.isArray(item?.items)) {             // the leading card
+    return item.items[0]?.[2] || '';
+  }
+  return '';
 };
-/* The question knows its own subject; the theme only knows its neighbourhood.
-   A "how long is a BUS" question is themed `road`, and `road` maps to a car — so
-   the fact about a bus was illustrated with a car. Ask the question first. */
-const factIcon = item => {
-  const subject = item?.target?.key || item?.key;
-  if (subject && SIL[subject]) return SIL[subject];
-  const theme = item?.theme;
-  if (!theme) return '\ud83d\udca1';
-  if (FACT_ICONS[theme]) return FACT_ICONS[theme];
-  // India themes are "india-rail", "india-food" and so on — fall back to the tail.
-  const tail = String(theme).split('-').pop();
-  return FACT_ICONS[tail] || '\ud83d\udca1';
-};
+
 
 /* Distance words only make sense where the answer IS a distance. Shapes Only
    scores 0 or 100 and Odd One Out 0, 50 or 100 — "nowhere near" a four-way pick
@@ -68,6 +70,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
   const [score, setScore] = useState(0);
   const [shown, setShown] = useState(0);              // count-up display
   const [confirmQuit, setConfirmQuit] = useState(false);
+  const [copiedReport, setCopiedReport] = useState(false);
   /* A hint is offered only where the question names something a player may
      simply never have heard of ("measured at Mauna Loa"). Not knowing WHAT is
      being asked is frustration, not difficulty — but being told costs points,
@@ -408,7 +411,11 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
             <motion.div className="funfact"
               initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: .12, duration: .25 }}>
-              <span className="ficon" aria-hidden="true">{factIcon(slot.item)}</span>
+              {/* Absent, not blank: an empty span still claims its grid column
+                  and left the text indented past a hole where a picture should
+                  be. */}
+              {factIcon(slot.item, slot.mode) &&
+                <span className="ficon" aria-hidden="true">{factIcon(slot.item, slot.mode)}</span>}
               <div>
                 <p className="flabel">Did you know</p>
                 <p className="ftext">{noteOf(slot.item)}</p>
@@ -422,6 +429,21 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
                                     prompt: promptOf(slot.item) })}>
                 Something wrong with this question?
               </a>
+              {/* A mailto: does NOTHING on a device with no mail client — no
+                  error, no window, nothing — so the player who found the mistake
+                  could not tell anyone and could not tell the click had failed.
+                  There is no backend to POST to, and a third-party form would
+                  break the "no data leaves your browser" promise, so the second
+                  route is the clipboard. */}
+              {' · '}
+              <button type="button" className="linkish" onClick={async () => {
+                const txt = reportText({ day: dayNumber(), mode: slot.mode,
+                                         id: slot.item.id, prompt: promptOf(slot.item) });
+                try { await navigator.clipboard.writeText(txt); setCopiedReport(true); }
+                catch { setCopiedReport(false); }
+              }}>
+                {copiedReport ? 'Copied — paste it in an email' : 'Copy the details'}
+              </button>
             </p>
             <Reveal mode={mode} modeKey={slot.mode} item={slot.item} value={value}
                     score={score} qid={qid} banked={banked}

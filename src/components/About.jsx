@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { BRAND } from '../brand.js';
 import { REPORT_TO } from '../lib/report.js';
+import { ADS } from '../lib/flags.js';
 
 /* Single source of truth for who made this and where to find them. */
 /* ONE place to put the real URLs once the accounts exist. Anything left null is
@@ -34,7 +35,11 @@ export default function About({ onHome }) {
         <p className="abouttext">
           {BRAND.name} is a daily game about how badly we all estimate the world. Eight
           ways to be wrong, sixteen questions, about four minutes. Free, no account,
-          no ads on the questions themselves.
+          {/* Read from the same flag the Privacy page reads. This said "no ads on
+              the questions themselves" while Privacy said "Ads: None" — which
+              told a reader there are ads somewhere, and left two sentences to
+              keep in step by hand the day ads do go on. */}
+          {ADS.enabled ? ' and no ads beside a question.' : ' no ads.'}
         </p>
         <p className="abouttext">
           Every answer shows you the real number, where it came from, and why it

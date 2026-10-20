@@ -64,8 +64,8 @@ export function Privacy({ onHome }) {
         <p>
           Wherever you live, data protection law gives you the right to ask what a
           site holds about you, to get a copy, and to have it deleted — the GDPR in
-          Europe and the UK, the DPDP Act in India, the CCPA in California, and
-          their equivalents elsewhere. Here the answer to all three is the same:
+          Europe and the UK, the LGPD in Brazil, the DPDP Act in India, the CCPA
+          in California, and their equivalents elsewhere. Here the answer to all three is the same:
           nothing is held. There is no server and no account. Everything is in this
           browser, and clearing site data for {BRAND.domain} erases all of it in one
           step, with nothing to ask us for. Questions: <a href={`mailto:${REPORT_TO}`}>{REPORT_TO}</a>.

@@ -137,3 +137,51 @@ describe('Shapes Only labels', () => {
     expect(bogus, `NAMES keys with no icon: ${bogus.join(', ')}`).toEqual([]);
   });
 });
+
+/* The "Did you know" icon used to come from the question's THEME. A theme is a
+   scheduling device — it exists so two questions about the same neighbourhood
+   do not land on the same day — so its name describes the neighbourhood, not
+   the subject. "Loudest first" is themed `missions`, so Krakatoa got a
+   satellite; "which is heaviest" is themed `birds`, so a dog got a bird; a
+   tortoise's lifespan got a caterpillar. A confident wrong picture beside a
+   true sentence is the thing that makes a page look machine-made. */
+describe('the fact icon comes from the question, never its theme', () => {
+  const factIcon = (item, mode) => {
+    if (item?.emoji) return item.emoji;
+    const key = item?.target?.key || item?.key;
+    if (key && SIL[key]) return SIL[key];
+    if (mode === 'shadow' && Array.isArray(item?.options)) return SIL[item.options[item.answer]] || '';
+    if (mode === 'order' && Array.isArray(item?.items)) return item.items[0]?.[2] || '';
+    return '';
+  };
+
+  it('Shapes Only shows the ANSWER, which is what the fact is about', () => {
+    for (const q of POOLS.shadow) {
+      expect(factIcon(q, 'shadow'), `${q.id}`).toBe(SIL[q.options[q.answer]]);
+    }
+  });
+
+  it('Size It Up shows its subject, not its reference', () => {
+    for (const q of POOLS.size) {
+      expect(factIcon(q, 'size'), `${q.id}`).toBe(SIL[q.target.key]);
+      expect(factIcon(q, 'size')).not.toBe(SIL[q.ref.key] === SIL[q.target.key] ? null : SIL[q.ref.key]);
+    }
+  });
+
+  /* The point of the change: a mode with no subject artwork shows NOTHING. The
+     old code always produced something, which is how it always produced a wrong
+     something. */
+  it('a mode with no subject shows no icon at all', () => {
+    for (const mode of ['draw', 'share', 'odd', 'groups']) {
+      const any = POOLS[mode].filter(q => factIcon(q, mode));
+      expect(any.map(q => q.id), `${mode} invented an icon`).toEqual([]);
+    }
+  });
+
+  it('never falls back to a theme', () => {
+    // A question with a theme but no artwork must come back empty, not guess.
+    const fake = { id: 'x', theme: 'missions', note: 'n' };
+    expect(factIcon(fake, 'odd')).toBe('');
+    expect(factIcon(fake, 'share')).toBe('');
+  });
+});

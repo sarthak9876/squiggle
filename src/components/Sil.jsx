@@ -20,6 +20,12 @@
 import Emo from './Emo.jsx';
 import { SIL_UNSAFE } from '../content/emoji.js';
 
+/* `size` is a number of pixels OR a CSS length string ("100%", which Size It Up
+   passes so the artwork fills its scaling box). Appending px to the string gave
+   `100%px` — invalid, so the width resolved to nothing and Size It Up showed no
+   artwork at all. */
+const len = v => (typeof v === 'number' ? `${v}px` : v);
+
 export default function Sil({ name, size = 32, tone = 'ink', label, className = '', fallbackToColour = true }) {
   if (!name) return null;
   /* Some shapes do not survive being flattened — four different round things
@@ -37,7 +43,7 @@ export default function Sil({ name, size = 32, tone = 'ink', label, className = 
       /* `--icon` lets the surrounding CSS size the artwork responsively; the
          `size` prop stays the default for every caller that does not set it. */
       style={{
-        width: `var(--icon, ${size}px)`, height: `var(--icon, ${size}px)`,
+        width: `var(--icon, ${len(size)})`, height: `var(--icon, ${len(size)})`,
         WebkitMaskImage: url, maskImage: url,
       }}
       /* The shape carries meaning, so it needs a name for anyone who cannot see

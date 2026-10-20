@@ -134,7 +134,7 @@ export const SHADOW = [
   { id:'h36', prompt:'Which of these holds the most water?',
     options:['bottle','cup','drop','tree'], answer:3, source:'US Forest Service',
     theme:'icewater',
-    note:'A large oak moves about 150 litres a day through its trunk — roughly 300 bottles, lifted with no pump.' },
+    note:'A full-grown tree lifts about 150 litres a day up its trunk, with no pump.' },
   { id:'h37', prompt:'Which of these is older than the pyramids?',
     options:['tree','house','book','clock'], answer:0, source:'Rocky Mountain Tree-Ring Research',
     theme:'ancient',

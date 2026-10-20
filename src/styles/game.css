@@ -455,8 +455,12 @@
 }
 
 /* ── #13: the results tile grid wrapped 11 + 5 instead of 8 + 8 ─────── */
-.sqrow { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; max-width: 320px;
-  margin-left: auto; margin-right: auto; }
+/* An 8-column grid left a 5-square practice row sitting in columns 1-5, visibly
+   off-centre under the score. Flex-wrap centres ANY count, and the max-width is
+   exactly eight squares plus their gaps, so a 16-square daily row still breaks
+   8 + 8 the way the grid did. */
+.sqrow { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  max-width: 202px; margin-left: auto; margin-right: auto; }
 .sqrow .sq { width: auto; aspect-ratio: 1; }
 .readout .dimnote { font-size: var(--t-micro); color: var(--ink-faint); font-weight: 500; }
 

@@ -1,7 +1,6 @@
 import { SIL } from '../content/emoji.js';
 import Emo from '../components/Emo.jsx';
 import Sil from '../components/Sil.jsx';
-import { SIL_UNSAFE } from '../content/emoji.js';
 import { shuffled, hash } from '../lib/random.js';
 
 /** SHAPES ONLY — four pictures, no labels. The one mode playable without reading.
@@ -20,17 +19,16 @@ export const shadow = {
   score: (item, v) => (v === item.answer ? 100 : 0),
   displayOrder: orderOf,
   Component: ({ item, value, setValue, revealed }) => {
-  /* Silhouette or colour is decided PER QUESTION, never per icon.
+  /* COLOUR, always. Silhouettes were borrowed from Size It Up, where they are
+     right: there you compare two objects' SCALE and colour is a distraction.
+     Here, recognising the object IS the entire game, and flattening to one
+     colour destroys exactly the information the player needs — a phone became a
+     white rounded rectangle, a camera became a folder, four animals became four
+     white blobs. An unrecognisable option is not a hard question, it is a
+     broken one.
 
-     Deciding per icon shipped an answer tell: on "which is the fastest?" the
-     cheetah is the one option whose identity needs its spots, so it alone
-     stayed coloured — surrounded by three white silhouettes, and it was the
-     ANSWER. A player could score without reading anything.
-
-     So: if any option in this question needs its colour, they all keep it. The
-     tiles stay consistent with each other, which is the only thing that
-     matters here. */
-  const useSil = !item.options.some(k => SIL_UNSAFE.has(k));
+     The answer tell this replaced (one coloured option among three white ones,
+     and it was the answer) cannot happen when every tile is coloured. */
   return (
     <div className="m-shadow">
       {orderOf(item).map((i, slot) => {
@@ -47,9 +45,7 @@ export const shadow = {
              stays unlabelled on screen; the accessible name never was the puzzle. */
           aria-label={key}
           aria-pressed={value === i}>
-          {useSil
-            ? <Sil name={key} size={64} label={revealed ? key : 'option'} className="bigemo" fallbackToColour={false} />
-            : <Emo name={key} size={64} alt={revealed ? key : ''} className="bigemo" />}
+          <Emo name={key} size={64} alt={revealed ? key : ''} className="bigemo" />
           <span className="cap">{revealed ? key : ''}</span>
         </button>
         );

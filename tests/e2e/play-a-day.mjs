@@ -101,6 +101,17 @@ for (let q = 1; q <= QUESTIONS; q++) {
   const count = (await page.locator('.qcount').first().textContent().catch(() => '')) || '';
   const mode  = (await page.locator('.gtag').first().textContent().catch(() => '')) || '';
 
+  /* Artwork must actually RENDER. The suite used to assert only that a question
+     was ANSWERABLE, so when a bad CSS length collapsed every Size It Up
+     silhouette to zero width the run still passed 16/16 — the slider works
+     whether or not you can see what you are sizing. A picture that is 0px is a
+     broken question, not a styling nit. */
+  const blank = await page.evaluate(() => {
+    const art = [...document.querySelectorAll('.stage img, .stage .sil, .stage canvas, .stage svg')];
+    return art.filter(e => { const r = e.getBoundingClientRect(); return r.width < 8 || r.height < 8; }).length;
+  });
+  if (blank) { stuck = `q${q} (${mode.trim()}) rendered ${blank} piece(s) of artwork at zero size`; break; }
+
   const did = await engage();
   const ok  = await ready();
   rows.push({ q, count: count.trim(), mode: mode.trim(), ok, did });

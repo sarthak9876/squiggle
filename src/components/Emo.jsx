@@ -21,7 +21,7 @@ export default function Emo({ name, size = 32, alt, className = '' }) {
       width={size}
       height={size}
       /* Same as Sil: the attribute is the default, CSS may size it responsively. */
-      style={{ width: `var(--icon, ${size}px)`, height: 'auto' }}
+      style={{ width: `var(--icon, ${typeof size === 'number' ? `${size}px` : size})`, height: 'auto' }}
       alt={alt ?? name}
       draggable="false"
       loading="lazy"

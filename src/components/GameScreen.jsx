@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MODES, promptOf, noteOf, sourceOf, hintOf } from '../modes/index.js';
+import { SIL } from '../content/emoji.js';
 import { GAMES } from '../games.jsx';
 import Reveal from './Reveal.jsx';
 import Mascot, { moodFor } from './Mascot.jsx';
@@ -25,7 +26,13 @@ const FACT_ICONS = {
   sport:'\ud83c\udfc5', rail:'\ud83d\ude82', road:'\ud83d\ude97', aviation:'\u2708\ufe0f', space2:'\ud83c\udf0c',
   icewater:'\ud83e\uddca', batteries:'\ud83d\udd0b', lifestyle:'\ud83c\udfe0', modern:'\u2728',
 };
-const factIcon = theme => {
+/* The question knows its own subject; the theme only knows its neighbourhood.
+   A "how long is a BUS" question is themed `road`, and `road` maps to a car — so
+   the fact about a bus was illustrated with a car. Ask the question first. */
+const factIcon = item => {
+  const subject = item?.target?.key || item?.key;
+  if (subject && SIL[subject]) return SIL[subject];
+  const theme = item?.theme;
   if (!theme) return '\ud83d\udca1';
   if (FACT_ICONS[theme]) return FACT_ICONS[theme];
   // India themes are "india-rail", "india-food" and so on — fall back to the tail.
@@ -342,7 +349,7 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
             <motion.div className="funfact"
               initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: .25 }}>
-              <span className="ficon" aria-hidden="true">{factIcon(slot.item.theme)}</span>
+              <span className="ficon" aria-hidden="true">{factIcon(slot.item)}</span>
               <div>
                 <p className="flabel">Did you know</p>
                 <p className="ftext">{noteOf(slot.item)}</p>

@@ -39,10 +39,10 @@
              margin-bottom: var(--s3); }
 /* Footer links were ~30px tall. Padding brings them to 44 without
    changing how they look. */
-.footlinks button, .footlinks a { background: none; border: 0; padding: 12px 8px; cursor: pointer;
+.footlinks a { background: none; border: 0; padding: 12px 8px; cursor: pointer;
   min-height: 44px; display: inline-flex; align-items: center;
   color: var(--ink-soft); font: inherit; font-size: var(--t-small); text-decoration: none; }
-.footlinks button:hover, .footlinks a:hover { color: var(--accent-ink); }
+.footlinks a:hover { color: var(--accent-ink); }
 .fine { margin-top: var(--s2); opacity: .75; }
 
 /* ── archive ── */

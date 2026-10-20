@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
    framer writes inline styles every frame. One wrapper covers every animation. */
 import { MotionConfig } from 'framer-motion';
 import Home from './components/Home.jsx';
+import Lnk from './components/Lnk.jsx';
 import GameScreen from './components/GameScreen.jsx';
 import Results from './components/Results.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
@@ -411,10 +412,10 @@ export default function App() {
 
       <footer className="foot">
         <nav className="footlinks">
-          <button onClick={() => go({ name: 'archive' })}>Archive</button>
-          <button onClick={() => go({ name: 'about' })}>About</button>
-          <button onClick={() => go({ name: 'privacy' })}>Privacy</button>
-          <button onClick={() => go({ name: 'terms' })}>Terms</button>
+          <Lnk route={{ name: 'archive' }}>Archive</Lnk>
+          <Lnk route={{ name: 'about' }}>About</Lnk>
+          <Lnk route={{ name: 'privacy' }}>Privacy</Lnk>
+          <Lnk route={{ name: 'terms' }}>Terms</Lnk>
           {CREDITS.socials.map(s => (
             <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
           ))}

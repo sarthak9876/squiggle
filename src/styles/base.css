@@ -62,7 +62,7 @@ a { color: var(--accent-ink); }
 @media (max-width: 720px) {
   body { font-size: 16px; }
   .gamecard p, .gamecard .gdesc { font-size: 14px; }
-  .gamecard .gplay, .footlinks button, .footlinks a { font-size: 14px; }
+  .gamecard .gplay, .footlinks a { font-size: 14px; }
   .foot, .foot p, .fine { font-size: 13px; }
   .rsrc, .fsrc, .stubtext { font-size: 13px; }
   .btn { font-size: 15px; }

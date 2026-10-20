@@ -1,4 +1,4 @@
-import { SIL } from '../content/emoji.js';
+import { SIL, silLabel } from '../content/emoji.js';
 import Emo from '../components/Emo.jsx';
 import Sil from '../components/Sil.jsx';
 import { shuffled, hash } from '../lib/random.js';
@@ -14,7 +14,7 @@ export const shadow = {
   clear: () => null,
   detail: (item, v) => v === item.answer
     ? 'Correct — 100 for the right pick.'
-    : `You picked the ${item.options[v]}. The answer is the ${item.options[item.answer]}.`,
+    : `You picked the ${silLabel(item.options[v])}. The answer is the ${silLabel(item.options[item.answer])}.`,
   ready: v => v !== null,
   score: (item, v) => (v === item.answer ? 100 : 0),
   displayOrder: orderOf,
@@ -43,10 +43,10 @@ export const shadow = {
           /* Was `Option ${n}`, which told a screen-reader user nothing at all —
              four indistinguishable options is not a playable question. The picture
              stays unlabelled on screen; the accessible name never was the puzzle. */
-          aria-label={key}
+          aria-label={silLabel(key)}
           aria-pressed={value === i}>
-          <Emo name={key} size={64} alt={revealed ? key : ''} className="bigemo" />
-          <span className="cap">{revealed ? key : ''}</span>
+          <Emo name={key} size={64} alt={revealed ? silLabel(key) : ''} className="bigemo" />
+          <span className="cap">{revealed ? silLabel(key) : ''}</span>
         </button>
         );
       })}

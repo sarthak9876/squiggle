@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readdirSync } from 'node:fs';
-import { SIL, SIL_UNSAFE } from '../src/content/emoji.js';
+import { SIL, SIL_UNSAFE, silLabel, SIL_NAMES } from '../src/content/emoji.js';
 import { POOLS } from '../src/modes/index.js';
 import { emojiFile } from '../src/lib/emojiUrl.js';
 
@@ -108,5 +108,32 @@ describe('raw content emoji', () => {
       }
     }
     expect(clashes, clashes.join(' | ')).toEqual(['o16: Filter coffee and Espresso shot both ☕']);
+  });
+});
+
+/* Shapes Only is the one mode whose options ARE SIL keys, and it prints them to
+   the player on reveal. It showed "tajmahal", "tenniscourt" and "uk" until
+   silLabel() went in. A key that looks fine capitalised is the trap here, so
+   this asserts no displayed label survives as a bare lowercase slug. */
+describe('Shapes Only labels', () => {
+  it('no option reveals as a raw slug', () => {
+    const raw = [];
+    for (const q of POOLS.shadow) {
+      for (const k of q.options) {
+        const l = silLabel(k);
+        if (l === k || /^[a-z]/.test(l)) raw.push(`${q.id}: ${k} -> ${l}`);
+      }
+    }
+    expect(raw, raw.join(' | ')).toEqual([]);
+  });
+
+  /* A typo in the NAMES map does nothing visible — silLabel falls through to
+     capitalising the key, which is what it did before the map existed. Same
+     silent-failure shape as SIL_UNSAFE, so guard it the same way. Whether a
+     label reads as English is a human call and stays in the map's comment;
+     a regex that tries to decide it just rejects "Taj Mahal" for the capital M. */
+  it('every NAMES override points at a real SIL key', () => {
+    const bogus = Object.keys(SIL_NAMES).filter(k => !(k in SIL));
+    expect(bogus, `NAMES keys with no icon: ${bogus.join(', ')}`).toEqual([]);
   });
 });

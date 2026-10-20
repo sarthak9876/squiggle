@@ -45,6 +45,28 @@ export const SIL = {
   tv: '\ud83d\udcfa',
 };
 
+/* SIL keys are lookup slugs, not words. Shapes Only printed them straight to
+   the player — ".cap", the aria-label, and the "You picked the X" line — so the
+   reveal read "tajmahal", "tenniscourt" and "uk". Every other mode already
+   carries an explicit label beside its key (see size.js); this gives Shapes Only
+   the same thing without duplicating a label onto all 64.
+
+   Only the keys where capitalising the first letter is WRONG need an entry.
+   Three kinds: glued words, initialisms, and names that are clear in one country
+   and opaque in the rest — the audience is 16-45 worldwide, and outside India
+   "auto" and "pitch" name nothing. */
+export const SIL_NAMES = {
+  tajmahal: 'Taj Mahal', tenniscourt: 'Tennis court', lightbulb: 'Light bulb',
+  auto: 'Auto-rickshaw', diya: 'Diya (oil lamp)', pitch: 'Cricket pitch',
+  uk: 'UK', tv: 'TV',
+};
+
+/** Display name for a SIL key. */
+export function silLabel(key) {
+  return SIL_NAMES[key] || (key ? key[0].toUpperCase() + key.slice(1) : '');
+}
+
+
 /* Icons whose IDENTITY is carried by colour or inner detail, not by outline.
 
    Audited by rendering all 64 as silhouettes and looking at them: `earth`,

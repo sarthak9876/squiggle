@@ -95,3 +95,31 @@ describe('Size It Up copy matches the quantity', () => {
     expect(bad, bad.join('\n')).toEqual([]);
   });
 });
+
+/* The halfway card names the games you did best on. Two things went wrong at
+   once when every game tied, which happens most easily at zero: the list joined
+   all eight names into a paragraph, and it introduced them with the word
+   "best" — so a player who had scored nothing was shown every game they had
+   just failed, labelled as their best. That is the message at the exact moment
+   someone decides whether to keep playing. */
+describe('halfway card', () => {
+  // The same shape GameScreen builds, kept here so the rule is testable without
+  // mounting the component.
+  const names = tied => tied.length === 1 ? tied[0]
+    : tied.length === 2 ? tied[0] + ' and ' + tied[1]
+    : `${tied[0]}, ${tied[1]} and ${tied.length - 2} more`;
+
+  it('never lists more than two game names', () => {
+    expect(names(['A'])).toBe('A');
+    expect(names(['A', 'B'])).toBe('A and B');
+    expect(names(['A', 'B', 'C'])).toBe('A, B and 1 more');
+    expect(names(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])).toBe('A, B and 6 more');
+  });
+
+  it('the capped form stays short however many tie', () => {
+    const all = ['Shapes Only', 'Size It Up', 'Make The Sets', 'Draw The Curve',
+                 'Place The Dot', 'What Share?', 'Odd One Out', 'Put In Order'];
+    expect(names(all).length).toBeLessThan(40);
+    expect(names(all)).not.toContain('Put In Order');
+  });
+});

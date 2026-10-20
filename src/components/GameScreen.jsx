@@ -206,8 +206,12 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
        scored 100 reads as a bug to the person who just played them. */
     const topScore = Math.max(...answers.map(a => a.score));
     const tied = [...new Set(answers.filter(a => a.score === topScore).map(a => GAMES[a.mode].name))];
+    /* Cap the list. Every game can tie — most obviously at zero — and joining
+       eight names turned a one-line encouragement into a paragraph of the games
+       you had just failed. Two names and a count says the same thing. */
     const bestNames = tied.length === 1 ? tied[0]
-      : tied.slice(0, -1).join(', ') + ' and ' + tied[tied.length - 1];
+      : tied.length === 2 ? tied[0] + ' and ' + tied[1]
+      : `${tied[0]}, ${tied[1]} and ${tied.length - 2} more`;
     const avg = Math.round(runTotal / answers.length);
     return (
       <motion.div className="play halfway" initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }}>
@@ -215,9 +219,15 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
           <Mascot mood={moodFor(avg)} size={92} />
           <h2>Halfway</h2>
           <p className="bignum">{runTotal}<span className="sub"> / {half * 100}</span></p>
+          {/* A top score of zero is not a "best". Naming every game you scored
+              nothing on, under the word "best", reads as sarcasm at the exact
+              moment someone is deciding whether to carry on. */}
           <p className="halfline">
-            Averaging <b>{avg}</b> a question. Your best so far was{' '}
-            <b>{topScore}</b> on <b>{bestNames}</b>.
+            {topScore > 0
+              ? <>Averaging <b>{avg}</b> a question. Your best so far was{' '}
+                  <b>{topScore}</b> on <b>{bestNames}</b>.</>
+              : <>No points yet — and nobody is good at all eight of these.
+                  There are <b>{half}</b> left.</>}
           </p>
           <p className="halfline sub">{half} questions to go.</p>
           <button className="btn btn-primary wide" onClick={() => setHalfSeen(true)}>

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { place, axisFormat, fmtAxis } from '../src/modes/place.jsx';
+import { place, axisFormat, fmtAxis, labelY } from '../src/modes/place.jsx';
 import { POOLS } from '../src/modes/index.js';
 import { niceTicks } from '../src/lib/ticks.js';
 
@@ -101,5 +101,37 @@ describe('axis ticks', () => {
       .filter(([, n]) => n < 3)
       .map(([name, n, a]) => `${name}: ${n} (${a.min}..${a.max})`);
     expect(thin, thin.join(' | ')).toEqual([]);
+  });
+});
+
+/* The answer's name was drawn before the player's marker, so the marker painted
+   over it — a green dot on "Amazon rainforest", a flag on "India". It only
+   happens when the player lands near the answer, which is why screenshotting
+   kept missing it: the marker has to be within 24px of the label. */
+describe('the answer label clears the player marker', () => {
+  const L = { lx: 100, lw: 80, right: false, ty: 200 };
+
+  it('sits above its dot when the marker is nowhere near', () => {
+    expect(labelY(L, { x: 400, y: 400 })).toBe(194);
+    expect(labelY(L, null)).toBe(194);
+  });
+
+  it('drops below its dot when the marker would cover it', () => {
+    // marker box is 24px from (x,y); the label box is x 100..180, y 180..196
+    expect(labelY(L, { x: 120, y: 185 })).toBe(220);
+    expect(labelY(L, { x: 100, y: 180 })).toBe(220);
+  });
+
+  /* Touching at the edge is not covering. Without this the label would jump
+     away from markers that never actually overlapped it. */
+  it('does not move for a marker that only touches the edge', () => {
+    expect(labelY(L, { x: 181, y: 185 })).toBe(194);   // starts past the label
+    expect(labelY(L, { x: 120, y: 197 })).toBe(194);   // starts below it
+  });
+
+  it('handles a right-aligned label, where the box runs the other way', () => {
+    const R = { lx: 300, lw: 80, right: true, ty: 200 };   // box x 220..300
+    expect(labelY(R, { x: 250, y: 185 })).toBe(220);
+    expect(labelY(R, { x: 150, y: 185 })).toBe(194);
   });
 });

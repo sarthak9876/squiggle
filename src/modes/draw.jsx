@@ -155,7 +155,12 @@ export const draw = {
       const cv = ref.current;
       if (!cv || !cv.parentElement) return;
       const w = cv.parentElement.clientWidth;
-      const h = Math.round(clamp(w * 0.68, 240, 380));
+      /* 0.68 of a 350px phone width is 238px of CANVAS — and the axis titles and
+         tick row take ~82 of it, leaving about 160px of actual plot. Too short
+         to draw a shape in, and the first data point sat above the top gridline.
+         The floor is on the PLOT now, not the canvas, so a phone gets a chart
+         you can draw on. */
+      const h = Math.round(clamp(w * 0.78, 260 + P.t + P.b, 420));
       const dpr = window.devicePixelRatio || 1;
       cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
       cv.style.height = h + 'px';

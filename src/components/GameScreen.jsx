@@ -160,7 +160,9 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
     }
     let raf, t0 = performance.now();
     const tick = t => {
-      const p = Math.min(1, (t - t0) / 650);
+      // 650ms meant the score was still climbing well after the panel had
+      // arrived. The whole reveal should be readable inside ~400ms.
+      const p = Math.min(1, (t - t0) / 320);
       setShown(Math.round(score * (1 - Math.pow(1 - p, 3))));
       if (p < 1) raf = requestAnimationFrame(tick);
     };
@@ -356,7 +358,12 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
             // A miss shakes the card. MotionConfig in App.jsx makes Framer honour
             // prefers-reduced-motion; it does NOT do that by default.
             animate={score < 30 ? { opacity: 1, y: 0, x: [0, -9, 8, -5, 0] } : { opacity: 1, y: 0 }}
-            transition={score < 30 ? { x: { duration: .36 } } : undefined}
+            /* An explicit duration. With no transition Framer applies its default
+               SPRING, which overshoots and settles over roughly a second — so the
+               panel carrying the answer took that long to become readable, and a
+               retest clocked it at 1-2s. The shake keeps its own timing. */
+            transition={{ opacity: { duration: .22 }, y: { duration: .22 },
+                          ...(score < 30 ? { x: { duration: .36 } } : {}) }}
             exit={{ opacity: 0 }}>
             {/* One polite announcement carrying the score and the truth, so the
                 reveal is not a purely visual event. */}

@@ -92,13 +92,22 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
     try { localStorage.setItem('sq.name', name); } catch { /* private mode */ }
     const link = challengeLink(name, total, day);
     const text = `I scored ${total}/${max} on ${BRAND.name} ${puzzleLabel(day)}. Beat it:\n${link}`;
+    /* The button says "Copy challenge link", so it copies — on every browser.
+       It used to hand off to navigator.share whenever that existed, which on
+       Chrome desktop is always, so the one browser most people test in opened a
+       share sheet instead and the "Copied!" confirmation was unreachable. A
+       button that does something other than what it says is a bug even when the
+       other thing is useful. Sharing lives on its own button. */
     try {
-      if (navigator.share) { await shareOrFallThrough({ text }); return; }
       await navigator.clipboard.writeText(text);
       say('Copied!');
-    } catch (e) {
-      if (e?.name === 'AbortError') return;
-      try { await navigator.clipboard.writeText(text); say('Copied!'); } catch { say('Copy failed'); }
+    } catch {
+      // Clipboard needs a secure context and a user gesture; a share sheet is
+      // better than nothing when it is unavailable.
+      if (navigator.share) {
+        try { await shareOrFallThrough({ text }); return; } catch { /* fall through */ }
+      }
+      say('Copy failed');
     }
   };
 

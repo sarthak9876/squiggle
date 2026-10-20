@@ -235,6 +235,8 @@ export const size = {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); setValue({ v: Math.max(0, value.v - step), touched: true }); }
       if (e.key === 'PageUp')   { e.preventDefault(); setValue({ v: Math.min(STEPS, value.v + page), touched: true }); }
       if (e.key === 'PageDown') { e.preventDefault(); setValue({ v: Math.max(0, value.v - page), touched: true }); }
+      if (e.key === 'Home') { e.preventDefault(); setValue({ v: 0, touched: true }); }
+      if (e.key === 'End')  { e.preventDefault(); setValue({ v: STEPS, touched: true }); }
     };
 
     const text = livePhrase(item, revealed ? item.answer : r);
@@ -299,8 +301,14 @@ export const size = {
           </div>
         )}
 
+        {/* onKeyDown belongs HERE as well as on the picture. It was only on the
+            draggable shape, so anyone who tabbed to the SLIDER — which is what
+            a keyboard user reaches first — got the native behaviour instead:
+            one step out of a thousand per arrow press, about 0.1% of a
+            logarithmic span, and PageUp doing nothing at all. */}
         <input type="range" min="0" max={STEPS} value={value.v} disabled={revealed}
                onChange={e => setFromRatio(toRatio(+e.target.value, item))}
+               onKeyDown={onKey}
                className="slider" aria-label={item.prompt + ' (slider)'}
                aria-valuetext={text} />
         {/* Rendered ALWAYS, emptied when there is nothing to say. Unmounting it

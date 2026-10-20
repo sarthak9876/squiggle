@@ -149,11 +149,22 @@
 .gitem { padding: 16px 6px; min-height: 62px; border-radius: var(--r-md); border: 2px solid var(--rule);
          background: var(--paper); cursor: pointer; font-size: var(--t-small); font-weight: 500;
          transition: transform var(--d-fast) var(--ease-spring), border-color var(--d-fast); }
-.gitem:hover:not(:disabled) { background: color-mix(in srgb, var(--gc) 4%, transparent); }
+/* The hover tint is for PLAIN tiles only. A tile that already carries a group
+   colour (.g0-.g2 while you build a set, .t0-.t2 and .locked after) has dark
+   text chosen for that colour, and washing a translucent accent over it made
+   the text unreadable — "Albatross" and "Recursion" both vanished on hover.
+   Excluding them here beats overriding afterwards: an override has to restate
+   the colour, and then there are two places to change it. */
+.gitem:hover:not(:disabled):not(.locked):not(.g0):not(.g1):not(.g2):not(.t0):not(.t1):not(.t2)
+  { background: color-mix(in srgb, var(--gc) 4%, transparent); }
 .gitem.sel { border-color: var(--ink); transform: scale(.94); }
 /* A locked tile keeps its set colour on hover. The generic hover fill replaced
    it with a dark background behind dark text, and the label disappeared. */
-.gitem.locked:hover:not(:disabled) { background: inherit; outline: 2px solid var(--ink); outline-offset: 1px; }
+/* `background: inherit` takes the PARENT's background, not the tile's own, so
+   hovering a locked tile painted it the board colour and its dark text went
+   unreadable on it — the exact thing this rule was added to prevent. The tile
+   keeps whatever .t0/.t1/.t2 gave it; hover only adds the outline. */
+.gitem.locked:hover:not(:disabled) { outline: 2px solid var(--ink); outline-offset: 1px; }
 .gitem.locked, .gitem.t0, .gitem.t1, .gitem.t2 { color: #15151a; font-weight: 700; border-color: transparent; }
 .gitem.g0, .gitem.t0 { background: #f0b429; } .gitem.g1, .gitem.t1 { background: #4fa3e3; }
 .gitem.g2, .gitem.t2 { background: #7bc67b; }

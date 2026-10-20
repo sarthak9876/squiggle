@@ -29,6 +29,25 @@ const tick = (v, label = '') => {
    "Year first climbed", "Possible positions (log₁₀)". So the format comes from the
    data rather than a spec field copied onto 34 questions. This is what stopped
    years rendering as "1,913" and values rendering as a bare "44". */
+/** Where the answer's NAME goes, given the player's marker.
+
+    The marker is drawn AFTER the label, so it painted straight over it — a
+    green dot sitting on "Amazon rainforest", a flag on top of "India". The
+    marker always sits above and right of where the player tapped (+10, -28,
+    24px square), so dropping the label below its own dot is enough to clear it.
+
+    Pure and exported because the alternative is proving it with screenshots,
+    and the collision only happens when the player lands near the answer —
+    which is exactly the case a screenshot test keeps missing. */
+export function labelY({ lx, lw, right, ty }, marker, size = 24) {
+  const above = ty - 6;
+  if (!marker) return above;
+  const box = { x: right ? lx - lw : lx, y: ty - 20, x2: right ? lx : lx + lw, y2: ty - 4 };
+  const clear = box.x2 < marker.x || box.x > marker.x + size
+             || box.y2 < marker.y || box.y > marker.y + size;
+  return clear ? above : ty + 20;
+}
+
 export function axisFormat(label = '') {
   if (/\blog\s*₁₀|\blog10\b/i.test(label)) return { kind: 'log' };
   if (/^year\b|\byear\b/i.test(label) && !/years\)/i.test(label)) return { kind: 'year' };
@@ -240,8 +259,19 @@ export const place = {
         c.globalAlpha = Math.min(1, k);
         c.beginPath(); c.arc(tx, ty, 12.5 * k, 0, Math.PI * 2); c.stroke();
         c.globalAlpha = 1;
-        c.textAlign = tx > w * 0.6 ? 'right' : 'left'; c.textBaseline = 'bottom';
-        c.fillText(item.item, tx + (tx > w * 0.6 ? -10 : 10), ty - 6);
+        /* Place the answer's NAME clear of the player's marker.
+
+           The marker is drawn after this, so it painted straight over the
+           label — a green dot sitting on "Amazon rainforest", the flag on top
+           of "India". Dropping the label below its own dot when the marker is
+           close is enough, because the marker always sits ABOVE and to the
+           right of where the player tapped. */
+        const right = tx > w * 0.6;
+        const lw = c.measureText(item.item).width;
+        const lx = tx + (right ? -10 : 10);
+        const marker = value ? { x: px(value.fx) + 10, y: py(value.fy) - 28 } : null;
+        c.textAlign = right ? 'right' : 'left'; c.textBaseline = 'bottom';
+        c.fillText(item.item, lx, labelY({ lx, lw, right, ty }, marker));
       }
       if (value) {
         const x = px(value.fx), y = py(value.fy);

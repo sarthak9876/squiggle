@@ -441,7 +441,7 @@ export const ODD = [
              'It is the only one used in one country',      // false - the yen and rupee are
              'It is the only one that exists as paper notes',            // false - the euro has coins
              'It is the only one used by over a billion people'],    // false - so was the euro (1999/2002)
-    reason:0, source:'Bank for International Settlements', theme:'india-money', region:'india',
+    reason:0, source:'Bank for International Settlements', theme:'economy',
     hint:'The rupee is India’s currency, the yen Japan’s, and the euro is shared across much of Europe. Bitcoin is a digital currency launched in 2009.',
     note:'Every other currency here has a central bank that can print more. Bitcoin has a fixed cap of 21 million.' },
 ];

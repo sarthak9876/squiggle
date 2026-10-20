@@ -1,34 +1,58 @@
 import { describe, it, expect } from 'vitest';
-import { POOLS } from '../src/modes/index.js';
+import { POOLS, ALL_POOLS } from '../src/modes/index.js';
 import { lineupFor, LAUNCH_DAY, uniqueDays } from '../src/lib/schedule.js';
 
-/* The hint mechanism exists so that a question naming something you have never
-   heard of is difficulty rather than frustration (src/lib/hint.js). It shipped
-   attached to three questions out of 365, none of them the ones that needed it:
-   a player outside India met nine untranslated Hindi words in Make The Sets,
-   which has no partial credit, and scored zero for not living somewhere.
+/* This file used to defend the India bank: "a player outside India meets nine
+   untranslated Hindi words in Make The Sets, which has no partial credit, and
+   scores zero for not living somewhere" — so every India question in a
+   no-partial-credit mode had to carry a hint.
 
-   These tests pin the two things that went wrong: coverage, and leakage. */
+   That was the wrong fix. The players are 16-45 WORLDWIDE, and a hint does not
+   make "which of these does India grow the most of" a fair question for someone
+   in Lima; it makes it a question you pay 25% to be told the answer to. The
+   region packs are filtered out of POOLS now (src/modes/index.js), so the rule
+   this file pins is the simpler one: they never reach a player at all.
 
-const indiaIn = mode => POOLS[mode].filter(q => q.region === 'india');
+   The leak tests below survive unchanged — they are about hints, not about
+   India, and they caught two real bugs. */
 
-describe('hint coverage where a wrong guess costs everything', () => {
-  /* GROUPS is scored on pairs within a set, so a player who cannot identify the
-     categories scores near zero — there is no partial credit for being close.
-     ODD is two 50-point halves with no middle ground. These are the two modes
-     where unfamiliar proper nouns are fatal rather than merely hard. */
-  for (const mode of ['groups', 'odd']) {
-    it(`every India-tagged ${mode} question carries a hint`, () => {
-      const missing = indiaIn(mode).filter(q => !q.hint).map(q => q.id);
-      expect(missing, `${mode} questions with no hint`).toEqual([]);
-    });
-  }
+describe('the daily set is global', () => {
+  it('no region-tagged question is ever in play', () => {
+    const leaked = Object.entries(POOLS)
+      .flatMap(([mode, pool]) => pool.filter(q => q.region).map(q => `${mode}/${q.id}`));
+    expect(leaked, 'region questions in POOLS').toEqual([]);
+  });
 
-  it('the bank still leans on hints where the subject is named, not everywhere', () => {
-    // A hint on every question would make the mechanic meaningless; a hint on
-    // almost none is what we started from. This is a floor, not a target.
-    const all = Object.values(POOLS).flat();
-    expect(all.filter(q => q.hint).length).toBeGreaterThanOrEqual(30);
+  /* POOLS being clean is not the same as the SCHEDULER being clean: the dealer
+     has a fallback that relaxes the region cap rather than leave a slot empty
+     (schedule.js), so the only convincing check is the lineup a player is
+     actually handed, over a whole cycle, for more than one player id. */
+  it('no day of the cycle deals a region question to anyone', () => {
+    const bad = [];
+    const days = uniqueDays(POOLS).days;
+    for (const pid of ['p', 'q', 'r']) {
+      for (let i = 0; i < days; i++) {
+        for (const slot of lineupFor(POOLS, pid, LAUNCH_DAY + i)) {
+          if (slot.item?.region) bad.push(`${pid} day ${i + 1}: ${slot.mode}/${slot.item.id}`);
+        }
+      }
+    }
+    expect(bad, 'region questions dealt').toEqual([]);
+  });
+
+  /* The packs are FILTERED, not deleted — an India or Brazil edition should be
+     a locale switch, not a rewrite. If they ever vanish from the repo this
+     fails, and the filter above becomes a no-op nobody would notice. */
+  it('the region packs still exist to switch back on', () => {
+    const packed = Object.values(ALL_POOLS).flat().filter(q => q.region).length;
+    expect(packed, 'region packs have been deleted, not filtered').toBeGreaterThan(50);
+  });
+
+  it('every mode still has enough global questions for the cycle', () => {
+    for (const [mode, pool] of Object.entries(POOLS)) {
+      expect(pool.length, `${mode} is too thin without its region pack`).toBeGreaterThanOrEqual(30);
+    }
+    expect(uniqueDays(POOLS).days, 'cycle got shorter').toBeGreaterThanOrEqual(16);
   });
 });
 
@@ -78,38 +102,5 @@ describe('a hint never hands over its own answer', () => {
       expect(q.hint.length, `${q.id} hint`).toBeGreaterThan(24);
       expect(q.hint.length, `${q.id} hint`).toBeLessThan(220);
     }
-  });
-});
-
-describe('every day of the cycle is playable from outside India', () => {
-  /* Coverage over the POOL is not the same as coverage over what a player
-     actually MEETS. The scheduler deals 16 of 364 a day under an India quota, so
-     the question that matters is whether any single day can put an India
-     question a stranger cannot attempt in a mode that scores it zero. */
-  const CLIFF = new Set(['groups', 'odd', 'order']);
-  // Tagged india because India is one ITEM among global ones, not because the
-  // question asks for India knowledge.
-  const GLOBAL = new Set(['o4', 'o28', 'in-o7', 'o34', 'o39', 'g17', 'd35', 'in-d4']);
-
-  it('no day deals an unhinted India question into a mode that scores a stranger zero', () => {
-    const bad = [];
-    const days = uniqueDays(POOLS).days;
-    for (let i = 0; i < days; i++)
-      for (const slot of lineupFor(POOLS, 'p', LAUNCH_DAY + i))
-        if (slot.item?.region === 'india' && CLIFF.has(slot.mode)
-            && !slot.item.hint && !GLOBAL.has(slot.item.id))
-          bad.push(`day ${i + 1}: ${slot.mode}/${slot.item.id}`);
-    expect(bad, 'India questions with no way in').toEqual([]);
-  });
-
-  it('hints stay a quiet minority of the day, not the mechanic', () => {
-    // If most of a day carried a hint the 25% cost would become the normal path.
-    const days = uniqueDays(POOLS).days;
-    let total = 0;
-    for (let i = 0; i < days; i++)
-      total += lineupFor(POOLS, 'p', LAUNCH_DAY + i).filter(s => s.item?.hint).length;
-    const perDay = total / days;
-    expect(perDay).toBeGreaterThan(0.5);
-    expect(perDay).toBeLessThan(6);
   });
 });

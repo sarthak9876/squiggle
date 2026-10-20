@@ -52,9 +52,12 @@ describe('note arithmetic', () => {
      reveal prints "the answer is 77%" on the line directly above. What is left
      are the notes where the figure is grammatically load-bearing: "77%, up from
      18% at independence", "70%, in ice averaging nearly 2 km thick". Those still
-     have to be right, and they are the ones this checks. The floor moved 20 -> 10
-     with that change; it exists to catch the regex silently matching NOTHING,
-     which is how this kind of checker usually dies. Real count today: 14. */
+     have to be right, and they are the ones this checks. The floor exists to
+     catch the regex silently matching NOTHING, which is how this kind of checker
+     usually dies — not to assert a house style. It has moved twice for real
+     reasons: 20 -> 10 when the leading-percentage notes were rewritten, then
+     10 -> 8 when the India packs left the pool and took four of them with
+     them. Real count today: 10 of 44. */
   it('share notes that open with a percentage open with the right one', () => {
     const bad = []; let seen = 0;
     for (const q of POOLS.share) {
@@ -63,7 +66,7 @@ describe('note arithmetic', () => {
       if (m && Math.abs(num(m[1]) - q.answer) > 1.5)
         bad.push(`${q.id}: note says ${m[1]}%, answer is ${q.answer}%`);
     }
-    expect(seen, 'share checker matched nothing').toBeGreaterThan(10);
+    expect(seen, 'share checker matched nothing').toBeGreaterThanOrEqual(8);
     expect(bad, bad.join('\n')).toEqual([]);
   });
 

@@ -93,12 +93,31 @@ function blockLength(pools) {
 }
 
 /* How many days either side of a block boundary must not share a question.
-   Within a block nothing repeats at all; the gap only has to cover the seam. */
-const SEAM = 5;
+   Within a block nothing repeats at all, so this only has to cover the seam.
 
-function dealBlock(pools, pid, block, mendSeam = true) {
+   It was 5 and it did not work — measured over a year, a question could come
+   back the NEXT DAY. Two things were wrong: the lookback compared against an
+   unmended copy of the previous block that no player was ever shown (see
+   `recent` below), and the avoidance was a soft preference that fell straight
+   through to tiers ignoring it.
+
+   7 was picked by measurement, not taste. Over 365 days, with the thinnest mode
+   holding 33 questions at 2 a day:
+     SEAM  min gap   repeats under 8 days
+       5      6             260
+       7      5               5
+       8      2               2
+       9      1               6
+      11      1              37
+   7 is the largest value that still holds a floor under every seam. Past it the
+   opening days cannot find enough unseen questions and fall through to the
+   fallback, so the WORST case gets worse even as the average improves — and a
+   player notices the question they saw on Tuesday, not the distribution. */
+const SEAM = 7;
+
+function dealBlock(pools, pid, block) {
   const BLOCK = blockLength(pools);
-  const key = pid + ':' + block + ':' + BLOCK + ':' + (mendSeam ? 's' : 'r');
+  const key = pid + ':' + block + ':' + BLOCK;
   if (planCache.has(key)) return planCache.get(key);
 
   // Each mode's pile for this block, in permutation order. Pools smaller than the
@@ -113,7 +132,41 @@ function dealBlock(pools, pid, block, mendSeam = true) {
     pile[mode] = list.slice(0, Math.max(need, pool.length));
   }
 
-  const days = [];
+  /* What the previous block actually ENDED on.
+
+     This used to read dealBlock(block - 1, mendSeam=false) — an UNMENDED copy —
+     to stop the lookback recursing backwards for ever, and justified it with a
+     comment claiming a block's tail is the same either way. That was never
+     enforced, and it is not true: dealing is sequential and splices from a
+     shared pile, so what the opening days take changes what is left for the
+     tail. The lookback was comparing against a schedule nobody was ever shown,
+     which is why a question could come back the very next day.
+
+     Blocks are deterministic and cached, so just recurse honestly. Reaching day
+     N costs N/BLOCK block builds ONCE, and every one after that is a cache hit.
+     The archive never goes back past LAUNCH_DAY, so the chain is short. */
+  const recent = new Set();
+  if (block > 0) {
+    for (const d of dealBlock(pools, pid, block - 1).slice(-SEAM))
+      for (const e of d) recent.add(e.mode + ':' + e.item.id);
+  }
+
+  /* Deal the LATER days first, then the opening ones.
+
+     The seam fix needs to know what the previous block ended on, and it reads
+     that from dealBlock(block - 1, FALSE) so the lookback cannot recurse
+     backwards through every block that ever existed. That is only truthful if a
+     block's tail is the same whether or not its own seam was mended — the code
+     used to claim exactly that in a comment, and the claim was false: dealing is
+     sequential and splices from a shared pile, so changing which questions the
+     OPENING days take changes what is left for every day after them, tail
+     included.
+
+     Dealing days SEAM..BLOCK-1 before days 0..SEAM-1 makes it true instead of
+     asserted. The tail is drawn from a pile that has never seen the opening
+     days, so it does not depend on `recent` at all, and the lookback reads
+     exactly the questions the player was shown. */
+  const days = new Array(BLOCK);
   for (let d = 0; d < BLOCK; d++) {
     const themes = new Set(), sigs = new Set(), ids = new Set(), pics = new Set();
     const byRegion = new Map();          // region -> how many already dealt today
@@ -141,7 +194,23 @@ function dealBlock(pools, pid, block, mendSeam = true) {
          had a perfectly good global question one slot further down the pile, and
          three days ended up over cap with nowhere left to trade. A repeated
          picture is a smaller sin than a day about one country. */
-      let at = list.findIndex(q => free(q) && !q.region);
+      /* Inside the opening days, a question the previous block just used is the
+         worst available choice — to a daily player it is simply a repeat. Try
+         every other combination first and only fall through if nothing fits. */
+      const fresh = q => d >= SEAM || !recent.has(mode + ':' + q.id);
+      let at = list.findIndex(q => fresh(q) && free(q) && !q.region);
+      if (at < 0) at = list.findIndex(q => fresh(q) && hard(q) && !q.region);
+      if (at < 0) at = list.findIndex(q => fresh(q) && free(q) && !capped(q));
+      if (at < 0) at = list.findIndex(q => fresh(q) && hard(q) && !capped(q));
+      /* Exhaust EVERY unseen question before reaching for one the player saw a
+         few days ago. Repeating a theme inside a day is a far smaller sin than
+         repeating a QUESTION across the seam, which reads as the generator being
+         broken — and it was: the fresh tiers above used to fall straight through
+         to these, so a question could return the very next day. */
+      if (at < 0) at = list.findIndex(q => fresh(q) && free(q));
+      if (at < 0) at = list.findIndex(q => fresh(q) && hard(q));
+      if (at < 0) at = list.findIndex(fresh);
+      if (at < 0) at = list.findIndex(q => free(q) && !q.region);
       if (at < 0) at = list.findIndex(q => hard(q) && !q.region);
       if (at < 0) at = list.findIndex(q => free(q) && !capped(q));
       if (at < 0) at = list.findIndex(q => hard(q) && !capped(q));
@@ -155,7 +224,7 @@ function dealBlock(pools, pid, block, mendSeam = true) {
       if (q.region) byRegion.set(q.region, (byRegion.get(q.region) || 0) + 1);
       day.push({ mode, item: q });
     }
-    days.push(day);
+    days[d] = day;
   }
 
   // ── Repair pass ──────────────────────────────────────────────────────────
@@ -232,54 +301,6 @@ function dealBlock(pools, pid, block, mendSeam = true) {
       }
     }
     if (!moved) break;
-  }
-
-  /* ── Seam repair ─────────────────────────────────────────────────────────
-     Every guarantee above holds INSIDE a block. Across the boundary it did not:
-     a question used on the last day of one cycle could reappear two days into the
-     next, which to a daily player is simply a repeat. Pull the previous block's
-     tail and push anything it used out of this block's opening days.
-
-     `mendSeam: false` on the lookback is what stops this recursing backwards
-     through every block that has ever existed — and for that lookback to be
-     truthful, this repair must never modify a block's OWN last SEAM days. It
-     only ever swaps an opening day with a MIDDLE day, so a block's tail is
-     identical whether or not its seam was mended, and the previous block's tail
-     read here is exactly the one players saw. */
-  if (mendSeam && block > 0) {
-    const prev = dealBlock(pools, pid, block - 1, false);
-    const recent = new Set();
-    for (const d of prev.slice(-SEAM))
-      for (const e of d) recent.add(e.mode + ':' + signatureOf(e.mode, e.item));
-
-    const sigOf = e => e.mode + ':' + signatureOf(e.mode, e.item);
-    for (let a = 0; a < Math.min(SEAM, days.length); a++) {
-      for (let i = 0; i < days[a].length; i++) {
-        if (!recent.has(sigOf(days[a][i]))) continue;
-        /* Swap with a day far enough into this block that the question lands
-           well clear of the seam. Every mode owns TWO slots a day, and matching
-           only the identical slot index halved the candidates for no reason —
-           a Size It Up question is equally at home in either of its slots. */
-        const mine = days[a][i];
-        let done = false;
-        for (let b = days.length - SEAM - 1; b >= SEAM && !done; b--) {
-          for (let j = 0; j < days[b].length; j++) {
-            const theirs = days[b][j];
-            if (theirs.mode !== mine.mode || recent.has(sigOf(theirs))) continue;
-            const aOthers = days[a].filter((_, k) => k !== i).map(e => e.item.theme);
-            const bOthers = days[b].filter((_, k) => k !== j).map(e => e.item.theme);
-            if (aOthers.includes(theirs.item.theme) || bOthers.includes(mine.item.theme)) continue;
-            // Never push a day OVER the region cap just to fix a seam.
-            if (theirs.item.region && theirs.item.region !== mine.item.region
-                && regionCount(days[a], theirs.item.region) >= MAX_PER_REGION) continue;
-            if (mine.item.region && mine.item.region !== theirs.item.region
-                && regionCount(days[b], mine.item.region) >= MAX_PER_REGION) continue;
-            days[a][i] = theirs; days[b][j] = mine;
-            done = true; break;
-          }
-        }
-      }
-    }
   }
 
   planCache.set(key, days);

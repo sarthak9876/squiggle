@@ -161,7 +161,7 @@ export const GROUPS = [
             { label:'Dances', items:['Tango','Salsa','Waltz'] }],
     hint:'Three of these nine are national currencies.',
     source:null,
-    theme:'india-money', region:'india',
+    theme:'economy',
     note:'Salsa is a dance, a sauce and a music genre. Most short loanwords end up doing several jobs.' },
   { id:'g18', prompt:'Sort these nine into three groups of three',
     groups:[{ label:'Programming errors', items:['Syntax','Runtime','Segfault'] },

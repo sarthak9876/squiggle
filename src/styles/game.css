@@ -568,3 +568,24 @@
 
 /* The hint cost, said out loud next to the score it explains. */
 .rhint { color: var(--warn); font-weight: 600; }
+
+/* Draw The Curve's reveal legend. The swatches read the SAME custom properties
+   the canvas strokes read, so a colour change lands in both at once — the
+   alternative is a hardcoded hex here that drifts from the chart it describes.
+   Widths match the canvas line widths: the real line is drawn thickest. */
+.dlegend { display: flex; flex-wrap: wrap; gap: var(--s3); justify-content: center;
+  list-style: none; margin: var(--s2) 0 0; padding: 0;
+  font-size: var(--t-small); color: var(--ink-soft); }
+.dlegend li { display: inline-flex; align-items: center; gap: 7px; }
+.dsw { width: 22px; border-radius: 2px; flex: none; }
+.dsw.you   { height: 3px; background: var(--accent); }
+.dsw.truth { height: 4px; background: var(--truth); }
+.dsw.crowd { height: 2px; background: var(--ink-faint); opacity: .55; }
+
+/* Draw The Curve's hover readout. Fixed height, not conditional display: it sits
+   above the legend and Next, so a line that only exists while hovering would
+   push both down the moment the cursor arrives — a target that moves away from
+   the pointer. Tabular figures so the numbers do not jitter as they change. */
+.dprobe { min-height: 1.4em; margin: var(--s2) 0 0; text-align: center;
+  font-size: var(--t-small); color: var(--ink-soft);
+  font-variant-numeric: tabular-nums; }

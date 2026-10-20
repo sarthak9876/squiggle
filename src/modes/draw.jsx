@@ -7,11 +7,21 @@ import { rng, hash } from '../lib/random.js';
    phone rotation cannot destroy an in-progress drawing and the scorer needs no
    knowledge of screen size. */
 const SAMPLES = 240, ZERO_AT = 0.33;
-const P = { l: 60, r: 14, t: 16, b: 36 };
+/* t was 16, which is half the height of a tick label, so the topmost y tick sat
+   against the edge of the canvas and the axis unit had nowhere to go. b was 36,
+   which fitted the year row and nothing else, so the x axis had no title. */
+const P = { l: 60, r: 18, t: 30, b: 52 };
 
 export const normY = (p, v) => p.log
   ? 1 - (Math.log10(Math.max(v, p.yMin)) - Math.log10(p.yMin)) / (Math.log10(p.yMax) - Math.log10(p.yMin))
   : 1 - (v - p.yMin) / (p.yMax - p.yMin);
+
+/* The inverse of normY: a 0-1 canvas height back into data units. This lived
+   inlined inside numeric(); the hover readout needs the same conversion, and two
+   copies of a log-scale inversion is one copy too many. */
+export const invY = (p, n) => p.log
+  ? Math.pow(10, Math.log10(p.yMin) + (1 - n) * (Math.log10(p.yMax) - Math.log10(p.yMin)))
+  : p.yMin + (1 - n) * (p.yMax - p.yMin);
 
 export function truthAt(p, xv) {
   const pts = p.points;
@@ -82,11 +92,7 @@ export const draw = {
     const truth = truthAt(item, xv);
     if (!a) return { truth, guess: truth };
     // Invert the normalised y back into data units so the axis labels mean something.
-    const n = a[mid];
-    const guess = item.log
-      ? Math.pow(10, Math.log10(item.yMin) + (1 - n) * (Math.log10(item.yMax) - Math.log10(item.yMin)))
-      : item.yMin + (1 - n) * (item.yMax - item.yMin);
-    return { truth, guess };
+    return { truth, guess: invY(item, a[mid]) };
   },
   clear: () => new Array(SAMPLES).fill(null),
   /** Explains the number: the average vertical gap between your line and the real
@@ -112,6 +118,11 @@ export const draw = {
        coalesced 120Hz event stream, and a synthetic test all produce. */
     const drawing = useRef(false);
     const [kbFocus, setKbFocus] = useState(false);
+    /* Index under the pointer on a REVEALED chart. The reveal was a picture you
+       could look at and not read: "what really happened" was a curve with three
+       tick labels, so the one question it provokes — what was it in 2008? — had
+       no answer. Null while drawing, because the pointer is busy then. */
+    const [probe, setProbe] = useState(null);
     /* Start the keyboard cursor ON the revealed anchor point, not at mid-height.
        Arrow keys used to begin the line in mid-air (1.5k when the blue start dot
        said 2.8k), so a keyboard player's first stroke was wrong before they moved. */
@@ -165,6 +176,21 @@ export const draw = {
       }
       c.textAlign = 'center'; c.textBaseline = 'top'; c.fillStyle = V('--ink-faint');
       for (const f of [0, .5, 1]) c.fillText(String(Math.round(item.xMin + (item.xMax - item.xMin) * f)), fx(f), h - P.b + 8);
+
+      /* Every question carries yLabel and xLabel ("US$ per watt", "Year") and
+         nothing ever drew them, so the y axis read 0.1 / 1 / 10 / 100 with no
+         clue what the numbers counted — on a log chart that is the difference
+         between a plausible answer and a meaningless one. The unit goes at the
+         TOP of the y axis rather than rotated up its side: 11px rotated type is
+         hard to read at phone width, and this is where the new headroom went. */
+      if (item.yLabel) {
+        c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.fillStyle = V('--ink-soft');
+        c.fillText(item.yLabel, P.l - 52, P.t - 12);
+      }
+      if (item.xLabel) {
+        c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillStyle = V('--ink-soft');
+        c.fillText(item.xLabel, P.l + pw / 2, h - 6);
+      }
       c.strokeStyle = V('--rule-strong');
       c.beginPath(); c.moveTo(P.l + .5, P.t); c.lineTo(P.l + .5, h - P.b + .5); c.lineTo(w - P.r, h - P.b + .5); c.stroke();
 
@@ -219,10 +245,31 @@ export const draw = {
       c.fillStyle = V('--truth');
       c.beginPath(); c.arc(ax, ay, 4.5, 0, Math.PI * 2); c.fill();
       if (!revealed) {
-        c.fillStyle = V('--ink-faint'); c.textAlign = 'left'; c.textBaseline = 'middle';
-        c.fillText('start: ' + fmt(a0[1]), ax + 9, ay);
+        /* Flip the label to the left of the dot when it would run off the right
+           edge. The anchor is usually the first point, but a question whose
+           series starts at the far right pushed "start: 76.7" past the canvas. */
+        c.fillStyle = V('--ink-faint'); c.textBaseline = 'middle';
+        const txt = 'start: ' + fmt(a0[1]);
+        const fits = ax + 9 + c.measureText(txt).width <= w - P.r;
+        c.textAlign = fits ? 'left' : 'right';
+        c.fillText(txt, ax + (fits ? 9 : -9), ay);
       }
-    }, [item, value, revealed, reveal, crowd]);
+      /* Crosshair + a dot on each line, so the readout below names something the
+         eye can find. Drawn last so it sits over both curves. */
+      if (revealed && probe != null) {
+        const f = probe / (SAMPLES - 1);
+        const xv = item.xMin + (item.xMax - item.xMin) * f;
+        const x = Math.round(fx(f)) + .5;
+        c.strokeStyle = V('--rule-strong'); c.lineWidth = 1;
+        c.beginPath(); c.moveTo(x, P.t); c.lineTo(x, h - P.b); c.stroke();
+        c.fillStyle = V('--truth');
+        c.beginPath(); c.arc(fx(f), fy(normY(item, truthAt(item, xv))), 4, 0, Math.PI * 2); c.fill();
+        if (value[probe] != null) {
+          c.fillStyle = V('--accent');
+          c.beginPath(); c.arc(fx(f), fy(value[probe]), 4, 0, Math.PI * 2); c.fill();
+        }
+      }
+    }, [item, value, revealed, reveal, crowd, probe]);
 
     useEffect(() => { render(); }, [render]);
     useEffect(() => {
@@ -326,9 +373,48 @@ export const draw = {
             try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* synthetic pointer */ }
             plot(e);
           }}
-          onPointerMove={e => { if (drawing.current && !revealed) plotAll(e); }}
+          onPointerMove={e => {
+            if (!revealed) { if (drawing.current) plotAll(e); return; }
+            const r = e.currentTarget.getBoundingClientRect();
+            const pw = r.width - P.l - P.r;
+            setProbe(Math.round(clamp((e.clientX - r.left - P.l) / pw, 0, 1) * (SAMPLES - 1)));
+          }}
+          onPointerLeave={() => setProbe(null)}
           onPointerUp={() => { drawing.current = false; last.current = null; }}
           onPointerCancel={() => { drawing.current = false; last.current = null; }} />
+        {/* On reveal the chart carries three different lines and said which was
+            which nowhere: the player's own line, the real one, and seven faint
+            crowd curves. Three colours with no key is a picture of nothing. HTML
+            rather than canvas text so a screen reader gets it too, and so the
+            swatches inherit the same custom properties the canvas strokes read —
+            one place to change a colour, not two. */}
+        {/* Reserved height, not conditional rendering: this row sits above the
+            legend and Next, and a line that appears on hover would shove both
+            down under the cursor. Same lesson as the kbhint above Submit.
+
+            No aria-live: it changes on every pointer move, so announcing it
+            would be a stream of numbers a screen-reader user cannot stop and
+            did not ask for, and it is reachable by pointer only. The spoken
+            result is mode.detail(), which says the same thing once. */}
+        {revealed && (
+          <p className="dprobe">
+            {probe == null ? '\u00a0' : (() => {
+              const f = probe / (SAMPLES - 1);
+              const xv = Math.round(item.xMin + (item.xMax - item.xMin) * f);
+              const real = fmt(truthAt(item, item.xMin + (item.xMax - item.xMin) * f));
+              const mine = value[probe] == null ? null : fmt(invY(item, value[probe]));
+              return mine == null ? `${xv}: really ${real}`
+                : `${xv}: you drew ${mine} \u00b7 really ${real}`;
+            })()}
+          </p>
+        )}
+        {revealed && (
+          <ul className="dlegend">
+            <li><span className="dsw you" /> Your line</li>
+            <li><span className="dsw truth" /> What really happened</li>
+            {crowd && <li><span className="dsw crowd" /> Other players</li>}
+          </ul>
+        )}
         {/* Submit used to just sit there greyed out with no explanation. Say what
             is missing and where to go. */}
         {/* Keyboard players had no idea the canvas was drivable.

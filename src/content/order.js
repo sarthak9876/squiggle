@@ -12,7 +12,11 @@ export const ORDER = [
     theme:'missions',
     note:'Printing press to telescope: 168 years. Telescope to television: 319 — nearly twice as long, despite far more people working on it.' },
   { id:'o2', asc:true, prompt:'Closest to the Sun first', unit:'million km',
-    items:[['Mercury',58,'🪐'],['Venus',108,'🪐'],['Earth',150,'🌍'],['Jupiter',778,'🪐'],['Neptune',4495,'🔵']],
+    // Plain cards on purpose, same reason as o12. Unicode has exactly one planet
+    // emoji and it is Saturn (🪐) — which is not even in this set. Mercury, Venus
+    // and Jupiter all wore it, and Neptune wore a plain blue circle. Three identical
+    // ringed planets tell a player nothing and tell them something false.
+    items:[['Mercury',58],['Venus',108],['Earth',150],['Jupiter',778],['Neptune',4495]],
     source:'NASA planetary fact sheets',
     theme:'planets',
     note:'Neptune is thirty times further out than Earth. Scale models of the solar system are almost always wrong.' },

@@ -320,6 +320,7 @@ export const ODD = [
              'It is the only one in northern India',
              'It is the only one that is sacred',
              'It is the only one that reaches the sea'], reason:0,
+    hint:'All four are landmarks of Indian geography: three carry water across the country, one is a desert.',
     source:'Survey of India', theme:'india-geo', region:'india',
     note:'The Thar is a desert. The Godavari is sometimes called the Dakshina Ganga — the Ganga of the south.' },
   { id:'in-d2', prompt:'Which does not belong?', trueCount:1,
@@ -328,6 +329,7 @@ export const ODD = [
              'It is the only one that is a state capital',
              'It is the only one that was once the capital of British India',
              'It is the only one with a metro'], reason:0,
+    hint:'All four are major Indian cities: three grew up around harbours on the sea, one sits well inland.',
     source:'Census of India', theme:'india-cities', region:'india',
     note:'Jaipur is inland. The other three were all built up as ports — which is why the British made them presidency capitals.' },
   { id:'in-d3', prompt:'Which does not belong?', trueCount:1,
@@ -336,6 +338,7 @@ export const ODD = [
              'It is the only one celebrated nationwide',
              'It is the only one with a fixed date',
              'It is the only one involving food'], reason:0,
+    hint:'Three of these are festivals celebrated across India. The fourth is a season.',
     source:'India Meteorological Department', theme:'india-culture', region:'india',
     note:'The monsoon is weather, not a festival — though Onam is timed around its end in Kerala.' },
   { id:'in-d4', prompt:'Which does not belong?', trueCount:1,
@@ -344,6 +347,7 @@ export const ODD = [
              'It is the only one that is not a decimal currency',
              'It is the only one with coins',
              'It is the only one traded internationally'], reason:0,
+    hint:'The rupee is India’s currency, the taka Bangladesh’s, the yen Japan’s and the rupiah Indonesia’s.',
     source:'International Monetary Fund', theme:'india-money', region:'india',
     note:'The yen is Japanese. Rupee, taka and rupiah all descend from the same Sanskrit root for wrought silver.' },
   { id:'in-d5', prompt:'Which does not belong?', trueCount:1,
@@ -352,6 +356,7 @@ export const ODD = [
              'It is the only one from Mumbai',
              'It is the only one still working',
              'It is the only one who has won a World Cup'], reason:0,
+    hint:'All four are household names in India: three made their name in cricket, one in Hindi cinema.',
     source:'ESPNcricinfo / IMDb', theme:'india-cricket', region:'india',
     note:'Amitabh Bachchan is an actor. Tendulkar is also from Mumbai, which is why that distractor fails.' },
 
@@ -362,6 +367,7 @@ export const ODD = [
              'It is the only one with a metro system',              // false - all four have one
              'It is the only one with over 10 million people'],     // false - all four do
     reason:0, source:'Census of India', theme:'india-cities', region:'india',
+    hint:'All four are among India’s largest cities: three sit on the coast, one is inland in the north.',
     note:'Delhi is the only landlocked one \u2014 and the only one that grew as a seat of power rather than a port.' },
   { id:'in-d7', prompt:'Which does not belong?', trueCount:1,
     items:['Hindi','Bengali','Marathi','Sanskrit'], odd:3,
@@ -370,6 +376,7 @@ export const ODD = [
              'It is the only one in the Constitution\u2019s Eighth Schedule', // false - all four are
              'It is the only one spoken outside India'],                    // false - Bengali, in Bangladesh
     reason:0, source:'Census of India language tables', theme:'india-lang', region:'india',
+    hint:'Hindi, Bengali and Marathi are everyday languages of modern India. Sanskrit is the classical language of Hindu scripture, roughly three thousand years old.',
     note:'Sanskrit is listed as an official language and returned under 25,000 native speakers in the last census.' },
   { id:'in-d8', prompt:'Which does not belong?', trueCount:1,
     items:['Chandrayaan-3','Mangalyaan','Aditya-L1','Gaganyaan'], odd:3,
@@ -378,6 +385,7 @@ export const ODD = [
              'It is the only one built by ISRO',           // false - all four are
              'It is the only one announced after 2020'],   // false - all were announced earlier
     reason:0, source:'ISRO mission pages', theme:'india-space', region:'india',
+    hint:'All four are Indian space missions, named in Sanskrit for what they aim at: Chandra is the Moon, Mangal is Mars, Aditya is the Sun, and Gagan is the sky.',
     note:'Gaganyaan is India\u2019s crewed programme. The other three carried instruments and nothing else.' },
   { id:'in-d9', prompt:'Which does not belong?', trueCount:1,
     items:['Ganga','Yamuna','Godavari','Brahmaputra'], odd:3,
@@ -386,6 +394,7 @@ export const ODD = [
              'It is the only one that reaches the sea',        // false - Ganga and Godavari do
              'It is the only one that is a tributary'],        // false - that is the Yamuna
     reason:0, source:'Central Water Commission', theme:'india-geo', region:'india',
+    hint:'The Ganga and Yamuna run across the northern plain and the Godavari across the southern peninsula. The Brahmaputra reaches India through the north-east, after crossing the Himalaya.',
     note:'The Brahmaputra starts in Tibet as the Yarlung Tsangpo and only becomes the Brahmaputra in Assam.' },
 
   { id:'d31', prompt:'Which does not belong?', trueCount:1,
@@ -427,5 +436,6 @@ export const ODD = [
              'It is the only one that exists as paper notes',            // false - the euro has coins
              'It is the only one used by over a billion people'],    // false - so was the euro (1999/2002)
     reason:0, source:'Bank for International Settlements', theme:'india-money', region:'india',
+    hint:'The rupee is India’s currency, the yen Japan’s, and the euro is shared across much of Europe. Bitcoin is a digital currency launched in 2009.',
     note:'Every other currency here has a central bank that can print more. Bitcoin has a fixed cap of 21 million.' },
 ];

@@ -384,6 +384,7 @@ export const DRAW = [
   { id:'in-dr8', title:'Mobile data price', question:'Price of 1 GB of mobile data in India',
     yLabel:'\u20b9 per GB', xLabel:'Year',
     xMin:2013, xMax:2023, yMin:5, yMax:400, log:true,
+    hint:'The rupee (₹) is India’s currency; roughly 80 to 90 of them make a US dollar. This chart is the price of a gigabyte of mobile data over time.',
     source:'TRAI tariff reports', theme:'india-tech', region:'india',
     note:'\u20b9269 to under \u20b910 in a decade \u2014 the cheapest mobile data on Earth. This one price change is why India came online.',
     points:[[2013,269],[2014,224],[2015,226],[2016,152],[2017,19],[2018,13],[2019,11.8],[2021,9.2],[2023,9.0]] },

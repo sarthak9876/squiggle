@@ -398,6 +398,10 @@ export default function App() {
                number flattered you — and the number would then vanish on reload,
                because nothing wrote it. */
             banked={session.kind === 'daily'}
+            /* Only these two write an in-flight record (see onAnswer). An
+               archive run is held in memory, so leaving it really does lose it
+               and the quit dialog must not promise otherwise. */
+            resumable={session.kind === 'daily' || session.kind === 'practice'}
             label={session.kind === 'daily' ? 'Today'
               : session.kind === 'archive' ? 'Archive'
               : (GAMES[session.mode] || {}).name || 'Practice'} />

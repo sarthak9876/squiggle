@@ -45,8 +45,17 @@ describe('note arithmetic', () => {
     expect(bad, bad.join('\n')).toEqual([]);
   });
 
-  /* SHARE: the note opens with the percentage. It must be the answer. */
-  it('share notes restate the right percentage', () => {
+  /* SHARE: a note that opens with a percentage must open with the ANSWER.
+
+     This used to apply to most of the bank, because the house style was "77%.
+     Renewables are growing fast" — and that style has since gone, since the
+     reveal prints "the answer is 77%" on the line directly above. What is left
+     are the notes where the figure is grammatically load-bearing: "77%, up from
+     18% at independence", "70%, in ice averaging nearly 2 km thick". Those still
+     have to be right, and they are the ones this checks. The floor moved 20 -> 10
+     with that change; it exists to catch the regex silently matching NOTHING,
+     which is how this kind of checker usually dies. Real count today: 14. */
+  it('share notes that open with a percentage open with the right one', () => {
     const bad = []; let seen = 0;
     for (const q of POOLS.share) {
       const m = (q.note || '').match(/^(?:About|Roughly|Just|Around|Over|Nearly|Under)?\s*([\d.]+)\s*%/i);
@@ -54,7 +63,7 @@ describe('note arithmetic', () => {
       if (m && Math.abs(num(m[1]) - q.answer) > 1.5)
         bad.push(`${q.id}: note says ${m[1]}%, answer is ${q.answer}%`);
     }
-    expect(seen, 'share checker matched nothing').toBeGreaterThan(20);
+    expect(seen, 'share checker matched nothing').toBeGreaterThan(10);
     expect(bad, bad.join('\n')).toEqual([]);
   });
 
@@ -159,5 +168,34 @@ describe('note arithmetic', () => {
       }
     }
     expect(bad, bad.join('\n')).toEqual([]);
+  });
+});
+
+/* The What Share? reveal already prints "the answer is 77%" in the line
+   directly above the note (share.jsx detail). Twenty-nine of the fifty-four
+   notes then opened with "77%." again, spending their first words on the one
+   fact the player had just been given.
+
+   The line is between a STANDALONE leading sentence and a grammatically
+   load-bearing one. "77%. Renewables are growing fast" repeats. "77%, up from
+   18% at independence" does not — the figure anchors the comparison and the
+   sentence breaks without it, as does "Around 50% of genes have a counterpart".
+   So this matches a leading number followed by a FULL STOP, nothing else. */
+describe('What Share? notes do not repeat the answer', () => {
+  const LEAD = /^(?:About|Around|Roughly|Nearly|Just over|Just under)?\s*[\d.]+\s*%\.\s+/;
+
+  it('no note opens with the answer as its own sentence', () => {
+    const repeats = POOLS.share
+      .filter(q => q.note && LEAD.test(q.note))
+      .map(q => `${q.id}: ${q.note.slice(0, 40)}`);
+    expect(repeats, repeats.join(' | ')).toEqual([]);
+  });
+
+  it('every note still says something, and starts cleanly', () => {
+    for (const q of POOLS.share) {
+      expect(q.note && q.note.trim().length, `${q.id} has no note`).toBeGreaterThan(20);
+      // Stripping the lead must not have left a sentence starting mid-flow.
+      expect(q.note.trim(), q.id).toMatch(/^[A-Z0-9"“(]|^iPhone/);
+    }
   });
 });

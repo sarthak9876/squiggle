@@ -58,7 +58,7 @@ const verdict = (s, mode) => {
 /** One question at a time. Knows nothing about any specific game — it only speaks
  *  the mode contract, which is what keeps this file small while eight very different
  *  mechanics plug into it. */
-export default function GameScreen({ lineup, idx, answers = [], challenge, onAnswer, onNext, onQuit, label, banked = false }) {
+export default function GameScreen({ lineup, idx, answers = [], challenge, onAnswer, onNext, onQuit, label, banked = false, resumable = false }) {
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'auto' }); }, [idx]);
   const slot = lineup[idx];
   const mode = MODES[slot.mode];
@@ -317,8 +317,19 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
             <motion.div className="card quitcard"
               initial={{ y: 20 }} animate={{ y: 0 }} exit={{ y: 20 }}>
               <h3 className="shead">Leave this set?</h3>
-              <p className="stubtext">Your {answers.length} answer{answers.length === 1 ? '' : 's'} so far
-                {' '}are saved. You can pick up where you left off.</p>
+              {/* It read "Your 1 answer so far are saved" — the noun pluralised
+                  and the verb did not — and "Your 0 answers" before you had
+                  answered anything. The bigger problem was that it said "saved"
+                  for every session: an archive run keeps nothing until the last
+                  question, so leaving one really does throw it away. Say which
+                  it is. */}
+              <p className="stubtext">
+                {answers.length === 0
+                  ? 'You have not answered anything yet.'
+                  : resumable
+                    ? `Your ${answers.length} answer${answers.length === 1 ? ' is' : 's are'} saved. You can pick up where you left off.`
+                    : `You have answered ${answers.length} of ${lineup.length}. Leaving now loses this run — an archive set is only kept once you finish it.`}
+              </p>
               <div className="actions">
                 <button className="btn btn-ghost grow" onClick={() => setConfirmQuit(false)}>Keep playing</button>
                 <button className="btn btn-primary grow" onClick={onQuit}>Leave</button>

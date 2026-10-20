@@ -23,13 +23,25 @@ import { slotKey } from './lib/slotkey.js';
 import { POOLS } from './modes/index.js';
 import { GAMES } from './games.jsx';
 import { shuffled } from './lib/random.js';
-import { parse, go, onRouteChange } from './lib/router.js';
+import { parse, go, href, onRouteChange } from './lib/router.js';
 
 export default function App() {
   // The route IS the view. Keeping a second `view` state in parallel is how Back
   // ends up showing one screen with another screen's URL.
   const [route, setRoute] = useState(() => parse());
   useEffect(() => onRouteChange(setRoute), []);
+  /* Rewrite the URL to the canonical one for this route. Two games got slugs
+     that match their names (/game/shadow -> /game/shapes), and the old URL still
+     parses so shared links keep working — this is what stops the address bar
+     showing the dead one afterwards. replaceState, not push, so Back does not
+     bounce between the two spellings. It also normalises a trailing slash.
+     'notfound' is excluded because href() has no path for it and would send
+     every 404 to the home page. */
+  useEffect(() => {
+    if (route.name === 'notfound') return;
+    const want = href(route);
+    if (want !== location.pathname) history.replaceState({}, '', want);
+  }, [route]);
   // Operational, console-only: warn the maintainer long before a player sees repeats.
   useEffect(() => { checkRunway(POOLS); }, []);
   const view = route.name === 'game' ? 'play' : route.name;

@@ -58,3 +58,33 @@ describe('fingerprint is total', () => {
         expect(typeof fp.byMode[m]).toBe('number');
   });
 });
+
+/* Two games have slugs that do not match their internal key, because the key is
+   older than the name on the card. The round trip is the thing to protect: a
+   link shared before the rename must still land on the game, and href() must
+   never emit the old spelling again. */
+describe('game slugs', () => {
+  it('the name-shaped slug resolves to the internal key', () => {
+    expect(parse('/game/shapes')).toEqual({ name: 'game', id: 'shadow' });
+    expect(parse('/game/sets')).toEqual({ name: 'game', id: 'groups' });
+  });
+
+  it('the old slug still works, so shared links do not break', () => {
+    expect(parse('/game/shadow')).toEqual({ name: 'game', id: 'shadow' });
+    expect(parse('/game/groups')).toEqual({ name: 'game', id: 'groups' });
+  });
+
+  /* The canonical form is what App rewrites the address bar to. If href kept
+     emitting /game/shadow the redirect would be a no-op and the rename would
+     exist only in this file. */
+  it('href emits the new slug and only the new slug', () => {
+    expect(href({ name: 'game', id: 'shadow' })).toBe('/game/shapes');
+    expect(href({ name: 'game', id: 'groups' })).toBe('/game/sets');
+  });
+
+  it('every game id round-trips through href and parse', () => {
+    for (const id of SLOTS) {
+      expect(parse(href({ name: 'game', id })), id).toEqual({ name: 'game', id });
+    }
+  });
+});

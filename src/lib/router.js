@@ -17,15 +17,26 @@ import { SLOTS } from './schedule.js';
  *  nothing validated the param — the page had chrome and no content. */
 const GAME_IDS = new Set(SLOTS);
 
+/* A game's URL should read like its name. Two internal keys are older than the
+   names on the cards — 'shadow' is Shapes Only and 'groups' is Make The Sets —
+   and /game/shadow told a player, and a search engine, about a game that is not
+   called that. Renaming the KEY would reach into SLOTS, the content files and
+   every saved score, so only the slug moves. Old URLs still parse and are
+   rewritten to the new one by App, so links already shared keep working. */
+const SLUG = { shadow: 'shapes', groups: 'sets' };
+const KEY_OF = Object.fromEntries(Object.entries(SLUG).map(([k, v]) => [v, k]));
+
 export function parse(pathname = location.pathname) {
   const p = pathname.replace(/\/+$/, '') || '/';
   if (p === '/' || p === '') return { name: 'home' };
   if (p === '/play') return { name: 'play' };
   if (p === '/results') return { name: 'results' };
   const g = p.match(/^\/game\/([a-z]+)$/i);
-  if (g) return GAME_IDS.has(g[1].toLowerCase())
-    ? { name: 'game', id: g[1].toLowerCase() }
-    : { name: 'notfound', path: p };
+  if (g) {
+    const slug = g[1].toLowerCase();
+    const id = KEY_OF[slug] || slug;
+    return GAME_IDS.has(id) ? { name: 'game', id } : { name: 'notfound', path: p };
+  }
   if (p === '/archive') return { name: 'archive' };
   if (p === '/about') return { name: 'about' };
   if (p === '/privacy') return { name: 'privacy' };
@@ -41,7 +52,7 @@ export function href(route) {
   switch (route.name) {
     case 'play': return '/play';
     case 'results': return '/results';
-    case 'game': return '/game/' + route.id;
+    case 'game': return '/game/' + (SLUG[route.id] || route.id);
     case 'archive': return route.date ? '/archive/' + route.date : '/archive';
     case 'about': return '/about';
     case 'privacy': return '/privacy';

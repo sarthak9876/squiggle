@@ -15,6 +15,7 @@
     "dev:phone": "vite --host",
     "prebuild": "node scripts/fetch-stars.mjs",
     "test:e2e": "node tests/e2e/play-a-day.mjs",
+    "test:sw": "node scripts/sw-stamp-check.mjs && node tests/e2e/sw-update.mjs",
     "test:e2e:all": "for v in desktop phone; do for t in light dark; do echo \"--- $v $t ---\"; VIEW=$v THEME=$t node tests/e2e/play-a-day.mjs || exit 1; done; done"
   },
   "dependencies": {

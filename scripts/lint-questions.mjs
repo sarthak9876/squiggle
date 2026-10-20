@@ -8,7 +8,7 @@
      - the same answer or emoji twice in one day's set
    Exits non-zero so CI fails on a bad question rather than a player finding it. */
 import { POOLS } from '../src/modes/index.js';
-import { lineupFor, LAUNCH_DAY, uniqueDays, PER_DAY } from '../src/lib/schedule.js';
+import { lineupFor, LAUNCH_DAY, uniqueDays, PER_DAY, MAX_PER_REGION } from '../src/lib/schedule.js';
 
 const problems = [];
 const warnings = [];
@@ -116,9 +116,45 @@ for (let d = LAUNCH_DAY; d < LAUNCH_DAY + CYCLE; d++) {
    stays in front of whoever is writing content. Raise TARGET_DAYS as the bank
    grows; the day it reaches 120 the original ask is met and this comment is moot. */
 const TARGET_DAYS = 120;
-const MIN_DAYS = 17;            // ratchet: today's cycle. Never let it drop.
+/* Ratchet: today's cycle, never let it drop. Reset from 17 to 16 when the India
+   quota was removed — uniqueDays now sizes each mode on its GLOBAL questions
+   alone, because a day may carry at most MAX_PER_REGION region questions and
+   counting region questions as reach left the final days lopsided. The way back
+   up is global content: every 2 global SHADOW questions buys another day. */
+const MIN_DAYS = 16;
+
+/* No single place may own more than a quarter of the bank. The India pool sat at
+   23.9% while being FORCED into a quarter of every day, so the bank share was
+   never the thing that hurt — the daily floor was. This guards the bank anyway,
+   so a new regional pack cannot quietly take over. */
+const MAX_REGION_SHARE = 0.25;
 if (CYCLE < MIN_DAYS) {
   fail('schedule', `cycle fell to ${CYCLE} days (floor is ${MIN_DAYS}) — a pool shrank`);
+}
+
+/* ── Region balance ──────────────────────────────────────────────────────── */
+const ALL = Object.values(POOLS).flat();
+const byRegion = {};
+for (const q of ALL) if (q.region) byRegion[q.region] = (byRegion[q.region] || 0) + 1;
+for (const [r, n] of Object.entries(byRegion)) {
+  const share = n / ALL.length;
+  if (share > MAX_REGION_SHARE)
+    fail('region', `${r} is ${(100 * share).toFixed(1)}% of the bank (max ${100 * MAX_REGION_SHARE}%)`);
+}
+{
+  // And the thing that actually reaches a player: one day's worth.
+  const over = [];
+  for (let d = 0; d < CYCLE; d++) {
+    const seen = {};
+    for (const s of lineupFor(POOLS, 'lint', LAUNCH_DAY + d))
+      if (s.item.region) seen[s.item.region] = (seen[s.item.region] || 0) + 1;
+    for (const [r, n] of Object.entries(seen))
+      if (n > MAX_PER_REGION) over.push(`day +${d}: ${n}x ${r}`);
+  }
+  if (over.length) fail('region', `days over the per-region cap — ${over.slice(0, 5).join(', ')}`);
+  const regional = ALL.filter(q => q.region).length;
+  warn('region', `mix: ${ALL.length - regional} global, ${regional} regional ` +
+       `(${Object.entries(byRegion).map(([r, n]) => `${r} ${n}`).join(', ') || 'none'})`);
 }
 if (CYCLE < TARGET_DAYS) {
   const per = Object.entries(POOLS).map(([m, p]) => {

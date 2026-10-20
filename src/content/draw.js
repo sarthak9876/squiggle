@@ -376,11 +376,10 @@ export const DRAW = [
 
   /* Was a second UPI transactions chart — in-dr2 already is one, same title and
      same question. Replaced with a different India series. */
-  { id:'in-dr7', title:'Indians online', question:'People in India using the internet',
-    yLabel:'Users (millions)', xLabel:'Year', xMin:2000, xMax:2024, yMin:0, yMax:1000,
-    source:'TRAI / ITU internet penetration data', theme:'india-tech', region:'india',
-    note:'5 million to 880 million in twenty-four years. More Indians are online than the whole population of Europe.',
-    points:[[2000,5],[2005,25],[2010,92],[2014,250],[2017,440],[2020,690],[2022,800],[2024,880]] },
+  /* in-dr7 removed: "Indians online" twice in one bank. in-dr3 tells the same
+     story as a SHARE of people, which a player anywhere can estimate; this one
+     told it as an absolute count in millions, which only lands if you already
+     know India's population. Same title, same years, same source family. */
   { id:'in-dr8', title:'Mobile data price', question:'Price of 1 GB of mobile data in India',
     yLabel:'\u20b9 per GB', xLabel:'Year',
     xMin:2013, xMax:2023, yMin:5, yMax:400, log:true,

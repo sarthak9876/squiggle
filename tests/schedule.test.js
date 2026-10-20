@@ -5,7 +5,7 @@
    archive offered days before the game existed. */
 import { describe, it, expect } from 'vitest';
 import { POOLS } from '../src/modes/index.js';
-import { lineupFor, SLOTS, PER_DAY, uniqueDays, signatureOf, LAUNCH_DAY, MIN_INDIA } from '../src/lib/schedule.js';
+import { lineupFor, SLOTS, PER_DAY, uniqueDays, signatureOf, LAUNCH_DAY, MAX_PER_REGION } from '../src/lib/schedule.js';
 
 const PLAYERS = ['alice', 'bob', 'p-1291', 'zz'];
 
@@ -80,33 +80,40 @@ describe('across days', () => {
   });
 });
 
-describe('India localisation', () => {
-  it('can put at least 4 India questions in every set', () => {
+describe('no single place dominates a day', () => {
+  /* This block used to assert the OPPOSITE: that every day carried at least four
+     India questions. That floor put a quarter of every set, for every player on
+     earth, into one country — a player in Lagos or Sao Paulo met four questions
+     about Indian states, rivers and cricket daily and could not opt out. It is a
+     ceiling now, and it applies to every region equally. */
+
+  it('no generated day carries more than MAX_PER_REGION from any one region', () => {
+    const over = [];
     for (const pid of PLAYERS) {
-      for (let d = LAUNCH_DAY; d < LAUNCH_DAY + 14; d++) {
-        const n = lineupFor(POOLS, pid, d)
-          .filter(x => x.item.region === 'india').length;
-        expect(n, `${pid} day ${d}`).toBeGreaterThanOrEqual(MIN_INDIA);
+      for (let d = LAUNCH_DAY; d < LAUNCH_DAY + uniqueDays(POOLS).days; d++) {
+        const seen = {};
+        for (const s of lineupFor(POOLS, pid, d))
+          if (s.item.region) seen[s.item.region] = (seen[s.item.region] || 0) + 1;
+        for (const [r, n] of Object.entries(seen))
+          if (n > MAX_PER_REGION) over.push(`${pid} day +${d - LAUNCH_DAY}: ${n}x ${r}`);
       }
     }
+    expect(over, over.slice(0, 8).join(' | ')).toEqual([]);
   });
 
-  /* The India quota is the one guarantee that silently degrades instead of
-     breaking: when the bank runs short the scheduler simply cannot fill it, and
-     the last days of the cycle quietly turn into a generic set. It used to go
-     4 4 4 ... 4 1 0. Assert the whole cycle, not day one. */
-  it('every day of the cycle carries at least MIN_INDIA India questions', () => {
-    const low = [];
-    for (let d = LAUNCH_DAY; d < LAUNCH_DAY + 16; d++) {
-      const n = lineupFor(POOLS, 'quota-check', d).filter(s => s.item.region === 'india').length;
-      if (n < MIN_INDIA) low.push(`day +${d - LAUNCH_DAY}: ${n}`);
-    }
-    expect(low, low.join(', ')).toEqual([]);
+  it('no one region owns more than a quarter of the bank', () => {
+    const all = Object.values(POOLS).flat();
+    const seen = {};
+    for (const q of all) if (q.region) seen[q.region] = (seen[q.region] || 0) + 1;
+    for (const [r, n] of Object.entries(seen))
+      expect(n / all.length, `${r} is ${(100 * n / all.length).toFixed(1)}% of the bank`)
+        .toBeLessThanOrEqual(0.25);
   });
 
-  it('the bank holds at least 60 India questions', () => {
-    const n = Object.values(POOLS).flat().filter(q => q.region === 'india').length;
-    expect(n, `only ${n} India questions`).toBeGreaterThanOrEqual(60);
+  it('most of the bank is global, not tied to any one place', () => {
+    const all = Object.values(POOLS).flat();
+    const global = all.filter(q => !q.region).length;
+    expect(global / all.length).toBeGreaterThan(0.6);
   });
 
   /* Two questions whose VISIBLE content is identical are a repeat even though
@@ -149,6 +156,13 @@ describe('India localisation', () => {
       }
     }
     const rate = short / total;
-    expect(rate, `${short}/${total} repeats inside 6 days (worst gap ${worst})`).toBeLessThan(0.004);
+    /* 0.004 was calibrated against a 21-day cycle. Removing the India quota
+       shortened the cycle to 16 days (uniqueDays now sizes each mode on its
+       GLOBAL questions alone), so a cycle boundary comes round roughly 30% more
+       often and the same scheduler produces proportionally more near-seam
+       repeats — measured 36/7680 = 0.47%. The real fix is more global content,
+       not a cleverer scheduler: every global question added lengthens the cycle
+       and pushes this back down. Tightened again when the bank grows. */
+    expect(rate, `${short}/${total} repeats inside 6 days (worst gap ${worst})`).toBeLessThan(0.005);
   });
 });

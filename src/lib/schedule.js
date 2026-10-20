@@ -116,27 +116,43 @@ function dealBlock(pools, pid, block, mendSeam = true) {
   const days = [];
   for (let d = 0; d < BLOCK; d++) {
     const themes = new Set(), sigs = new Set(), ids = new Set(), pics = new Set();
-    let india = 0;
+    const byRegion = new Map();          // region -> how many already dealt today
     const day = [];
     for (const mode of SLOTS) {
       const list = pile[mode];
       const hard = q => !ids.has(q.id) && !sigs.has(signatureOf(mode, q)) && !themes.has(q.theme);
       // Picture clashes are a SOFT constraint: preferred, but never worth leaving a
-      // slot empty or breaking the India quota for.
+      // slot empty.
       const free = q => hard(q) && !emojiOf(mode, q).some(e => pics.has(e));
-      // Prefer an India question whenever the day is still short of its quota, not
-      // only when it becomes urgent — by then the remaining modes have often run
-      // out of India options in this block's pile.
-      let at = -1;
-      if (india < MIN_INDIA) at = list.findIndex(q => free(q) && q.region === 'india');
+      /* A day may carry at most MAX_PER_REGION questions from any ONE place.
+
+         This replaces a quota that FORCED four India questions into every single
+         day — a quarter of the set, for every player on earth, because the game
+         was built in India. A player in Lagos or São Paulo met four questions
+         about Indian states, rivers and cricket every day and could not opt out.
+
+         The rule is deliberately region-agnostic: it caps whatever region tag a
+         question carries, so adding Nigerian or Brazilian packs needs no change
+         here. A question with no region is GLOBAL and is never capped, which is
+         also why global questions are preferred when the cap is already met. */
+      const capped = q => q.region && (byRegion.get(q.region) || 0) >= MAX_PER_REGION;
+      /* Global questions come FIRST, even past a picture clash. Trying
+         "no clash" before "no region" spent the regional allowance on days that
+         had a perfectly good global question one slot further down the pile, and
+         three days ended up over cap with nowhere left to trade. A repeated
+         picture is a smaller sin than a day about one country. */
+      let at = list.findIndex(q => free(q) && !q.region);
+      if (at < 0) at = list.findIndex(q => hard(q) && !q.region);
+      if (at < 0) at = list.findIndex(q => free(q) && !capped(q));
+      if (at < 0) at = list.findIndex(q => hard(q) && !capped(q));
+      // Only now relax the cap, rather than leave the slot empty.
       if (at < 0) at = list.findIndex(free);
-      if (at < 0 && india < MIN_INDIA) at = list.findIndex(q => hard(q) && q.region === 'india');
       if (at < 0) at = list.findIndex(hard);
       if (at < 0) at = 0;
       const q = list.splice(at, 1)[0];
       ids.add(q.id); sigs.add(signatureOf(mode, q)); if (q.theme) themes.add(q.theme);
       for (const e of emojiOf(mode, q)) pics.add(e);
-      if (q.region === 'india') india++;
+      if (q.region) byRegion.set(q.region, (byRegion.get(q.region) || 0) + 1);
       day.push({ mode, item: q });
     }
     days.push(day);
@@ -180,20 +196,29 @@ function dealBlock(pools, pid, block, mendSeam = true) {
     if (!fixed) break;
   }
 
-  // Same trick for the India quota: move an India question from a day that has
-  // spare ones to a day that is short, swapping so both keep sixteen questions.
-  const indiaCount = d => d.filter(e => e.item.region === 'india').length;
+  /* Same trick for region balance, but the other way round: move a region
+     question OFF a day that carries more than the cap, onto a day that has room.
+     This used to top days UP to a four-question India floor. */
+  const regionCount = (d, r) => d.filter(e => e.item.region === r).length;
+  const overCap = d => {
+    const seen = new Map();
+    for (const e of d) if (e.item.region) seen.set(e.item.region, (seen.get(e.item.region) || 0) + 1);
+    for (const [r, n] of seen) if (n > MAX_PER_REGION) return r;
+    return null;
+  };
   for (let pass = 0; pass < 3; pass++) {
     let moved = 0;
     for (let a = 0; a < days.length; a++) {
-      while (indiaCount(days[a]) < MIN_INDIA) {
+      let over;
+      while ((over = overCap(days[a]))) {
         let done = false;
         for (let b = 0; b < days.length && !done; b++) {
-          if (b === a || indiaCount(days[b]) <= MIN_INDIA) continue;
+          if (b === a || regionCount(days[b], over) >= MAX_PER_REGION) continue;
           for (let i = 0; i < days[a].length; i++) {
-            if (days[a][i].item.region === 'india') continue;
+            if (days[a][i].item.region !== over) continue;
             const j = i;
-            if (days[b][j].item.region !== 'india') continue;
+            // Trading for another question of the same region solves nothing.
+            if (days[b][j].item.region === over) continue;
             const mine = days[a][i], theirs = days[b][j];
             const aOthers = dayThemes(days[a]).filter((_, k) => k !== i);
             const bOthers = dayThemes(days[b]).filter((_, k) => k !== j);
@@ -244,9 +269,11 @@ function dealBlock(pools, pid, block, mendSeam = true) {
             const aOthers = days[a].filter((_, k) => k !== i).map(e => e.item.theme);
             const bOthers = days[b].filter((_, k) => k !== j).map(e => e.item.theme);
             if (aOthers.includes(theirs.item.theme) || bOthers.includes(mine.item.theme)) continue;
-            // Never trade away a day's India quota to fix a seam.
-            const d1 = (theirs.item.region === 'india' ? 1 : 0) - (mine.item.region === 'india' ? 1 : 0);
-            if (indiaCount(days[a]) + d1 < MIN_INDIA || indiaCount(days[b]) - d1 < MIN_INDIA) continue;
+            // Never push a day OVER the region cap just to fix a seam.
+            if (theirs.item.region && theirs.item.region !== mine.item.region
+                && regionCount(days[a], theirs.item.region) >= MAX_PER_REGION) continue;
+            if (mine.item.region && mine.item.region !== theirs.item.region
+                && regionCount(days[b], mine.item.region) >= MAX_PER_REGION) continue;
             days[a][i] = theirs; days[b][j] = mine;
             done = true; break;
           }
@@ -259,8 +286,12 @@ function dealBlock(pools, pid, block, mendSeam = true) {
   return days;
 }
 
-/** How many India-relevant questions every daily set should contain. */
-export const MIN_INDIA = 4;
+/** How many questions from any ONE region a single day may carry.
+
+    Was MIN_INDIA = 4 — a floor that forced a quarter of every day to be about
+    one country. This is a CEILING instead, and it applies to every region
+    equally. Untagged questions are global and uncapped. */
+export const MAX_PER_REGION = 1;
 
 /* The global salt. Changing it reshuffles the entire schedule for everyone, so it
    is a one-way door once the game is live — it exists so the question order is not
@@ -290,9 +321,31 @@ export function lineupFor(pools, _pid, day) {
 
 /** How many days each game can run before it starts repeating. */
 export function uniqueDays(pools) {
-  const rows = Object.entries(pools).map(([mode, pool]) => ({
-    mode, count: pool.length, perDay: PER_DAY[mode] || 1,
-    days: Math.floor(pool.length / (PER_DAY[mode] || 1)),
-  })).sort((a, b) => a.days - b.days);
+  /* The cycle is as long as the bank can fill it FAIRLY, which is not the same
+     as how many questions it holds.
+
+     A day may carry at most MAX_PER_REGION region-tagged questions, so over D
+     days the scheduler can use every global question plus roughly D region ones.
+     Counting the whole pool gave 21 days — but only because a quarter of every
+     day was forced to be India. With the cap in place, asking for 21 days makes
+     the greedy dealer spend the global pool first and then dump nine, ten, twelve
+     India questions into the final days, which is worse than a shorter cycle.
+
+     So each mode's reach is its GLOBAL questions, plus the share of the regional
+     allowance it can expect. Shorter and honest beats longer and lopsided. */
+  const rows = Object.entries(pools).map(([mode, pool]) => {
+    const perDay = PER_DAY[mode] || 1;
+    const global = pool.filter(q => !q.region).length;
+    // Region questions arrive at MAX_PER_REGION per day across ALL slots, so one
+    // mode can count on roughly its slot-share of them.
+    /* Counting the regional allowance as extra reach left the first and last two
+       days still over cap — the greedy dealer cannot see the end coming, and by
+       the final day every other day is full so the repair pass has nowhere to
+       trade to. Each mode is therefore sized on its GLOBAL questions alone: a
+       region question then merely REPLACES a global one, which is always
+       feasible. Shorter, and provably fair on every day. */
+    const days = Math.floor(global / perDay);
+    return { mode, count: pool.length, global, perDay, days };
+  }).sort((a, b) => a.days - b.days);
   return { rows, days: rows[0]?.days ?? 0, thinnest: rows[0]?.mode };
 }

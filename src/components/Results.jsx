@@ -9,6 +9,25 @@ import Countdown from './Countdown.jsx';
 import Mascot, { moodFor } from './Mascot.jsx';
 import AdSlot from './AdSlot.jsx';
 
+/* navigator.share can EXIST and still never settle. Measured on desktop Chrome
+   with no OS share sheet: share({text}) was still pending after three seconds —
+   never resolved, never rejected — so the catch blocks below could not fire and
+   the clipboard fallback was unreachable. The player pressed Share and nothing
+   happened at all: no sheet, no toast, nothing in the console.
+
+   A real share sheet takes focus off the page. If we still hold focus a beat
+   later then no sheet opened and that promise is never going to settle, so throw
+   and let the caller fall through to its clipboard path. When a sheet DID open
+   we keep waiting, for as long as the player takes to choose an app. */
+function shareOrFallThrough(payload) {
+  return Promise.race([
+    navigator.share(payload),
+    new Promise((_, reject) => setTimeout(() => {
+      if (document.hasFocus()) reject(new Error('no share sheet opened'));
+    }, 1200)),
+  ]);
+}
+
 export default function Results({ answers, lineup, label, onHome, onAgain, onArchive, isDaily, kind = 'daily', day: dayProp }) {
   const total = answers.reduce((a, b) => a + b.score, 0);
   const max = answers.length * 100;
@@ -50,7 +69,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
         const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
         const file = new File([blob], `${BRAND.name.toLowerCase()}-story.png`, { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file] });
+          await shareOrFallThrough({ files: [file] });
           return;
         }
       } catch (e) { if (e?.name === 'AbortError') return; /* else fall through to download */ }
@@ -74,7 +93,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
     const link = challengeLink(name, total, day);
     const text = `I scored ${total}/${max} on ${BRAND.name} ${puzzleLabel(day)}. Beat it:\n${link}`;
     try {
-      if (navigator.share) { await navigator.share({ text }); return; }
+      if (navigator.share) { await shareOrFallThrough({ text }); return; }
       await navigator.clipboard.writeText(text);
       say('Copied!');
     } catch (e) {
@@ -94,11 +113,11 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
         const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
         const file = new File([blob], `${BRAND.name.toLowerCase()}.png`, { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], text });
+          await shareOrFallThrough({ files: [file], text });
           return;
         }
       }
-      if (navigator.share) { await navigator.share({ text }); return; }
+      if (navigator.share) { await shareOrFallThrough({ text }); return; }
       await navigator.clipboard.writeText(text);
       say('Copied!');
     } catch (e) {

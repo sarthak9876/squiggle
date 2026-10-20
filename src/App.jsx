@@ -385,6 +385,11 @@ export default function App() {
              Mode + item id + index covers all three ways a slot can change. */
           <GameScreen key={slotKey(lineup[idx], idx)} lineup={lineup} idx={idx} answers={answers} challenge={challenge} onAnswer={onAnswer} onNext={onNext}
             onQuit={goHome}
+            /* Only a daily run is banked. Archive and practice are replayable by
+               design, so counting them would let you grind a mode until the
+               number flattered you — and the number would then vanish on reload,
+               because nothing wrote it. */
+            banked={session.kind === 'daily'}
             label={session.kind === 'daily' ? 'Today'
               : session.kind === 'archive' ? 'Archive'
               : (GAMES[session.mode] || {}).name || 'Practice'} />

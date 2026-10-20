@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { mergeInflight } from '../src/lib/storage.js';
+import { save } from '../src/lib/storage.js';
+import { modeStats } from '../src/lib/stats.js';
 
 /* Two tabs on the same browser share one storage key. The inflight write used to
    be last-writer-wins on this tab's in-memory list, so a tab left open on
@@ -43,5 +45,49 @@ describe('a second tab can never roll your progress back', () => {
     for (const junk of [null, undefined, {}, { day: 10 }, { day: 10, answers: null }])
       expect(() => mergeInflight(junk, ans(3), 10)).not.toThrow();
     expect(mergeInflight({ day: 10, answers: null }, ans(3), 10).idx).toBe(3);
+  });
+});
+
+/* "Your best on this game" and "Your average" are computed from saved answers
+   plus the run in progress. Only a DAILY run is ever saved — archive goes to
+   s.archive and practice is deleted on finish — so folding a practice run into
+   the in-flight list let you grind a mode until the number flattered you, and
+   then lose it on reload. The gate is the `banked` prop; this pins the storage
+   side of it, that practice never reaches s.answers at all. */
+describe('practice never pollutes the saved stats', () => {
+  /* storage.js wraps every call in try/catch so the game works in a private
+     window, which means a missing localStorage fails SILENTLY — load() returns
+     {} and the test would pass on nothing. A real Map-backed stub, so what is
+     saved is actually read back. */
+  beforeAll(() => {
+    const m = new Map();
+    globalThis.localStorage = {
+      getItem: k => (m.has(k) ? m.get(k) : null),
+      setItem: (k, v) => m.set(k, String(v)),
+      removeItem: k => m.delete(k),
+      clear: () => m.clear(),
+    };
+  });
+
+  it('modeStats reads only s.answers, which holds daily runs', () => {
+    localStorage.clear();
+    save({
+      answers: { 100: [{ mode: 'size', score: 40 }] },
+      archive: { 99: { total: 500, answers: [{ mode: 'size', score: 100 }] } },
+      practice: { size: { answers: [{ mode: 'size', score: 100 }] } },
+    });
+    const st = modeStats('size');
+    expect(st.n, 'archive or practice leaked in').toBe(1);
+    expect(st.best).toBe(40);
+    expect(st.mean).toBe(40);
+  });
+
+  /* The in-flight list is the caller's job to withhold, so prove the shape it
+     has to withhold: passing a practice answer DOES move the number. That is
+     why GameScreen passes [] unless the run is banked. */
+  it('an in-flight answer does move best, so the caller must gate it', () => {
+    localStorage.clear();
+    save({ answers: { 100: [{ mode: 'size', score: 40 }] } });
+    expect(modeStats('size', [{ mode: 'size', score: 95 }]).best).toBe(95);
   });
 });

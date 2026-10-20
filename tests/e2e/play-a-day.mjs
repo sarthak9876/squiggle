@@ -10,6 +10,8 @@
      npm run build && npm run preview     # serve dist/ on 8788
      npm run test:e2e                     # desktop
      VIEW=phone npm run test:e2e          # 390px
+     THEME=dark npm run test:e2e          # dark palette
+     npm run test:e2e:all                 # all four combinations
 
    Uses the system Chrome via playwright-core, so there is no browser download.  */
 import { chromium } from 'playwright-core';
@@ -17,6 +19,10 @@ import { chromium } from 'playwright-core';
 const URL  = process.env.URL || 'http://localhost:8788/';
 const VIEW = process.env.VIEW === 'phone'
   ? { width: 390, height: 844 } : { width: 1280, height: 900 };
+/* Dark mode was never played end to end. The whole palette swaps — every token
+   is redefined under prefers-color-scheme — so a contrast or visibility bug
+   there is invisible to a light-mode run and to the unit suite. */
+const SCHEME = process.env.THEME === 'dark' ? 'dark' : 'light';
 const QUESTIONS = 16;
 
 /* The submit button, matched by its ROLE in the action bar rather than one class
@@ -26,7 +32,7 @@ const CTA  = '.qcard .actions .btn-primary, .qcard .btn-primary.grow';
 const NEXT = '.btn.btn-primary.wide';
 
 const browser = await chromium.launch({ channel: 'chrome' });
-const page = await (await browser.newContext({ viewport: VIEW })).newPage();
+const page = await (await browser.newContext({ viewport: VIEW, colorScheme: SCHEME })).newPage();
 
 const errors = [];
 page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });

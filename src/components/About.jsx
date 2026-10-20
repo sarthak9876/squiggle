@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { BRAND } from '../brand.js';
 import { REPORT_TO } from '../lib/report.js';
 
 /* Single source of truth for who made this and where to find them. */
@@ -29,9 +30,9 @@ export default function About({ onHome }) {
   return (
     <motion.div className="aboutpage" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
       <div className="card">
-        <h2 className="shead">About Squiggle</h2>
+        <h2 className="shead">About {BRAND.name}</h2>
         <p className="abouttext">
-          Squiggle is a daily game about how badly we all estimate the world. Eight
+          {BRAND.name} is a daily game about how badly we all estimate the world. Eight
           ways to be wrong, sixteen questions, about four minutes. Free, no account,
           no ads on the questions themselves.
         </p>

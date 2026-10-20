@@ -58,7 +58,7 @@ const verdict = (s, mode) => {
 /** One question at a time. Knows nothing about any specific game — it only speaks
  *  the mode contract, which is what keeps this file small while eight very different
  *  mechanics plug into it. */
-export default function GameScreen({ lineup, idx, answers = [], challenge, onAnswer, onNext, onQuit, label }) {
+export default function GameScreen({ lineup, idx, answers = [], challenge, onAnswer, onNext, onQuit, label, banked = false }) {
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'auto' }); }, [idx]);
   const slot = lineup[idx];
   const mode = MODES[slot.mode];
@@ -387,7 +387,8 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
               </a>
             </p>
             <Reveal mode={mode} modeKey={slot.mode} item={slot.item} value={value}
-                    score={score} qid={qid} history={[...answers, { mode: slot.mode, score }]} />
+                    score={score} qid={qid} banked={banked}
+                    history={banked ? [...answers, { mode: slot.mode, score }] : []} />
             {/* Sticky: the reveal card is long (score, detail, note, source, crowd
                 histogram) and on a phone Next sat below the fold, so the run felt
                 like it had stalled. It now rides the bottom of the viewport. */}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { BRAND } from '../brand.js';
 import { motion } from 'framer-motion';
-import { dayNumber, EPOCH, LAUNCH_DAY, puzzleNumber } from '../lib/schedule.js';
+import { dayNumber, EPOCH, LAUNCH_DAY, puzzleNumber, SLOTS } from '../lib/schedule.js';
 import { load } from '../lib/storage.js';
 
 const dateOf = d => new Date(EPOCH.getTime() + d * 86400000);
@@ -51,7 +52,7 @@ export default function Archive({ onPlayDay, onHome }) {
             return (
               <button key={d} className={'archday' + band(total) + (d === today ? ' today' : '')}
                       onClick={() => onPlayDay(d)}
-                      aria-label={`Squiggle #${n}, ${label(d)}${total != null ? `, scored ${total} out of 1600` : ', not played'}`}>
+                      aria-label={`${BRAND.name} #${n}, ${label(d)}${total != null ? `, scored ${total} out of ${SLOTS.length * 100}` : ', not played'}`}>
                 <span className="archdate">{label(d)}</span>
                 <span className="archnum">#{n}</span>
                 <span className="archscore">{total != null ? total : '–'}{fromArchive && <i title="Played from the archive"> ·</i>}</span>

@@ -55,11 +55,20 @@ export function Privacy({ onHome }) {
           age, and collects nothing that could identify a child — or anyone else.
         </p>
 
+        {/* Named two regimes and stopped. The players are 16-45 worldwide, so a
+            list that reads "India and the EU" tells everyone else their law was
+            not considered — and the list can never be complete anyway. State the
+            right itself, which every one of those laws grants, and then the one
+            fact that settles it everywhere: there is nothing to hand over. */}
         <h3>Your rights</h3>
         <p>
-          Under India’s DPDP Act and the GDPR you can ask what is held about you and
-          have it deleted. The answer is that nothing is held: everything is on your
-          device and clearing site data removes it. Questions: <a href={`mailto:${REPORT_TO}`}>{REPORT_TO}</a>.
+          Wherever you live, data protection law gives you the right to ask what a
+          site holds about you, to get a copy, and to have it deleted — the GDPR in
+          Europe and the UK, the DPDP Act in India, the CCPA in California, and
+          their equivalents elsewhere. Here the answer to all three is the same:
+          nothing is held. There is no server and no account. Everything is in this
+          browser, and clearing site data for {BRAND.domain} erases all of it in one
+          step, with nothing to ask us for. Questions: <a href={`mailto:${REPORT_TO}`}>{REPORT_TO}</a>.
         </p>
         <button className="btn btn-ghost wide" onClick={onHome}>← Home</button>
       </div>

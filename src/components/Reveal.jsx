@@ -8,7 +8,7 @@ import { modeStats } from '../lib/stats.js';
  *  Your guess, the truth, then where everyone else landed. The third part is the
  *  one that makes being wrong bearable — and it is what turns a score into a story.
  *  Falls back to a simple "x% got this" bar for modes with no number line. */
-export default function Reveal({ mode, item, value, score, qid, modeKey, history = [] }) {
+export default function Reveal({ mode, item, value, score, qid, modeKey, history = [], banked = false }) {
   const [crowd, setCrowd] = useState(null);
   const num = mode.numeric?.(item, value);
 
@@ -28,8 +28,10 @@ export default function Reveal({ mode, item, value, score, qid, modeKey, history
     const prior = modeStats(modeKey, history, true);
     const st = modeStats(modeKey, history, false);
     if (!st || st.n < 2) return null;
-    // Strictly greater. Tying 100 with 100 is not a new best.
-    const isRecord = prior != null && score > prior.best;
+    /* Strictly greater — tying 100 with 100 is not a new best. And only on a
+       banked run: practice and archive are replayable, so "New best" there is a
+       promise the game breaks the moment you reload, because nothing saved it. */
+    const isRecord = banked && prior != null && score > prior.best;
     return (
       <motion.div className="selfstat"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .3 }}>

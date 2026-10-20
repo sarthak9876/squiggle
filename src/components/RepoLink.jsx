@@ -1,4 +1,5 @@
 import { REPO_STATS } from '../lib/repo-stats.js';
+import { BRAND } from '../brand.js';
 
 /* The GitHub mark, official path data. Linking to a repo is exactly what it is
    for, and an inline SVG means no extra request and it inherits currentColor so
@@ -33,8 +34,8 @@ export default function RepoLink() {
   return (
     <a className="repolink" href={url} target="_blank" rel="noopener noreferrer"
        aria-label={!stars
-         ? 'Squiggle on GitHub — source code'
-         : `Squiggle on GitHub — ${stars} ${stars === 1 ? 'star' : 'stars'}`}
+         ? `${BRAND.name} on GitHub — source code`
+         : `${BRAND.name} on GitHub — ${stars} ${stars === 1 ? 'star' : 'stars'}`}
        title="Source on GitHub">
       <GitHubMark />
       {/* `null` means the build could not reach GitHub. ZERO means it reached it

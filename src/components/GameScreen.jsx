@@ -236,7 +236,16 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
           {' '}You are on <b>{runTotal}</b>.
         </div>
       )}
-      <div className="progress" role="progressbar" aria-valuenow={idx + 1} aria-valuemin={1} aria-valuemax={lineup.length}>
+      {/* A progressbar with no accessible name is announced as just "progress
+          bar, 3" — the number with nothing to attach it to. aria-label names it,
+          and aria-valuetext gives the spoken form, because "3" out of a max of
+          16 is read as a percentage by some screen readers. Caught by Lighthouse
+          on the game route (aria-progressbar-name); the home page scored 100
+          because it has no progressbar at all. */}
+      <div className="progress" role="progressbar"
+           aria-label={`Question ${idx + 1} of ${lineup.length}`}
+           aria-valuetext={`Question ${idx + 1} of ${lineup.length}`}
+           aria-valuenow={idx + 1} aria-valuemin={1} aria-valuemax={lineup.length}>
         {lineup.map((_, i) => (
           <span key={i} className={'pip' + (i < idx ? ' done' : i === idx ? ' now' : '')} />
         ))}

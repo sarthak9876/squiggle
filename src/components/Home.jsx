@@ -14,7 +14,7 @@ const riseIn  = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, trans
    finished painting itself. It rises a little; it is never invisible. */
 const heroIn  = { hidden: { opacity: 1, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: .22 } } };
 
-export default function Home({ stats, onPlayDaily, onPlayGame, playedToday, progress, preLaunch }) {
+export default function Home({ stats, onPlayDaily, onPlayGame, playedToday, progress, preLaunch, spoilerIds }) {
   const isNew = !stats.days;
 
   return (
@@ -78,7 +78,7 @@ export default function Home({ stats, onPlayDaily, onPlayGame, playedToday, prog
 
       <motion.section className="card tryblock" variants={riseIn}>
         <h2 className="shead">Try one right now</h2>
-        <TryOne onPlay={onPlayDaily} />
+        <TryOne onPlay={onPlayDaily} exclude={spoilerIds} />
       </motion.section>
 
       <motion.section variants={riseIn}>

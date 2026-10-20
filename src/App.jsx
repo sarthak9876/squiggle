@@ -111,12 +111,20 @@ export default function App() {
     if (challenge && route.name === 'play' && !lineup) startDaily();
   }, [challenge, route.name, lineup, startDaily]);
 
-  /* Questions scheduled for the next week of dailies. Practice used to draw from
-     the same bank with no exclusion, so playing "Play 5" could hand you three of
-     tomorrow's sixteen — and then tomorrow's set was partly spoiled. */
+  /* Questions scheduled for the dailies, TODAY and the next week. Practice used
+     to draw from the same bank with no exclusion, so playing "Play 5" could hand
+     you three of tomorrow's sixteen — and then tomorrow's set was partly spoiled.
+
+     It started at day + 1, which left today's own set unguarded: before you have
+     played it, today's sixteen are exactly as spoilable as tomorrow's. The hero's
+     "Try one" demo had the same hole from the other side — it picked a What
+     Share? question by day number alone, so on 1.7% of player-days it was one of
+     that day's sixteen and you met your own answer again. Starting the loop at
+     `day` closes both. Thinning the pool is safe: startPractice falls back to the
+     full bank if fewer than five survive, so a mode is never unplayable. */
   const spoilerIds = useMemo(() => {
     const ids = new Set();
-    for (let d = day + 1; d <= day + 7; d++)
+    for (let d = day; d <= day + 7; d++)
       for (const slot of lineupFor(POOLS, pid, d)) ids.add(slot.item.id);
     return ids;
   }, [day, pid]);
@@ -369,7 +377,7 @@ export default function App() {
             so the logo and the footer links work again without a reload. */}
         <ErrorBoundary key={route.name + (route.id || '')} onReset={goHome}>
         {view === 'home' && (
-          <Home stats={stats} playedToday={playedToday}
+          <Home stats={stats} playedToday={playedToday} spoilerIds={spoilerIds}
                 progress={state.inflight && state.inflight.day === day ? state.inflight.idx : 0}
                 preLaunch={day < LAUNCH_DAY}
                 onPlayDaily={startDaily} onPlayGame={startPractice} />

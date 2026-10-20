@@ -6,6 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import { POOLS } from '../src/modes/index.js';
 import { lineupFor, SLOTS, PER_DAY, uniqueDays, signatureOf, LAUNCH_DAY, MAX_PER_REGION } from '../src/lib/schedule.js';
+import { SHARE } from '../src/content/share.js';
 
 const PLAYERS = ['alice', 'bob', 'p-1291', 'zz'];
 
@@ -164,5 +165,55 @@ describe('no single place dominates a day', () => {
        not a cleverer scheduler: every global question added lengthens the cycle
        and pushes this back down. Tightened again when the bank grows. */
     expect(rate, `${short}/${total} repeats inside 6 days (worst gap ${worst})`).toBeLessThan(0.005);
+  });
+});
+
+/* A demo must never show you a question you are about to be asked. The hero's
+   "Try one" picked a What Share? question by day number alone, so on some
+   player-days it was one of that day's sixteen and you met your own answer an
+   hour later. The same hole existed for practice: the spoiler set started at
+   day + 1, so today's own set — which you may not have played yet — was the one
+   set nothing guarded. */
+describe('nothing spoils the set you have not played', () => {
+  const spoilers = (pid, day) => {
+    const ids = new Set();
+    for (let d = day; d <= day + 7; d++) for (const s of lineupFor(POOLS, pid, d)) ids.add(s.item.id);
+    return ids;
+  };
+
+  it("the spoiler set includes TODAY, not just tomorrow onwards", () => {
+    for (const pid of ['a1', 'b2', 'c3']) {
+      const ids = spoilers(pid, 40);
+      for (const slot of lineupFor(POOLS, pid, 40)) {
+        expect(ids.has(slot.item.id), `${pid} day 40: ${slot.item.id} unguarded`).toBe(true);
+      }
+    }
+  });
+
+  it("the hero demo is never in that player's own set for the day", () => {
+    const clashes = [];
+    for (let d = 1; d <= 120; d++) {
+      for (const pid of ['a1', 'b2', 'c3']) {
+        const ids = spoilers(pid, d);
+        const pool = SHARE.filter(x => !ids.has(x.id));
+        const usable = pool.length ? pool : SHARE;
+        const demo = usable[d % usable.length];
+        if (lineupFor(POOLS, pid, d).some(s => s.mode === 'share' && s.item.id === demo.id)) {
+          clashes.push(`day ${d} / ${pid}: ${demo.id}`);
+        }
+      }
+    }
+    expect(clashes, clashes.slice(0, 5).join(' | ')).toEqual([]);
+  });
+
+  /* The fallback exists so a hero is never blank, but if it ever fires the
+     exclusion is silently off — so prove it does not fire on the real bank. */
+  it('excluding eight days never empties the What Share? bank', () => {
+    for (let d = 1; d <= 120; d++) {
+      for (const pid of ['a1', 'b2', 'c3']) {
+        const left = SHARE.filter(x => !spoilers(pid, d).has(x.id)).length;
+        expect(left, `day ${d} / ${pid}`).toBeGreaterThan(0);
+      }
+    }
   });
 });

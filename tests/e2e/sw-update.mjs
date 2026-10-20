@@ -13,9 +13,10 @@
 */
 import { chromium } from 'playwright-core';
 import { execSync } from 'node:child_process';
-import { readFileSync, writeFileSync, cpSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, cpSync, rmSync, mkdtempSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { join, extname } from 'node:path';
+import { tmpdir } from 'node:os';
+import { join, extname, resolve } from 'node:path';
 
 const TYPES = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css',
                 '.json':'application/json', '.svg':'image/svg+xml', '.png':'image/png',
@@ -29,6 +30,10 @@ let ROOT = 'dist';
 const server = createServer((req, res) => {
   const url = req.url.split('?')[0];
   let file = join(ROOT, url === '/' ? 'index.html' : url);
+  /* Confine every read to ROOT. The path comes off the wire, so `/../../.ssh/id_rsa`
+     would otherwise resolve straight out of the served directory — the fact that
+     only Playwright is meant to call this is not a control, it is a hope. */
+  if (!resolve(file).startsWith(resolve(ROOT))) { res.writeHead(403).end(); return; }
   let body;
   try { body = readFileSync(file); }
   catch { file = join(ROOT, 'index.html'); body = readFileSync(file); }   // SPA fallback
@@ -36,22 +41,27 @@ const server = createServer((req, res) => {
   res.setHeader('Cache-Control', 'no-cache');   // let the SW, not the HTTP cache, decide
   res.end(body);
 });
-await new Promise(r => server.listen(8799, r));
+// Loopback only. The default binds every interface, which puts a file server on
+// the laptop's address on whatever network it is joined to.
+await new Promise(r => server.listen(8799, '127.0.0.1', r));
 
 const FILE = 'src/brand.js';
 const original = readFileSync(FILE, 'utf8');
 let failed = false;
 const say = (ok, m) => { if (!ok) failed = true; console.log((ok ? 'ok   ' : 'FAIL ') + m); };
 
+let dirA, dirB;
 const browser = await chromium.launch({ channel: 'chrome' });
 const page = await (await browser.newContext()).newPage();
 
 try {
-  rmSync('/tmp/sw-a', { recursive: true, force: true });
-  cpSync('dist', '/tmp/sw-a', { recursive: true });
+  /* mkdtemp, not a fixed /tmp/sw-a: a predictable path in a world-writable
+     directory can be pre-created as a symlink, and cpSync would follow it. */
+  dirA = mkdtempSync(join(tmpdir(), 'squiggle-sw-a-'));
+  cpSync('dist', dirA, { recursive: true });
   const verA = readFileSync('dist/sw.js', 'utf8').match(/const VERSION = '([^']+)'/)[1];
 
-  ROOT = '/tmp/sw-a';
+  ROOT = dirA;
   await page.goto('http://localhost:8799/', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => navigator.serviceWorker.controller != null, { timeout: 20000 })
     .then(() => say(true, 'build A installed and took control'))
@@ -71,9 +81,9 @@ try {
   const verB = readFileSync('dist/sw.js', 'utf8').match(/const VERSION = '([^']+)'/)[1];
   say(verB !== verA, `build B has a different cache name (${verA} -> ${verB})`);
 
-  rmSync('/tmp/sw-b', { recursive: true, force: true });
-  cpSync('dist', '/tmp/sw-b', { recursive: true });
-  ROOT = '/tmp/sw-b';
+  dirB = mkdtempSync(join(tmpdir(), 'squiggle-sw-b-'));
+  cpSync('dist', dirB, { recursive: true });
+  ROOT = dirB;
 
   await page.reload({ waitUntil: 'networkidle' });
   const toast = await page.waitForSelector('.swtoast', { timeout: 25000 }).catch(() => null);
@@ -95,6 +105,7 @@ try {
   execSync('npx vite build', { stdio: 'pipe' });
   await browser.close();
   server.close();
+  for (const d of [dirA, dirB]) if (d) rmSync(d, { recursive: true, force: true });
 }
 
 console.log(failed ? '\nFAIL' : '\nPASS');

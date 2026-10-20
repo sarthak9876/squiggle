@@ -17,7 +17,9 @@
 }
 .brandname { font-weight: 700; font-size: 1.1rem; letter-spacing: -.02em; }
 .spacer { flex: 1; }
-.streakchip { font-size: var(--t-small); font-weight: 600; background: var(--accent-soft);
+/* nowrap: at 375px the chip broke between the number and the flame and drew
+   "7" stacked over a fire, two lines tall, in a one-line bar. */
+.streakchip { white-space: nowrap; font-size: var(--t-small); font-weight: 600; background: var(--accent-soft);
               color: var(--accent); padding: 5px 11px; border-radius: var(--r-pill); }
 .iconbtn { min-width: 44px; min-height: 44px;   /* 44px is the floor, not 40 */ border-radius: var(--r-sm);
            border: 1px solid var(--rule); background: none; cursor: pointer;
@@ -120,4 +122,15 @@
 @media (prefers-reduced-motion: no-preference) {
   .swtoast { animation: swtoast-in .22s ease-out; }
   @keyframes swtoast-in { from { opacity: 0; transform: translate(-50%, 10px) } }
+}
+
+
+/* Under 400px the bar held a streak chip and THREE icon buttons, and the brand
+   had 30px of clear space left. The GitHub link is the one control that is not
+   part of playing — sound and theme both change what the next tap does, and a
+   repo link is reachable from the footer on every page. It goes first rather
+   than folding all three into a menu, which would add a tap and a popover to
+   reach a toggle that is currently one tap away. */
+@media (max-width: 399px) {
+  .topbar .repolink { display: none; }
 }

@@ -16,7 +16,7 @@ import { BRAND } from './brand.js';
 import NotFound from './components/NotFound.jsx';
 import { Privacy, Terms } from './components/Legal.jsx';
 import { checkRunway } from './lib/runway.js';
-import { load, patch, playerId, mergeInflight } from './lib/storage.js';
+import { load, patch, playerId, mergeInflight, resumePoint } from './lib/storage.js';
 import { isMuted, setMuted } from './lib/juice.js';
 import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, puzzleNumber } from './lib/schedule.js';
 import { slotKey } from './lib/slotkey.js';
@@ -97,9 +97,22 @@ export default function App() {
     }
     // Resume an unfinished run rather than restarting it.
     const flight = s.inflight && s.inflight.day === day ? s.inflight : null;
-    setLineup(lineupFor(POOLS, pid, day));
-    setAnswers(flight ? flight.answers : []);
-    setIdx(flight ? Math.min(flight.idx, SLOTS.length - 1) : 0);
+    const lineup = lineupFor(POOLS, pid, day);
+    /* Derive the position from the answers. Math.min(flight.idx, len - 1) put a
+       player who had answered all sixteen back on question sixteen, answer
+       showing, and the re-answer appended a seventeenth score to the day. */
+    const at = resumePoint(flight && flight.answers, lineup.length);
+    setLineup(lineup);
+    setAnswers(at.answers);
+    if (at.done) {
+      // Every question answered but never banked — the refresh landed between
+      // the last answer and onNext. Finish it; bankDay ignores a second call.
+      setSession({ kind: 'daily' });
+      bankDay(at.answers);
+      go({ name: 'results' }, { replace: true });
+      return;
+    }
+    setIdx(at.idx);
     setSession({ kind: 'daily' });
     go({ name: 'play' });
   }, [pid, day]);
@@ -140,11 +153,14 @@ export default function App() {
     if (saved && Array.isArray(saved.ids) && saved.ids.length) {
       const items = saved.ids.map(id => pool.find(q => String(q.id) === String(id))).filter(Boolean);
       if (items.length === saved.ids.length) {
+        // Same derivation as the daily: a finished practice run must not re-open
+        // its last question, and a corrupt answers value must not throw.
+        const at = resumePoint(saved.answers, items.length);
         setLineup(items.map(item => ({ mode, item })));
-        setAnswers(saved.answers || []);
-        setIdx(Math.min(saved.idx || 0, items.length - 1));
+        setAnswers(at.answers);
+        setIdx(at.idx);
         setSession({ kind: 'practice', mode });
-        go({ name: 'game', id: mode });
+        go({ name: at.done ? 'results' : 'game', id: mode }, at.done ? { replace: true } : undefined);
         return;
       }
     }
@@ -221,7 +237,12 @@ export default function App() {
     setTick(t => t + 1);
   }
 
-  function bankDay(final) {
+  function bankDay(unsafe) {
+    /* Cap on the way in. resumePoint already caps, but this is the path that
+       writes the streak, the best score and the Fingerprint — the numbers a
+       player cannot get back if they are wrong. Two guards is the right number
+       here. SLOTS.length questions means at most SLOTS.length scores. */
+    const final = (Array.isArray(unsafe) ? unsafe : []).slice(0, SLOTS.length);
     const total = final.reduce((a, b) => a + b.score, 0);
     patch(s => {
       s.days = s.days || {}; s.answers = s.answers || {};

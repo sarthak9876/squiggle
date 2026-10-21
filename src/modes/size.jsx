@@ -27,7 +27,19 @@ import { hash, rng } from '../lib/random.js';
       supposed to feel. */
 
 const STAGE = 150;          // px the reference occupies, fixed
-const FLOOR = 10;
+/* The smallest a box may be drawn. This was 10px, and because it is applied to
+   each box on its own it could override one side of a RATIO — which is the only
+   thing the picture exists to show. On z15 ("how big is a MOUSE compared to a
+   cat?") the mouse hit 10px at about 0.07x and then STOPPED, so dragging on down
+   to 0.03x moved the readout while the drawing stayed put and claimed 0.072x.
+   A frozen picture beside a moving number is worse than a small one.
+
+   Lowering it rather than scaling the pair up, because scaling up cannot work
+   here: 0.03x with a 10px minimum needs a 333px reference and the stage is about
+   185px tall. The stage genuinely cannot hold that comparison at 10px, so the
+   honest drawing is a smaller dot — a mouse IS a speck beside a cat at 0.03x.
+   4px still reads as an object at every viewport in the e2e matrix. */
+const FLOOR = 4;
 const STEPS = 1000;
 
 /* The travel around the truth, deliberately ASYMMETRIC.
@@ -90,15 +102,26 @@ const visualScale = (item, r) => (DIM_SCALE[item.dimension] || DIM_SCALE.length)
 const DIM_WORD = { area: 'the area of', volume: 'the volume of', mass: 'the weight of', abstract: 'the cost of' };
 const DIM_NOTE = { mass: 'drawn by volume', area: 'drawn by area' };
 
+/* The word that follows the number — "70 m long", "1.7 m tall". across and wide
+   used to collapse into "long", which called Earth's diameter "12742 km long".
+   A sphere is across, not long. First match wins, so order matters. */
 const unitWord = unit => {
   const u = String(unit || '');
   if (/tall|height|at the shoulder/i.test(u)) return 'tall';
-  if (/long|length|across|wide/i.test(u)) return 'long';
+  if (/across/i.test(u)) return 'across';
+  if (/wide|width/i.test(u)) return 'wide';
+  if (/long|length/i.test(u)) return 'long';
   return '';
 };
+/* Every word unitWord() keys on, so the two cannot drift apart. They did: the
+   strip list held (tall|long|at the shoulder) while unitWord ALSO matched
+   across/length/wide, so a unit of "km across" kept its own word and then had
+   "long" appended — the Sun question's reference read "12742 km across long".
+   Five live questions printed it. One list now, used by both. */
+const UNIT_SUFFIX = /\s*(tall|height|at the shoulder|across|wide|width|long|length).*/i;
 const refLabel = item => {
   const w = unitWord(item.unit);
-  return w ? `${item.ref.size} ${String(item.unit).replace(/\s*(tall|long|at the shoulder).*/i, '').trim()} ${w}`
+  return w ? `${item.ref.size} ${String(item.unit).replace(UNIT_SUFFIX, '').trim()} ${w}`
            : `${item.ref.size} ${item.unit}`;
 };
 
@@ -193,7 +216,24 @@ export const size = {
       (box.h - LABEL) / Math.max(1, Math.max(STAGE, rawTarget)));
     const refPx = Math.max(FLOOR, STAGE * zoom);
     const targetPx = Math.max(FLOOR, rawTarget * zoom);
-    const zoomedOut = zoom < 0.97;
+    /* The badge prints a ROUNDED factor, so the old 0.97 threshold showed
+       "zoomed out ×1" — a badge announcing that nothing was zoomed. Show it
+       only once the rounded number says something. */
+    const zoomedOut = Math.round(1 / zoom) >= 2;
+    /* Does the drawing actually say what the readout says? The stage is about
+       185px tall and neither box may go under FLOOR, so it can hold roughly 46x
+       and no more. Past that BOTH boxes are pinned and the picture freezes at
+       about 35x while the number keeps climbing to 400x — which is precisely
+       the "the picture disagrees with the number" a retest reported. z12 (Sun
+       vs Earth, 109x) sits in that zone at every slider position, reveal
+       included, so it never once drew its own answer.
+
+       No arrangement of two boxes shows 400:1 on a phone. The honest move is to
+       stop claiming a ratio we cannot draw, so compare what IS drawn against
+       what is stated and say when they have parted company. The threshold is
+       log-space because the question is log-scaled; 0.02 is ~5%, comfortably
+       past sub-pixel rounding and far under any real clamp. */
+    const offScale = Math.abs(Math.log10(targetPx / refPx / Math.max(1e-9, shown))) > 0.02;
 
     const setFromRatio = next => {
       const { lo, hi } = rangeFor(item);
@@ -253,7 +293,11 @@ export const size = {
         {!abstract && <p className="sizephrase">{text}</p>}
 
         <div className="sizestage" ref={stageRef}>
-          {zoomedOut && <span className="zoombadge">zoomed out ×{Math.round(1 / zoom)}</span>}
+          {/* Honesty first: a "zoomed out ×429" badge over a frozen picture told
+              the player the drawing was still to scale. It was not. */}
+          {offScale
+            ? <span className="zoombadge">too big to draw to scale</span>
+            : zoomedOut && <span className="zoombadge">zoomed out ×{Math.round(1 / zoom)}</span>}
           <div className="sizescene">
             <div className="sizecell">
               {/* Fixed within the scene; it only changes when the CAMERA pulls

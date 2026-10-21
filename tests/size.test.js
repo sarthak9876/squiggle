@@ -160,9 +160,17 @@ describe('Size It Up — the live phrase reads as English', () => {
     const bad = [];
     for (const q of POOLS.size) {
       const p = livePhrase(q, q.answer * 1.3);
-      if (/\bpersons\b/.test(p)) bad.push(`${q.id}: "${p}"`);
-      if (/\b\w+ys\b/.test(p)) bad.push(`${q.id}: "${p}"`);     // "citys"
-      if (/\b\w+(s|x|ch|sh)s\b/.test(p)) bad.push(`${q.id}: "${p}"`);  // "boxs"
+      /* Check the pluralised NOUN, not the whole sentence. These patterns scan
+         for a botched plural ("boxs", "citys"), and every phrase ends in a unit
+         word — so the moment one of those was the real English word "across",
+         the "boxs" rule matched its double-s and failed three good questions.
+         The invariant is about the noun, so read the noun: it is always the
+         word straight after the multiplier. */
+      const noun = (p.match(/about [\d.]+ ([A-Za-z]+)/) || [])[1];
+      if (!noun) continue;                 // "smaller than one X", "about the same size as a X", abstract
+      if (/^persons$/.test(noun)) bad.push(`${q.id}: "${p}"`);
+      if (/\w+ys$/.test(noun)) bad.push(`${q.id}: "${p}"`);     // "citys"
+      if (/\w+(s|x|ch|sh)s$/.test(noun)) bad.push(`${q.id}: "${p}"`);  // "boxs"
     }
     expect(bad, bad.join('\n')).toEqual([]);
   });

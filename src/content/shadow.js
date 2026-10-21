@@ -195,7 +195,13 @@ export const SHADOW = [
     options:['train','auto','bus','bicycle'], answer:2,
     source:'MoRTH Road Transport Yearbook / Indian Railways Year Book', theme:'india-rail', region:'india',
     note:'Buses, by a wide margin — roughly 70 million journeys a day against about 24 million by rail. The trains get the photographs; the buses do the work.' },
-  { id:'in-h4', prompt:'Which of these is oldest?',
+  /* Asked "which is oldest?" and took only the Taj Mahal (1653). Cricket is
+     first recorded in 1597, so cricket was equally right and scored nothing.
+     The NOTE was already answering the narrower question — "before cricket
+     reached the country at all" — so the prompt was the half that was wrong,
+     exactly as in h28. In India: Taj Mahal 1653, cricket arrives in the 1720s,
+     the first train 1853. (Region-tagged, so no player is dealt it today.) */
+  { id:'in-h4', prompt:'Which of these is oldest in India?',
     options:['tajmahal','train','phone','cricket'], answer:0,
     source:'Archaeological Survey of India', theme:'india-ancient', region:'india',
     note:'The Taj Mahal was finished in 1653 — two centuries before India\u2019s first train in 1853, and before cricket reached the country at all.' },

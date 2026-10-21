@@ -451,7 +451,15 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
             </p>
             <Reveal mode={mode} modeKey={slot.mode} item={slot.item} value={value}
                     score={score} qid={qid} banked={banked}
-                    history={banked ? [...answers, { mode: slot.mode, score }] : []} />
+                    /* Was `banked ? [...] : []`, and banked is
+                       `session.kind === 'daily'` — so in practice the history
+                       was empty and "Your best / Your average" described the
+                       banked DAILY answers instead. Score 0 in Order practice
+                       with two 100s banked and it read "Your average 100".
+                       `banked` still gates "New best ✨" below, which is the
+                       job it is actually right for: practice is replayable, so
+                       a record there is a promise the game breaks on reload. */
+                    history={[...answers, { mode: slot.mode, score }]} />
             {/* Sticky: the reveal card is long (score, detail, note, source, crowd
                 histogram) and on a phone Next sat below the fold, so the run felt
                 like it had stalled. It now rides the bottom of the viewport. */}

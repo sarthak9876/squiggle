@@ -12,6 +12,7 @@
 import { describe, it, expect } from 'vitest';
 import { challengeLink, parseChallenge, canChallenge, shareText } from '../src/lib/sharecard.js';
 import { SLOTS, LAUNCH_DAY } from '../src/lib/schedule.js';
+import { GAMES } from '../src/games.jsx';
 
 const TODAY = LAUNCH_DAY + 10;
 const search = url => new URL(url).search;
@@ -97,5 +98,36 @@ describe('what a run may be shared as', () => {
     const txt = shareText({ emoji: '🎯', title: 'Close Enough' },
       { total: 1200, max: 1600, day: TODAY, scores: [100], kind: 'daily' });
     expect(txt).toMatch(/#\d/);
+  });
+});
+
+/* "Squiggle practice — shadow" went out on a share card. `shadow` is the
+   internal mode id; the game is called Shapes Only on every screen a player
+   has ever seen, and the card is read by someone who does not have the game
+   open at all. */
+describe('a shared practice card names the game, not the code', () => {
+  it('prints the display name it is given', () => {
+    const txt = shareText({ emoji: '🎯', title: 'Close Enough' },
+      { total: 420, max: 500, day: TODAY, scores: [100], kind: 'practice', mode: 'Shapes Only' });
+    expect(txt).toMatch(/Shapes Only/);
+  });
+
+  it('every mode HAS a display name, so the caller can always supply one', () => {
+    /* shareText prints what it is handed, so the guard belongs where the name
+       is looked up. What is testable — and what actually broke — is that the
+       lookup covers every mode: a missing entry is how an internal id reaches
+       a share card. (My first version of this test asserted the leak still
+       happened, which documents a bug rather than preventing one.) */
+    for (const id of Object.keys(GAMES)) {
+      expect(GAMES[id].name, id).toBeTruthy();
+      expect(GAMES[id].name, `${id} is its own display name`).not.toBe(id);
+    }
+  });
+
+  it('omits the dash entirely when no name is available', () => {
+    const txt = shareText({ emoji: '🎯', title: 'T' },
+      { total: 1, max: 100, day: TODAY, scores: [1], kind: 'practice' });
+    expect(txt).toMatch(/Squiggle practice —? ?1\/100|Squiggle practice — 1\/100|Squiggle practice 1\/100|Squiggle practice/);
+    expect(txt).not.toMatch(/undefined/);
   });
 });

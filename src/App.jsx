@@ -81,6 +81,11 @@ export default function App() {
   };
   const playedToday = !!bankedAnswers(state, day);
 
+  /* Where today's saved run would actually resume — the same call the tap
+     makes, so the button cannot promise a position the tap will not open. */
+  const homeResume = state.inflight && state.inflight.day === day
+    ? resumePoint(state.inflight.answers, SLOTS.length) : null;
+
   useEffect(() => {
     const el = document.documentElement;
     if (theme === 'auto') el.removeAttribute('data-theme'); else el.setAttribute('data-theme', theme);
@@ -420,9 +425,15 @@ export default function App() {
         {/* keyed on the route: navigating anywhere clears a crashed screen,
             so the logo and the footer links work again without a reload. */}
         <ErrorBoundary key={route.name + (route.id || '')} onReset={goHome}>
+        {/* The resume label used to read `inflight.idx` while the TAP resolves
+            through resumePoint — two readings of one fact, so they disagreed:
+            16 answers showed "Continue from 16 of 16" and went straight to the
+            results, and a corrupt save showed "Continue from 3 of 16" and
+            restarted at question 1. Both come from homeResume now. */}
         {view === 'home' && (
-          <Home stats={stats} playedToday={playedToday} spoilerIds={spoilerIds}
-                progress={state.inflight && state.inflight.day === day ? state.inflight.idx : 0}
+          <Home stats={stats} spoilerIds={spoilerIds}
+                playedToday={playedToday || !!(homeResume && homeResume.done)}
+                progress={homeResume && !homeResume.done ? homeResume.idx : 0}
                 preLaunch={day < LAUNCH_DAY}
                 onPlayDaily={startDaily} onPlayGame={startPractice} />
         )}

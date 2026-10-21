@@ -69,3 +69,51 @@ describe('resuming a saved run', () => {
     expect(resumePoint(stored.answers, 16).done).toBe(true);
   });
 });
+
+/* The home button's label came from `inflight.idx` while the resume itself came
+   from resumePoint(answers). Two readings of one fact, so they disagreed:
+
+     16 answers saved   label "Continue from 16 of 16", and the tap went
+                        straight to the results — there was nothing to continue
+     corrupt answers    label "Continue from 3 of 16", and the tap restarted at
+                        question 1, because resumePoint rejects junk
+
+   Same drift the resume bug itself was, one component over. The label must be
+   derived from the same call that decides where the tap lands. */
+describe('what the home button should say', () => {
+  const label = (answers, total = 16) => {
+    const at = resumePoint(answers, total);
+    return at.done ? "See today's result"
+         : at.idx > 0 ? `Continue from ${at.idx} of ${total}`
+         : "Play today's 16";
+  };
+
+  it('offers to continue from where you actually are', () => {
+    expect(label(answers(7))).toBe('Continue from 7 of 16');
+  });
+
+  it('a finished run offers the RESULT, not a continue', () => {
+    expect(label(answers(16))).toBe("See today's result");
+    expect(label(answers(16))).not.toMatch(/Continue/);
+  });
+
+  it('a corrupt save offers a fresh start, not a phantom position', () => {
+    for (const junk of ['nope', 42, null, { idx: 3 }]) {
+      expect(label(junk), String(junk)).toBe("Play today's 16");
+    }
+  });
+
+  it('nothing saved offers a fresh start', () => {
+    expect(label([])).toBe("Play today's 16");
+  });
+
+  it('the label never names a position the tap will not open', () => {
+    // The invariant behind all of the above.
+    for (const n of [0, 1, 7, 15, 16, 17]) {
+      const at = resumePoint(answers(n), 16);
+      const m = label(answers(n)).match(/Continue from (\d+)/);
+      if (m) expect(Number(m[1]), `${n} answered`).toBe(at.idx);
+      else expect(at.done || at.idx === 0, `${n} answered`).toBe(true);
+    }
+  });
+});

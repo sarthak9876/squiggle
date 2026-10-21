@@ -39,13 +39,19 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
   const [name, setName] = useState(() => { try { return localStorage.getItem('sq.name') || ''; } catch { return ''; } });
   const say = m => { setToast(m); setTimeout(() => setToast(''), 1800); };
 
+  /* The share text and card are read by someone who does not have the game
+     open. They were handed `lineup[0].mode`, the internal id, and printed
+     "Squiggle practice — shadow". Nobody outside the codebase knows what
+     shadow is; the game is called Shapes Only on every screen. */
+  const modeName = GAMES[lineup?.[0]?.mode]?.name || undefined;
+
   useEffect(() => {
     if (!cardRef.current) return;
     let alive = true;
     // Await the font, then draw — otherwise the shared PNG carries system-ui.
     Promise.all([ensureCardFont(), ensureCardEmoji(fp.emoji)]).then(() => {
       if (!alive || !cardRef.current) return;
-      const cv = drawShareCard(fp, { total, max, day, scores, kind, mode: lineup?.[0]?.mode });
+      const cv = drawShareCard(fp, { total, max, day, scores, kind, mode: modeName });
       cardRef.current.innerHTML = '';
       cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.borderRadius = '14px';
       cardRef.current.appendChild(cv);
@@ -63,7 +69,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
 
   const saveImage = async () => {
     await Promise.all([ensureCardFont(), ensureCardEmoji(fp.emoji)]);
-    const cv = drawShareCard(fp, { total, max, day, scores, format: 'story', kind, mode: lineup?.[0]?.mode });
+    const cv = drawShareCard(fp, { total, max, day, scores, format: 'story', kind, mode: modeName });
     if (canShareFiles) {
       try {
         const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
@@ -113,7 +119,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
 
 
   const doShare = async () => {
-    const text = shareText(fp, { total, max, day, scores, kind, mode: lineup?.[0]?.mode });
+    const text = shareText(fp, { total, max, day, scores, kind, mode: modeName });
     try {
       const cv = cardRef.current?.querySelector('canvas');
       // Try the image first; a picture of your Fingerprint travels much further

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { fingerprint } from '../lib/bias.js';
-import { drawShareCard, shareText, challengeLink, ensureCardFont, ensureCardEmoji } from '../lib/sharecard.js';
+import { drawShareCard, shareText, challengeLink, canChallenge, ensureCardFont, ensureCardEmoji } from '../lib/sharecard.js';
 import { GAMES } from '../games.jsx';
 import { dayNumber, puzzleLabel } from '../lib/schedule.js';
 import { BRAND } from '../brand.js';
@@ -45,7 +45,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
     // Await the font, then draw — otherwise the shared PNG carries system-ui.
     Promise.all([ensureCardFont(), ensureCardEmoji(fp.emoji)]).then(() => {
       if (!alive || !cardRef.current) return;
-      const cv = drawShareCard(fp, { total, max, day, scores });
+      const cv = drawShareCard(fp, { total, max, day, scores, kind, mode: lineup?.[0]?.mode });
       cardRef.current.innerHTML = '';
       cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.borderRadius = '14px';
       cardRef.current.appendChild(cv);
@@ -63,7 +63,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
 
   const saveImage = async () => {
     await Promise.all([ensureCardFont(), ensureCardEmoji(fp.emoji)]);
-    const cv = drawShareCard(fp, { total, max, day, scores, format: 'story' });
+    const cv = drawShareCard(fp, { total, max, day, scores, format: 'story', kind, mode: lineup?.[0]?.mode });
     if (canShareFiles) {
       try {
         const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
@@ -113,7 +113,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
 
 
   const doShare = async () => {
-    const text = shareText(fp, { total, max, day, scores });
+    const text = shareText(fp, { total, max, day, scores, kind, mode: lineup?.[0]?.mode });
     try {
       const cv = cardRef.current?.querySelector('canvas');
       // Try the image first; a picture of your Fingerprint travels much further
@@ -174,10 +174,16 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
         </div>
       </div>
 
+      {/* Rendered for practice runs too, promising a friend "today's exact set"
+          and a practice score to beat — five questions of one mode, out of 500,
+          against the daily's sixteen. Not comparable, and the card said it was.
+          An archive day IS comparable: the link carries its day. */}
+      {canChallenge(kind) && (
       <div className="card challengecard">
         <h2 className="shead">Challenge a friend</h2>
         <p className="stubtext">
-          They get today’s exact set and your score to beat. No sign-up, no app.
+          They get {kind === 'archive' ? `set ${puzzleLabel(day)}` : 'today’s exact set'} and
+          {' '}your score to beat. No sign-up, no app.
         </p>
         <div className="challengerow">
           <input className="namein" value={name} maxLength={24} placeholder="Your name (optional)"
@@ -185,6 +191,7 @@ export default function Results({ answers, lineup, label, onHome, onAgain, onArc
           <button className="btn btn-primary" onClick={copyChallenge}>Copy challenge link</button>
         </div>
       </div>
+      )}
 
       {/* The Instagram waitlist card lived here. It promised "you are on the
           list" and only ever set sq.ig=1 in localStorage — nobody was ever going

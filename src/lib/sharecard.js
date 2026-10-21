@@ -43,7 +43,7 @@ export async function ensureCardFont() {
 let fpEmojiImg = null;
 export async function ensureCardEmoji(ch) { fpEmojiImg = await loadEmojiImage(ch); }
 
-export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) {
+export function drawShareCard(fp, { total, max, day, scores, format = 'post', kind = 'daily', mode }) {
   const story = format === 'story';
   const W = 1080, H = story ? 1920 : 1350;
   // Everything below 380 is laid out from `top`, so one offset moves the whole
@@ -120,7 +120,13 @@ export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) 
   c.fillText(`${total}/${max}`, W / 2, 1180 + top);
 
   c.fillStyle = soft; c.font = '500 34px "Space Grotesk", system-ui, sans-serif';
-  c.fillText(`${BRAND.name} ${puzzleLabel(day)} · ${BRAND.domain}`, W / 2, 1250 + top);
+  /* Same rule as shareText: a practice run has no puzzle number, and printing
+     one on the image put a daily the player never played into a picture that
+     travels further than the text does. */
+  const stamp = kind === 'practice'
+    ? `${BRAND.name} practice${mode ? ` — ${mode}` : ''}`
+    : `${BRAND.name} ${puzzleLabel(day)}`;
+  c.fillText(`${stamp} · ${BRAND.domain}`, W / 2, 1250 + top);
 
   if (story) {
     // Stories are watched, not read. One line, large, at thumb height.
@@ -164,13 +170,29 @@ export function challengeLink(name, total, day, origin = location.origin) {
   return u.toString();
 }
 
-export function shareText(fp, { total, max, day, scores }) {
+/** May a run of this kind be turned into a challenge?
+ *
+ *  A practice run is five questions of ONE mode, out of 500. The challenge card
+ *  rendered for it anyway, promising a friend "today's exact set" and handing
+ *  them a practice score to beat against the daily's sixteen. The two numbers
+ *  were never comparable and the card said they were.
+ *
+ *  An archive day IS comparable: the link carries its day and parseChallenge
+ *  opens that set. */
+export function canChallenge(kind) { return kind === 'daily' || kind === 'archive'; }
+
+export function shareText(fp, { total, max, day, scores, kind = 'daily', mode }) {
   const emo = s => s >= 85 ? '🟩' : s >= 60 ? '🟨' : s >= 35 ? '🟧' : '🟥';
   const rows = [];
   for (let i = 0; i < scores.length; i += 8) rows.push(scores.slice(i, i + 8).map(emo).join(''));
   // End with a real URL: a bare domain is not a link in most chat apps,
   // and a shared result with nothing to tap is a dead end.
-  return `${BRAND.name} ${puzzleLabel(day)} — ${total}/${max}\n${fp.emoji} ${fp.title}\n${rows.join('\n')}\n${BRAND.url}`;
+  /* A practice run never had a puzzle number. Printing one claimed a daily the
+     player had not played, and made 420/500 look like a bad 420/1600. */
+  const head = kind === 'practice'
+    ? `${BRAND.name} practice${mode ? ` — ${mode}` : ''} — ${total}/${max}`
+    : `${BRAND.name} ${puzzleLabel(day)} — ${total}/${max}`;
+  return `${head}\n${fp.emoji} ${fp.title}\n${rows.join('\n')}\n${BRAND.url}`;
 }
 
 function wrap(c, text, cx, y, maxW, lh) {

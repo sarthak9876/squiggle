@@ -82,7 +82,12 @@ function openingSeq(item) {
 
 export const order = {
   init: item => ({ seq: openingSeq(item), sel: null, touched: false }),
-  clear: item => ({ seq: item.items.map((_, i) => i), sel: null, touched: false }),
+  /* Reset means "back to the start", and the start is openingSeq — the shuffle
+     above exists entirely to make sure a start position does not score. This
+     returned item.items.map((_, i) => i), the AUTHORED order, and 38 of the 45
+     questions are authored already sorted: Reset was a free 100 on 84% of the
+     bank, through the one button guaranteed to be on screen. */
+  clear: item => ({ seq: openingSeq(item), sel: null, touched: false }),
   /* Every other mode shows a disabled "Pick an answer" until you act. This one
      alone shipped a live "Submit", so the most discoverable thing on the screen
      was a button that scored a scrambled opening — roughly zero — before the

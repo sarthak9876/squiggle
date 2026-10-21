@@ -1,9 +1,41 @@
 import { describe, it, expect } from 'vitest';
 import { order } from '../src/modes/order.jsx';
-import { POOLS } from '../src/modes/index.js';
+import { POOLS, ALL_POOLS } from '../src/modes/index.js';
 
 /* QA: "Q8 started with Russia already in 1st place; submitting without touching
    anything scored 60/100." A start position that scores is not a puzzle. */
+/* The same rule, for the OTHER way a player reaches a start position.
+
+   openingSeq() exists entirely to stop a free score — "a start position that
+   scores is not a puzzle, it is a free sixty points" — and the test above
+   guarded it. Reset went around the whole thing: clear() returned the AUTHORED
+   order, and 38 of the 45 questions are authored already sorted, so pressing
+   Reset handed out a perfect 100 on 84% of the bank.
+
+   Reset means "back to the start". It must land on the same board init() does,
+   and the test must cover BOTH doors into that board, not just the one the bug
+   was found behind the first time. Checked against ALL_POOLS so a region pack
+   cannot ship an authored-sorted question into an untested path. */
+describe('Put In Order — Reset is not a free score', () => {
+  const bank = ALL_POOLS?.order || POOLS.order;
+
+  it('Reset returns the opening board, not the authored order', () => {
+    const wrong = bank.filter(q => order.clear(q).seq.join() !== order.init(q).seq.join());
+    expect(wrong.map(q => q.id), `${wrong.length} question(s) reset to a different board than they opened on`).toEqual([]);
+  });
+
+  it('never scores above zero after Reset, on any question in the bank', () => {
+    const scored = bank.map(q => ({ id: q.id, s: order.score(q, order.clear(q)) }));
+    const free = scored.filter(x => x.s > 0);
+    expect(free, free.map(x => `${x.id} scores ${x.s} straight after Reset`).join('\n')).toEqual([]);
+  });
+
+  it('Reset leaves the run un-submittable until the player moves again', () => {
+    const submittable = bank.filter(q => order.ready(order.clear(q)));
+    expect(submittable.map(q => q.id)).toEqual([]);
+  });
+});
+
 describe('Put In Order — the opening shuffle', () => {
   it('never scores above zero untouched, on any question in the bank', () => {
     const scored = POOLS.order.map(q => ({ id: q.id, s: order.score(q, order.init(q)) }));

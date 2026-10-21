@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BRAND } from '../brand.js';
 import { motion } from 'framer-motion';
-import { dayNumber, dateOfDay, LAUNCH_DAY, puzzleNumber, SLOTS } from '../lib/schedule.js';
+import { dayNumber, dateOfDay, archiveDays, puzzleNumber, SLOTS } from '../lib/schedule.js';
 import { load } from '../lib/storage.js';
 
 /* Was a local copy of dateOfDay's arithmetic. Two places computing the same
@@ -21,10 +21,10 @@ export default function Archive({ onPlayDay, onHome }) {
   const s = load();
   const PAGE = 90;
   const [shown, setShown] = useState(PAGE);
-  // Launch day is the floor — days before the game existed are not days.
-  // Future days are never listed, so the archive can never leak tomorrow's set.
-  const all = [];
-  for (let d = today; d >= LAUNCH_DAY; d--) all.push(d);
+  /* Launch day is the floor and YESTERDAY is the ceiling — see isArchiveDay.
+     This loop used to start at `today`, which let a player read today's sixteen
+     answers in a run that does not count, then play the daily knowing them. */
+  const all = archiveDays(today);
   // "Every past set, still playable" has to stay true past day 90, so the rest
   // loads on demand rather than being silently cut off.
   const days = all.slice(0, shown);
@@ -41,7 +41,9 @@ export default function Archive({ onPlayDay, onHome }) {
       <div className="card">
         <h2 className="shead">Archive</h2>
         <p className="stubtext">
-          {days.length > 1
+          {/* > 0, not > 1: with today excluded, the day after launch has exactly
+              one playable day and was being told there was nothing here yet. */}
+          {days.length > 0
             ? 'Every past set, still playable. Past days never count towards your streak — that is the point of a streak.'
             : 'Nothing here yet — today’s set is the first one. Tomorrow this fills up.'}
         </p>

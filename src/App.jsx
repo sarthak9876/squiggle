@@ -18,7 +18,7 @@ import { Privacy, Terms } from './components/Legal.jsx';
 import { checkRunway } from './lib/runway.js';
 import { load, patch, playerId, mergeInflight, resumePoint } from './lib/storage.js';
 import { isMuted, setMuted } from './lib/juice.js';
-import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, puzzleNumber } from './lib/schedule.js';
+import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, isArchiveDay, puzzleNumber } from './lib/schedule.js';
 import { slotKey } from './lib/slotkey.js';
 import { POOLS } from './modes/index.js';
 import { GAMES } from './games.jsx';
@@ -429,7 +429,9 @@ export default function App() {
         )}
         {view === 'archive' && (
           <Archive onHome={goHome} onPlayDay={(d) => {
-            if (d < LAUNCH_DAY || d > day) return;   // never before launch, never the future
+            // One rule, shared with the Archive's own list. It allowed d === day,
+            // so today's set was playable as a no-stakes archive run first.
+            if (!isArchiveDay(d, day)) return;
             setLineup(lineupFor(POOLS, pid, d));
             setAnswers([]); setIdx(0);
             setSession({ kind: 'archive', day: d });

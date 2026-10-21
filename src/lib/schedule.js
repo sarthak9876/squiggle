@@ -35,6 +35,27 @@ export const LAUNCH_DAY = dayNumber(LAUNCH_DATE);
  *  Before launch this is <= 0, so callers show "Preview" instead of a number. */
 export function puzzleNumber(day) { return day - LAUNCH_DAY + 1; }
 
+/** May the archive offer this day?
+ *
+ *  ONE rule with two callers — the Archive's list and the route guard that opens
+ *  a day. They used to carry separate copies and the copies disagreed: the list
+ *  started at `today` and the guard allowed `d === day`, so today's set was
+ *  playable in the archive. Archive runs never count towards the streak, so a
+ *  player could read all sixteen answers there and then play the daily knowing
+ *  every one — two taps, and the streak and best score stop meaning anything.
+ *
+ *  Today is the DAILY. The archive is the past, and the past ends yesterday. */
+export function isArchiveDay(d, today = dayNumber()) {
+  return Number.isInteger(d) && d >= LAUNCH_DAY && d < today;
+}
+
+/** Every day the archive may offer, newest first. Empty on launch day. */
+export function archiveDays(today = dayNumber()) {
+  const out = [];
+  for (let d = today - 1; d >= LAUNCH_DAY; d--) out.push(d);
+  return out;
+}
+
 /** Label for any day, safe before launch. */
 export function puzzleLabel(day) {
   const n = puzzleNumber(day);

@@ -6,8 +6,34 @@ import { BRAND } from '../brand.js';
 
 const KEY = BRAND.storageKey;
 
+/** Carry a save across the draw-id rename.
+ *
+ *  Draw The Curve's first fifteen questions had NUMERIC ids (1..15) while 16
+ *  onwards were 'dr16'..'dr34' in the same array. Nothing broke — every
+ *  comparison goes through String() — but it is the kind of trap that costs
+ *  nothing now and a confusing afternoon the first time someone writes
+ *  `ids.includes(id)` without it.
+ *
+ *  Renaming them strands ids already sitting in a player's saved practice
+ *  queue. Without this the queue just rerolls, which is not a crash but does
+ *  throw away five questions mid-run. Idempotent, and safe on any shape. */
+export function migrateIds(state) {
+  if (!state || typeof state !== 'object') return state;
+  const fix = id => (typeof id === 'number' || /^\d+$/.test(String(id))) ? `dr${id}` : id;
+  const out = { ...state };
+
+  const saved = out.practice && out.practice.draw;
+  if (saved && typeof saved === 'object' && Array.isArray(saved.ids)) {
+    out.practice = { ...out.practice, draw: { ...saved, ids: saved.ids.map(fix) } };
+  }
+  const last = out.lastPractice && out.lastPractice.draw;
+  if (Array.isArray(last)) out.lastPractice = { ...out.lastPractice, draw: last.map(fix) };
+
+  return out;
+}
+
 export function load() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+  try { return migrateIds(JSON.parse(localStorage.getItem(KEY)) || {}); } catch { return {}; }
 }
 export function save(state) {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* non-fatal */ }

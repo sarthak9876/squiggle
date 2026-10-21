@@ -2,7 +2,7 @@
    The original mechanic. See README for the field contract. */
 export const DRAW = [
   {
-    id: 1,
+    id: 'dr1',
     title: "Solar panels",
     question: "Price of solar panels, per watt of capacity",
     yLabel: "US$ per watt", xLabel: "Year",
@@ -13,7 +13,7 @@ export const DRAW = [
     points: [[1977,76.7],[1980,24],[1985,10.8],[1990,10.2],[1995,7.5],[2000,5.1],[2005,3.6],[2010,2.0],[2013,0.86],[2016,0.55],[2019,0.38],[2023,0.26]]
   },
   {
-    id: 2,
+    id: 'dr2',
     title: "US life expectancy",
     question: "Life expectancy at birth in the United States",
     yLabel: "Years", xLabel: "Year",
@@ -24,7 +24,7 @@ export const DRAW = [
     points: [[1900,47.3],[1910,50.0],[1918,39.1],[1920,54.1],[1930,59.7],[1940,62.9],[1950,68.2],[1960,69.7],[1970,70.8],[1980,73.7],[1990,75.4],[2000,76.8],[2010,78.7],[2019,78.8],[2020,77.0],[2021,76.4],[2022,77.5]]
   },
   {
-    id: 3,
+    id: 'dr3',
     title: "Recorded music",
     question: "US recorded music industry revenue, adjusted for inflation",
     yLabel: "US$ billions", xLabel: "Year",
@@ -35,7 +35,7 @@ export const DRAW = [
     points: [[1973,6.0],[1980,9.0],[1985,8.0],[1990,13.0],[1995,18.0],[1999,21.5],[2003,15.0],[2008,10.0],[2014,7.1],[2018,10.2],[2021,15.5],[2023,17.1]]
   },
   {
-    id: 4,
+    id: 'dr4',
     title: "Air travel",
     question: "Airline passengers carried worldwide, per year",
     yLabel: "Billion passengers", xLabel: "Year",
@@ -46,7 +46,7 @@ export const DRAW = [
     points: [[1970,0.31],[1980,0.64],[1990,1.02],[2000,1.67],[2010,2.63],[2015,3.44],[2019,4.50],[2020,1.80],[2021,2.30],[2022,3.40],[2023,4.40]]
   },
   {
-    id: 5,
+    id: 'dr5',
     title: "Extreme poverty",
     question: "Share of the world's population living in extreme poverty",
     yLabel: "% of people", xLabel: "Year",
@@ -57,7 +57,7 @@ export const DRAW = [
     points: [[1950,55],[1970,47],[1990,37.9],[2000,29.3],[2010,16.3],[2015,10.1],[2019,8.5],[2020,9.7],[2023,8.5]]
   },
   {
-    id: 6,
+    id: 'dr6',
     title: "Reading the air",
     question: "Carbon dioxide in the atmosphere, measured at Mauna Loa",
     hint: "Mauna Loa is a volcano in Hawaii. Its observatory has measured the air continuously since 1958 \u2014 the longest unbroken CO2 record there is.",
@@ -69,7 +69,7 @@ export const DRAW = [
     points: [[1958,315],[1965,320],[1970,325.7],[1975,331],[1980,338.7],[1985,346],[1990,354.4],[1995,360.8],[2000,369.5],[2005,379.8],[2010,389.9],[2015,400.8],[2020,414.2],[2024,424.6]]
   },
   {
-    id: 7,
+    id: 'dr7',
     title: "Your DNA, priced",
     question: "Cost to sequence one human genome",
     yLabel: "US$", xLabel: "Year",
@@ -80,7 +80,7 @@ export const DRAW = [
     points: [[2001,95000000],[2003,50000000],[2005,10000000],[2007,9000000],[2008,1000000],[2010,47000],[2012,7700],[2015,1500],[2019,940],[2022,600]]
   },
   {
-    id: 8,
+    id: 'dr8',
     title: "Phones everywhere",
     question: "Mobile phone subscriptions per 100 people, worldwide",
     yLabel: "Subscriptions per 100", xLabel: "Year",
@@ -91,7 +91,7 @@ export const DRAW = [
     points: [[1990,0.2],[1995,1.6],[2000,12.1],[2005,33.9],[2010,76.6],[2015,98],[2020,105],[2022,107]]
   },
   {
-    id: 9,
+    id: 'dr9',
     title: "Netflix",
     question: "Netflix paid subscribers worldwide",
     yLabel: "Millions", xLabel: "Year",
@@ -102,7 +102,7 @@ export const DRAW = [
     points: [[2011,23],[2013,41],[2015,70],[2017,110],[2019,167],[2020,204],[2021,222],[2022,231],[2023,260],[2024,302]]
   },
   {
-    id: 10,
+    id: 'dr10',
     title: "Batteries",
     question: "Price of a lithium-ion battery pack, per kilowatt-hour",
     yLabel: "US$ per kWh", xLabel: "Year",
@@ -113,7 +113,7 @@ export const DRAW = [
     points: [[1991,7523],[1995,3800],[2000,1800],[2005,1200],[2010,1191],[2013,668],[2016,273],[2019,156],[2021,132],[2023,139]]
   },
   {
-    id: 11,
+    id: 'dr11',
     title: "A warming world",
     question: "Global average temperature, difference from the 1951-1980 average",
     yLabel: "°C anomaly", xLabel: "Year",
@@ -124,7 +124,7 @@ export const DRAW = [
     points: [[1880,-0.16],[1900,-0.08],[1910,-0.43],[1920,-0.27],[1940,0.12],[1950,-0.17],[1960,-0.03],[1970,0.03],[1980,0.26],[1990,0.45],[2000,0.40],[2010,0.72],[2016,1.01],[2020,1.01],[2023,1.17]]
   },
   {
-    id: 12,
+    id: 'dr12',
     title: "Getting married later",
     question: "Median age at first marriage for women in the US",
     yLabel: "Age", xLabel: "Year",
@@ -135,7 +135,7 @@ export const DRAW = [
     points: [[1950,20.3],[1960,20.3],[1970,20.8],[1980,22.0],[1990,23.9],[2000,25.1],[2010,26.1],[2020,28.1],[2023,28.4]]
   },
   {
-    id: 13,
+    id: 'dr13',
     title: "Storage",
     question: "Cost of one gigabyte of hard drive storage",
     yLabel: "US$ per GB", xLabel: "Year",
@@ -146,7 +146,7 @@ export const DRAW = [
     points: [[1980,440000],[1985,70000],[1990,9000],[1995,900],[2000,11],[2005,1.2],[2010,0.09],[2015,0.04],[2020,0.018],[2023,0.014]]
   },
   {
-    id: 14,
+    id: 'dr14',
     title: "Roads got safer",
     question: "US road deaths per 100 million miles driven",
     yLabel: "Deaths per 100M miles", xLabel: "Year",
@@ -157,7 +157,7 @@ export const DRAW = [
     points: [[1925,18.0],[1935,15.9],[1950,7.2],[1960,5.1],[1970,4.7],[1980,3.3],[1990,2.1],[2000,1.53],[2010,1.11],[2019,1.11],[2021,1.37],[2022,1.33]]
   },
   {
-    id: 15,
+    id: 'dr15',
     title: "Online",
     question: "Share of the world's population using the internet",
     yLabel: "% of people", xLabel: "Year",

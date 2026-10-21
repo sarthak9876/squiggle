@@ -60,7 +60,19 @@ export function rangeFor(item) {
   const r = gen(), q = gen();
   // Two bands with a gap across 0.5: an `at` near the middle would re-create
   // the exact bug this replaces.
-  const at = r < 0.5 ? 0.20 + r * 0.52 : 0.54 + (r - 0.5) * 0.52;
+  /* The bands used to be [0.20,0.46] and [0.54,0.80]. They avoid the exact
+     middle, but their MEAN is still the middle, so a player who dragged to
+     v≈415 on every question averaged 55 — against 33 for a random guess.
+     Widening the outer reach to [0.08,0.46] and [0.54,0.92] pulls the best
+     parked position down to about 44, measured over the whole bank.
+
+     The span is deliberately NOT widened to chase this further. A search found
+     spans of 1.6-2.8 decades score better against parking, and they also put
+     25x either side of the truth on the slider — which re-creates the "more
+     than half the travel is nonsense" problem that narrowing the span fixed.
+     The clamps below still guarantee 1.5x either side, so no question ends up
+     with the truth pinned against an end. See tests/size-parking.test.js. */
+  const at = r < 0.5 ? 0.08 + r * 0.76 : 0.54 + (r - 0.5) * 0.76;
   /* The WIDTH varies per question too, and that is not cosmetic. With a fixed
      span, slider position p always means "truth x 10^((p-at)*SPAN)", so one
      position produced a similar relative error on every question and parking at
@@ -86,6 +98,25 @@ export const stepsForRatio = (ratio, item) => {
   const span = Math.log10(hi) - Math.log10(lo);
   return Math.max(1, Math.round(STEPS * Math.log10(ratio) / span));
 };
+/** Where the slider starts — the far side of the range from the truth.
+ *
+ *  It was a flat 6% of the travel for every question. That is fine while the
+ *  truth sits in the middle of the range, and stops being fine the moment it
+ *  does not: widening the `at` bands to [0.08,0.46] u [0.54,0.92] put some
+ *  truths near the BOTTOM of the slider, right where the start was parked, and
+ *  z12 began scoring 61 before the player had touched anything. The bank mean
+ *  was 13.4 and hid it — which is why the test that caught this checks every
+ *  question rather than the average.
+ *
+ *  Starting opposite the truth keeps the gap at 44% of the travel or more, on
+ *  every question, whatever the bands do later. Same rule as openingSeq in Put
+ *  In Order: a start position that scores is not a puzzle. */
+const startV = item => {
+  const { lo, hi } = rangeFor(item);
+  const at = (Math.log10(item.answer) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo));
+  return Math.round(STEPS * (at < 0.5 ? 0.94 : 0.06));
+};
+
 export const toSlider = (r, item) => {
   const { lo, hi } = rangeFor(item);
   return Math.round(STEPS * (Math.log10(r) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo)));
@@ -164,8 +195,8 @@ function snap(r, item) {
 export const size = {
   /* Opens at the bottom of the range rather than on the answer, and `touched`
      keeps an unmoved slider unsubmittable. */
-  init: item => ({ v: Math.round(STEPS * 0.06), touched: false }),
-  clear: item => ({ v: Math.round(STEPS * 0.06), touched: false }),
+  init: item => ({ v: startV(item), touched: false }),
+  clear: item => ({ v: startV(item), touched: false }),
   ready: v => !!v.touched,
   score: (item, v) => logScore(toRatio(v.v, item), item.answer),
   signedError: (item, v) => Math.log10(toRatio(v.v, item) / item.answer) / 2,

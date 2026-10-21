@@ -114,7 +114,11 @@ export const ODD = [
     items:['Python','Java','HTML','C++'], odd:2,
     reasons:['It is the only one that is a markup language, not a programming language', // TRUE
              'It is the only one maintained by a standards body',    // false — C++ is ISO-standardised
-             'It is the only one named after an animal',             // false — Python is
+             /* Was "the only one named after an animal", which is simply TRUE
+                of Python: a player who knew that picked Python, was right, and
+                scored nothing. A distractor must be false of EVERY item, not
+                just of the odd one. Java and C++ both need the semicolon. */
+             'It is the only one that needs a semicolon at the end of a statement',
              'It is the only one created after 2000'], reason:0,     // false — all predate 2000
     source:'W3C HTML specification',
     theme:'animals',
@@ -178,8 +182,14 @@ export const ODD = [
              // Island settlement Greenland HAS a land border with Canada, which
              // made that statement true of Australia as well — two correct
              // reasons, only one of which scored.
-             'It is the only one with glaciers',                     // false - Greenland is almost entirely ice
-             'It is the only one with an active volcano'], reason:0, // false - New Guinea has several; mainland Australia has none
+             /* Was "the only one with glaciers" — true of Greenland — and
+                before that "the only one with no land border", true of
+                Australia. Two attempts, same mistake. New Guinea and Borneo
+                are BOTH split between countries, so this is false of all. */
+             'It is the only one divided between two or more countries',                     // false - Greenland is almost entirely ice
+             /* "The only one with an active volcano" is true of New Guinea,
+                which has several. All four are larger than Japan. */
+             'It is the only one larger than Japan'], reason:0, // false - New Guinea has several; mainland Australia has none
     source:'Encyclopaedia Britannica, continents and islands',
     theme:'demography',
     note:'Australia is the largest landmass that counts as a continent, which is precisely why Greenland gets to be called the largest island.' },
@@ -197,8 +207,13 @@ export const ODD = [
     items:['Tomato','Potato','Aubergine','Chilli'], odd:1,
     reasons:['It is the only one where we eat the underground part',
              'It is the only one in the nightshade family',
-             'It is the only one that tastes hot',
-             'It is the only one native to Asia'], reason:0,
+             /* Both were true of a DIFFERENT item: "tastes hot" of the chilli,
+                "native to Asia" of the aubergine — the only one of the four
+                that did not come from the Americas. Three defensible answers,
+                one of them scored. Tomato and chilli are both eaten raw;
+                tomato, aubergine and chilli are all botanically fruit. */
+             'It is the only one eaten raw',
+             'It is the only one that is botanically a fruit'], reason:0,
     source:'Botany',
     theme:'food',
     note:'All four are nightshades. The potato is the only one where the edible part grows underground — and its leaves are toxic.' },
@@ -229,7 +244,10 @@ export const ODD = [
              // Was 'the only one you can spend in shops', which reads as plainly
              // true of Visa. Same defect as the six above, caught on the re-read.
              'It is the only one that runs on a blockchain', // false - Visa is the one that does not
-             'It is the only one with a fixed supply',   // false - that is Bitcoin, capped at 21 million
+             /* True of Bitcoin, capped at 21 million — the same defect this
+                question was fixed for once already. Bitcoin, Ethereum and
+                Dogecoin can all be sent without a bank. */
+             'It is the only one you can send without a bank',   // false - that is Bitcoin, capped at 21 million
              'It is the only one older than 2010'], reason:0,
     source:'Bank for International Settlements / CoinMarketCap',
     theme:'economy',
@@ -309,7 +327,10 @@ export const ODD = [
     items:['Venus','Mercury','Mars','Moon'], odd:3,
     reasons:['It is the only one that is not a planet',
              'It is the only one without an atmosphere',
-             'It is the only one where a day lasts longer than a year',
+             /* A day on VENUS (243 Earth days) really is longer than its year
+                (225), so this was true of Venus and the question had two right
+                answers. Venus and Mercury both have no moon. */
+             'It is the only one with no moon of its own',
              'It is the only one smaller than Earth'], reason:0,
     source:'NASA solar system overview',
     theme:'planets',
@@ -402,14 +423,21 @@ export const ODD = [
     reasons:['It is the only one with virtually no native speakers today',  // TRUE
              'It is the only one written in Devanagari',                    // false - Hindi, Marathi too
              'It is the only one in the Constitution\u2019s Eighth Schedule', // false - all four are
-             'It is the only one spoken outside India'],                    // false - Bengali, in Bangladesh
+             /* True of Bengali, the national language of Bangladesh. Hindi,
+                Marathi and Sanskrit all share Devanagari, so this is false of
+                every item. */
+             'It is the only one with a script used for no other language'],                    // false - Bengali, in Bangladesh
     reason:0, source:'Census of India language tables', theme:'india-lang', region:'india',
     hint:'Hindi, Bengali and Marathi are everyday languages of modern India. Sanskrit is the classical language of Hindu scripture, roughly three thousand years old.',
     note:'Sanskrit is listed as an official language and returned under 25,000 native speakers in the last census.' },
   { id:'in-d8', prompt:'Which does not belong?', trueCount:1,
     items:['Chandrayaan-3','Mangalyaan','Aditya-L1','Gaganyaan'], odd:3,
     reasons:['It is the only one meant to carry people',   // TRUE
-             'It is the only one that reached the Moon',   // false - Chandrayaan-3 did
+             /* True of Chandrayaan-3, which landed in 2023. The comment read
+                "false - Chandrayaan-3 did", which is the wrong test: a
+                distractor must be false of every ITEM, not of the odd one.
+                All four missions are named in Sanskrit. */
+             'It is the only one not named in Sanskrit',
              'It is the only one built by ISRO',           // false - all four are
              'It is the only one announced after 2020'],   // false - all were announced earlier
     reason:0, source:'ISRO mission pages', theme:'india-space', region:'india',
@@ -420,7 +448,10 @@ export const ODD = [
     reasons:['It is the only one that rises outside India',    // TRUE - it rises in Tibet
              'It is the only one over 1,000 km long',          // false - all four are
              'It is the only one that reaches the sea',        // false - Ganga and Godavari do
-             'It is the only one that is a tributary'],        // false - that is the Yamuna
+             /* True of the Yamuna, which joins the Ganga at Prayagraj. Same
+                wrong test as in-d8. All four are monsoon-fed, so this is false
+                of every item. */
+             'It is the only one that does not depend on the monsoon'],
     reason:0, source:'Central Water Commission', theme:'india-geo', region:'india',
     hint:'The Ganga and Yamuna run across the northern plain and the Godavari across the southern peninsula. The Brahmaputra reaches India through the north-east, after crossing the Himalaya.',
     note:'The Brahmaputra starts in Tibet as the Yarlung Tsangpo and only becomes the Brahmaputra in Assam.' },
@@ -436,7 +467,9 @@ export const ODD = [
   { id:'d32', prompt:'Which does not belong?', trueCount:1,
     items:['Python','Java','HTML','Rust'], odd:2,
     reasons:['It is the only one that is not a programming language',  // TRUE - HTML is markup
-             'It is the only one named after an animal',               // false - Python is
+             /* True of Python — the same distractor, the same mistake, in a
+                second question. Python and Java both manage memory for you. */
+             'It is the only one that manages memory for you',
              'It is the only one older than 2000',                     // false - Python and Java are
              'It is the only one used for websites'],                  // false - all are
     reason:0, source:'W3C / language specifications', theme:'tech',
@@ -451,7 +484,10 @@ export const ODD = [
     reasons:['It is the only one not on a coast',              // TRUE - Nairobi is inland
              'It is the only one with more than ten million people', // false - Mumbai and Shanghai do, Nairobi has ~5.5m
              "It is the only one that is its country's largest city", // false - Mumbai is India's largest
-             'It is the only one built on a river delta'],     // false - none are; Nairobi sits on a highland plateau
+             /* This comment used to read "none are". Shanghai is built on the
+                Yangtze delta, so it was true of Shanghai. All four cities are
+                older than the twentieth century. */
+             'It is the only one founded in the twentieth century'],
     reason:0, source:'National geographic surveys', theme:'cities',
     note:'Nairobi sits 1,795 m above sea level and 480 km from the sea. The other three are ports.' },
   { id:'d34', prompt:'Which does not belong?', trueCount:1,

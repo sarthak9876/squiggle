@@ -97,10 +97,15 @@ export const SHADOW = [
     options:['whale','shark','dolphin','penguin'], answer:0,
     source:'NOAA Ocean Noise Reference Station', theme:'sealife',
     note:'A blue whale reaches 188 decibels (underwater reference) and can be heard 800 km away. Sharks make almost no sound at all.' },
-  { id:'h28', prompt:'Which of these existed before the dinosaurs?',
+  /* Asked "which existed before the dinosaurs?" and accepted only the shark.
+     Trees did too — the first forests stood in the Devonian, about 385 million
+     years ago, and the dinosaurs arrived around 230. Two right answers, one of
+     them scored. The note was already answering the question the ANSWER fits
+     ("sharks predate trees"), so the prompt is the part that was wrong. */
+  { id:'h28', prompt:'Which of these has been around the longest?',
     options:['tree','shark','rabbit','horse'], answer:1, source:'Natural History Museum, fossil record',
     theme:'sealife',
-    note:'Sharks predate trees. They have been swimming for 450 million years — longer than Saturn has had rings.' },
+    note:'Sharks, by a long way: 450 million years, against 385 for the first trees and 230 for the first dinosaurs.' },
   { id:'h29', prompt:'Which of these uses the most electricity in a year?',
     options:['phone','lightbulb','clock','drop'], answer:1, source:'US Department of Energy appliance data',
     theme:'devices',
@@ -145,10 +150,34 @@ export const SHADOW = [
     options:['earth','moon','sun','mountain'], answer:1, source:'NASA planetary fact sheets',
     theme:'planets',
     note:'One sixth of your Earth weight on the Moon. On the Sun you would weigh 28 times more, briefly.' },
+  /* REMOVED from the bank, not patched, because the stated answer is wrong and
+     no small edit rescues it.
+
+     "Which is NOT powered by the Sun, ultimately?" answered 'rocket', on the
+     note "rocket fuel is chemistry, not photosynthesis". Most orbital rockets
+     burn RP-1, which is refined kerosene — ancient sunlight, exactly like the
+     petrol the same note calls solar. The answer is defensible only for solid
+     propellant, and the question does not say which kind of rocket.
+
+     The honestly non-solar sources are nuclear, geothermal and tidal, and none
+     of them has an icon in this set, so the question cannot be repaired by
+     swapping an option. It needs a replacement written for it — a content job,
+     flagged rather than bodged. Left here so the next author sees the reasoning
+     instead of re-adding it.
+
   { id:'h39', prompt:'Which of these is NOT powered by the Sun, ultimately?',
-    options:['tree','bicycle','car','rocket'], answer:3, source:'US Energy Information Administration',
+    options:['tree','bicycle','car','rocket'], answer:3, ... }
+  */
+  /* Replaces h39 (removed above). Same theme, and the answer survives the test
+     h39 failed: exactly one option is defensible. The Moon, the Earth and a
+     mountain are all lit by something else; a star is the only thing here that
+     makes its own light. Removing a question without replacing it is not free —
+     the shadow bank is the thinnest in the game and dropping to 41 broke the
+     no-consecutive-repeat guarantee at day 416. */
+  { id:'h46', prompt:'Which of these would still shine if the Sun went out?',
+    options:['moon','star','earth','mountain'], answer:1, source:'NASA, stellar physics',
     theme:'moonsun',
-    note:'Petrol is ancient sunlight and your legs run on food, which is also sunlight. Rocket fuel is chemistry, not photosynthesis.' },
+    note:'The Moon has no light of its own — it is a mirror. Other stars make their own, so the night sky would not go fully dark.' },
   { id:'h40', prompt:'Which of these travels furthest on one unit of energy?',
     options:['bicycle','car','plane','motorcycle'], answer:0, source:'International Energy Agency',
     theme:'aviation',
@@ -170,7 +199,13 @@ export const SHADOW = [
     options:['tajmahal','train','phone','cricket'], answer:0,
     source:'Archaeological Survey of India', theme:'india-ancient', region:'india',
     note:'The Taj Mahal was finished in 1653 — two centuries before India\u2019s first train in 1853, and before cricket reached the country at all.' },
-  { id:'in-h5', prompt:'Which of these does India grow more of than anyone else?',
+  /* Asked which India grows more of than anyone else and accepted only the
+     mango. India is also the world's largest banana producer — about a quarter
+     of the global crop — so banana was equally right and scored nothing. The
+     note already named the thing that IS unique: roughly half of all mangoes.
+     The prompt now asks for that. (This one is region-tagged, so no player is
+     dealt it today; it would have shipped with the India pack.) */
+  { id:'in-h5', prompt:'India grows about HALF the world\u2019s supply of which of these?',
     options:['mango','apple','banana','leaf'], answer:0,
     source:'UN Food and Agriculture Organization', theme:'india-farming', region:'india',
     note:'India grows about half the world\u2019s mangoes — and exports barely 1% of them. Almost all are eaten at home.' },

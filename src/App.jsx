@@ -16,7 +16,7 @@ import { BRAND } from './brand.js';
 import NotFound from './components/NotFound.jsx';
 import { Privacy, Terms } from './components/Legal.jsx';
 import { checkRunway } from './lib/runway.js';
-import { load, patch, playerId, mergeInflight, resumePoint } from './lib/storage.js';
+import { load, patch, playerId, mergeInflight, resumePoint, bankedAnswers } from './lib/storage.js';
 import { parseChallenge } from './lib/sharecard.js';
 import { isMuted, setMuted } from './lib/juice.js';
 import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, isArchiveDay, streakAfter, streakIsAlive, puzzleNumber } from './lib/schedule.js';
@@ -79,7 +79,7 @@ export default function App() {
     best: state.best || 0,
     days: Object.keys(state.days || {}).length,
   };
-  const playedToday = !!(state.answers && state.answers[day]);
+  const playedToday = !!bankedAnswers(state, day);
 
   useEffect(() => {
     const el = document.documentElement;
@@ -91,8 +91,12 @@ export default function App() {
     const s = load();
     // One attempt a day. Replaying would make the streak and the Fingerprint
     // meaningless, since you could grind the same set until it flattered you.
-    if (s.answers && s.answers[day]) {
-      setAnswers(s.answers[day]);
+    /* A corrupt or half-written save used to come straight through here and
+       crash the first paint of Results. Treated as "not played" now: you lose
+       that day's record, not the ability to open the game. */
+    const banked = bankedAnswers(s, day);
+    if (banked) {
+      setAnswers(banked);
       setLineup(lineupFor(POOLS, pid, day));
       setSession({ kind: 'daily', replay: true });
       go({ name: 'results' }, { replace: true });
@@ -308,11 +312,11 @@ export default function App() {
       if (e.key && e.key !== BRAND.storageKey) return;
       setTick(t => t + 1);
       const fresh = load();
-      const doneElsewhere = !!(fresh.answers && fresh.answers[day]);
+      const doneElsewhere = bankedAnswers(fresh, day);
       // If this tab is mid-run on a day that was completed elsewhere, stop
       // pretending — send it to the result rather than a stale question.
       if (doneElsewhere && route.name === 'play' && session?.kind === 'daily' && !session.replay) {
-        setAnswers(fresh.answers[day]);
+        setAnswers(doneElsewhere);
         setSession({ kind: 'daily', replay: true });
         go({ name: 'results' }, { replace: true });
       }
@@ -331,8 +335,10 @@ export default function App() {
   const coldResults = useMemo(() => {
     if (route.name !== 'results' || session) return null;
     const s = load();
-    const saved = s.answers && s.answers[day];
-    if (!Array.isArray(saved) || !saved.length) return null;
+    /* Was Array.isArray alone, which passes ['played'] and any other array of
+       the wrong thing. bankedAnswers checks the elements. */
+    const saved = bankedAnswers(s, day);
+    if (!saved) return null;
     return { session: { kind: 'daily', replay: true }, answers: saved,
              lineup: lineupFor(POOLS, pid, day) };
   }, [route.name, session, day, pid, tick]);

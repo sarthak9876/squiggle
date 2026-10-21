@@ -38,6 +38,23 @@ export function playerId() {
     ever grow, so length IS progress and the longer list wins. A stale tab's
     duplicate answer is dropped, which is correct — the other tab already
     recorded that question. Stored answers from a DIFFERENT day never apply. */
+/** A banked day's answers, or null if there is nothing trustworthy there.
+ *
+ *  localStorage is shared, editable and survives every deploy, so the saved run
+ *  is not always the shape the code expects. Reading it straight into state put
+ *  junk where a list of scored answers belonged, and Results sums `b.score` on
+ *  the first paint — inside App's OWN render, which is above the ErrorBoundary
+ *  App returns. Nothing catches it, the page goes white, the bad value is still
+ *  in storage, and every reload does it again: the game stops opening at all.
+ *
+ *  Checks the ELEMENTS, not just Array.isArray. `['played']` is an array. */
+export function bankedAnswers(state, day) {
+  const a = state && state.answers && state.answers[day];
+  return Array.isArray(a) && a.length > 0
+      && a.every(x => x && typeof x === 'object' && typeof x.score === 'number' && Number.isFinite(x.score))
+    ? a : null;
+}
+
 /** Where a restored run picks up, derived from the answers themselves.
  *
  *  The position used to be restored as `Math.min(stored.idx, total - 1)`. After

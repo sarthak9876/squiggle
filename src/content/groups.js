@@ -106,7 +106,12 @@ export const GROUPS = [
 
   { id:'g11', prompt:'Sort these nine into three groups of three',
     groups:[
-      { label:'Things with keys', items:['Piano','Map','Passport'] },
+      /* 'Passport' was here, and a passport has no key of any kind — the
+         category was false of a third of its own group, so the only way to it
+         was elimination. 'Song' is the third SENSE of the word, which is what
+         makes this puzzle work: the keys you press, the key that explains a
+         map, and the key a tune is in. A song has no crown and no mouth. */
+      { label:'Things with keys', items:['Piano','Map','Song'] },
       { label:'Things with a crown', items:['Tooth','Tree','Monarch'] },
       { label:'Things with a mouth', items:['River','Cave','Bottle'] }],
     source:null,

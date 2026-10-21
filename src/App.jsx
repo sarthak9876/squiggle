@@ -19,7 +19,7 @@ import { checkRunway } from './lib/runway.js';
 import { load, patch, playerId, mergeInflight, resumePoint } from './lib/storage.js';
 import { parseChallenge } from './lib/sharecard.js';
 import { isMuted, setMuted } from './lib/juice.js';
-import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, isArchiveDay, puzzleNumber } from './lib/schedule.js';
+import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, isArchiveDay, streakAfter, streakIsAlive, puzzleNumber } from './lib/schedule.js';
 import { slotKey } from './lib/slotkey.js';
 import { POOLS } from './modes/index.js';
 import { GAMES } from './games.jsx';
@@ -68,9 +68,11 @@ export default function App() {
      said "on today's set", which was simply untrue. parseChallenge reads it. */
   const challenge = useMemo(() => parseChallenge(location.search, day), [day]);
 
-  // A streak that has already been broken must not be displayed as if it were
-  // alive. It is only current if you played yesterday or today.
-  const streakAlive = state.lastDay != null && (state.lastDay === day || state.lastDay === day - 1);
+  /* Was its own rule — "played today or yesterday" — which did not know about
+     the insurance bankDay grants. A player who missed one day was told "Streak
+     lost" on the home screen and then had the streak silently continued when
+     they played. One function answers both now. */
+  const streakAlive = streakIsAlive(state, day);
   const stats = {
     streak: streakAlive ? (state.streak || 0) : 0,
     streakLost: !streakAlive && (state.streak || 0) > 0,
@@ -259,14 +261,12 @@ export default function App() {
       if (s.days[day] != null) return s;
       s.days[day] = total;
       s.answers[day] = final;
-      const gap = s.lastDay != null ? day - s.lastDay : 999;
-      // One free missed day a week, applied silently. A freeze you have to remember
-      // to claim does not work — by then you have already felt the loss.
-      if (gap === 1) s.streak = (s.streak || 0) + 1;
-      else if (gap === 2 && s.insuranceWeek !== Math.floor((day + 4) / 7)) {
-        s.streak = (s.streak || 0) + 1; s.insuranceWeek = Math.floor((day + 4) / 7);
-      } else s.streak = 1;
-      s.lastDay = day;
+      /* The arithmetic moved to streakAfter so the home screen can ask the same
+         question. The old `else` also caught a gap of ZERO OR LESS, so flying
+         west over the dateline wiped a streak for playing on a day that had
+         already happened. */
+      const next = streakAfter(s, day);
+      s.streak = next.streak; s.lastDay = next.lastDay; s.insuranceWeek = next.insuranceWeek;
       s.best = Math.max(s.best || 0, total);
       delete s.inflight;
       s.modes = s.modes || {};

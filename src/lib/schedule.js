@@ -67,6 +67,45 @@ export function msUntilTomorrow(now = new Date()) {
   return next - now;
 }
 export function weekNumber(day) { return Math.floor((day + 4) / 7); }
+
+/** What banking `day` does to a streak. The ONE copy of this arithmetic.
+ *
+ *  It used to live in bankDay alone, and the home screen made its own simpler
+ *  guess — alive only if you played today or yesterday — which contradicted the
+ *  insurance rule it did not know about. A player who missed one day was told
+ *  "Streak lost" and then had the streak quietly continued when they played.
+ *
+ *  The old `else` branch also caught a gap of zero or less, so flying west over
+ *  the dateline — or a device clock going back — wiped a streak for playing on
+ *  a day that had already happened. */
+export function streakAfter(state, day) {
+  const { streak = 0, lastDay = null, insuranceWeek = null } = state || {};
+  if (!Number.isInteger(lastDay)) return { streak: 1, lastDay: day, insuranceWeek };
+
+  const gap = day - lastDay;
+  // Already happened. Hold everything: moving lastDay backwards breaks tomorrow.
+  if (gap <= 0) return { streak, lastDay, insuranceWeek };
+  if (gap === 1) return { streak: streak + 1, lastDay: day, insuranceWeek };
+  /* One free missed day a week, applied silently. A freeze you have to remember
+     to claim does not work — by then you have already felt the loss. */
+  if (gap === 2 && insuranceWeek !== weekNumber(day)) {
+    return { streak: streak + 1, lastDay: day, insuranceWeek: weekNumber(day) };
+  }
+  return { streak: 1, lastDay: day, insuranceWeek };
+}
+
+/** Is the streak on the home screen still alive? Defined as "banking today
+ *  would not throw progress away", and ASKED OF streakAfter rather than
+ *  reimplemented, so the screen and the rule cannot drift apart again.
+ *
+ *  Not `after.streak > 1`: a player on day one who has already played today has
+ *  a live streak of exactly 1, and that test would have called it lost. */
+export function streakIsAlive(state, day) {
+  const lastDay = state && state.lastDay;
+  if (!Number.isInteger(lastDay)) return false;
+  const before = (state && state.streak) || 0;
+  return !(streakAfter(state, day).streak === 1 && before > 1);
+}
 /** The UTC-midnight Date for a day number. Format it with `timeZone: 'UTC'` —
  *  rendering it in a negative-offset zone would show the previous date. */
 export function dateOfDay(day) { return new Date(EPOCH.getTime() + day * 86400000); }

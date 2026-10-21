@@ -10,7 +10,7 @@
    The deeper fault is that the position was stored as a second copy of a fact
    the answers array already holds. Two copies of one fact drift. Derive it. */
 import { describe, it, expect } from 'vitest';
-import { resumePoint, mergeInflight } from '../src/lib/storage.js';
+import { resumePoint, mergeInflight, inflightResume } from '../src/lib/storage.js';
 
 const answers = n => Array.from({ length: n }, (_, i) => ({ mode: 'm', score: 100, i }));
 
@@ -115,5 +115,43 @@ describe('what the home button should say', () => {
       if (m) expect(Number(m[1]), `${n} answered`).toBe(at.idx);
       else expect(at.done || at.idx === 0, `${n} answered`).toBe(true);
     }
+  });
+});
+
+/* The gate itself was still written twice.
+
+   After the label fix, BOTH the home label and the tap went through
+   resumePoint — real progress — but each re-derived "is there an inflight run
+   for today?" in its own expression, with its own total (SLOTS.length in one,
+   lineup.length in the other). The VALUE was shared; the lookup around it was
+   not. That is the same two-sources-of-truth shape one layer up, and it is the
+   shape that produced the original bug. One function owns the whole fact. */
+describe('finding today’s saved run', () => {
+  const day = 300;
+
+  it('is null when there is no saved run', () => {
+    expect(inflightResume({}, day, 16)).toBeNull();
+    expect(inflightResume(null, day, 16)).toBeNull();
+  });
+
+  it('is null when the saved run belongs to another day', () => {
+    expect(inflightResume({ inflight: { day: day - 1, answers: answers(5) } }, day, 16)).toBeNull();
+    expect(inflightResume({ inflight: { day: day + 1, answers: answers(5) } }, day, 16)).toBeNull();
+  });
+
+  it('resolves today’s run through resumePoint', () => {
+    const r = inflightResume({ inflight: { day, answers: answers(5) } }, day, 16);
+    expect(r).toEqual(resumePoint(answers(5), 16));
+  });
+
+  it('reports a finished run as done', () => {
+    expect(inflightResume({ inflight: { day, answers: answers(16) } }, day, 16).done).toBe(true);
+  });
+
+  it('survives a corrupt inflight rather than throwing', () => {
+    for (const f of ['x', 42, [], { day }, { day, answers: 'nope' }]) {
+      expect(() => inflightResume({ inflight: f }, day, 16), JSON.stringify(f)).not.toThrow();
+    }
+    expect(inflightResume({ inflight: { day, answers: 'nope' } }, day, 16)).toMatchObject({ done: false, idx: 0 });
   });
 });

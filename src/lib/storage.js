@@ -23,7 +23,7 @@ export function migrateIds(state) {
   const out = { ...state };
 
   const saved = out.practice && out.practice.draw;
-  if (saved && typeof saved === 'object' && Array.isArray(saved.ids)) {
+  if (saved && Array.isArray(saved.ids)) {   // Array.isArray already rejects every non-object shape
     out.practice = { ...out.practice, draw: { ...saved, ids: saved.ids.map(fix) } };
   }
   const last = out.lastPractice && out.lastPractice.draw;
@@ -98,6 +98,20 @@ export function resumePoint(answers, total) {
   return safe.length >= total
     ? { done: true, idx: Math.max(0, total - 1), answers: safe }
     : { done: false, idx: safe.length, answers: safe };
+}
+
+/** Today's saved run, resolved — or null if there isn't one.
+ *
+ *  The home label and the tap both needed this. After the label fix they at
+ *  least shared resumePoint, but each still wrote its own
+ *  `inflight && inflight.day === day` gate with its own total (SLOTS.length in
+ *  one, lineup.length in the other). The VALUE was shared; the lookup around it
+ *  was not — the same two-sources-of-truth shape one layer up, and the shape
+ *  that produced the original bug. One function owns the whole fact now. */
+export function inflightResume(state, day, total) {
+  const f = state && state.inflight;
+  if (!f || typeof f !== 'object' || f.day !== day) return null;
+  return resumePoint(f.answers, total);
 }
 
 export function mergeInflight(stored, next, day) {

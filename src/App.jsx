@@ -16,7 +16,7 @@ import { BRAND } from './brand.js';
 import NotFound from './components/NotFound.jsx';
 import { Privacy, Terms } from './components/Legal.jsx';
 import { checkRunway } from './lib/runway.js';
-import { load, patch, playerId, mergeInflight, resumePoint, bankedAnswers } from './lib/storage.js';
+import { load, patch, playerId, mergeInflight, resumePoint, inflightResume, bankedAnswers } from './lib/storage.js';
 import { parseChallenge } from './lib/sharecard.js';
 import { isMuted, setMuted } from './lib/juice.js';
 import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, isArchiveDay, playRouteTarget, streakAfter, streakIsAlive, puzzleNumber } from './lib/schedule.js';
@@ -83,8 +83,7 @@ export default function App() {
 
   /* Where today's saved run would actually resume — the same call the tap
      makes, so the button cannot promise a position the tap will not open. */
-  const homeResume = state.inflight && state.inflight.day === day
-    ? resumePoint(state.inflight.answers, SLOTS.length) : null;
+  const homeResume = inflightResume(state, day, SLOTS.length);
 
   useEffect(() => {
     const el = document.documentElement;
@@ -108,12 +107,12 @@ export default function App() {
       return;
     }
     // Resume an unfinished run rather than restarting it.
-    const flight = s.inflight && s.inflight.day === day ? s.inflight : null;
     const lineup = lineupFor(POOLS, pid, day);
-    /* Derive the position from the answers. Math.min(flight.idx, len - 1) put a
-       player who had answered all sixteen back on question sixteen, answer
-       showing, and the re-answer appended a seventeenth score to the day. */
-    const at = resumePoint(flight && flight.answers, lineup.length);
+    /* Same call the home label makes, so the button cannot promise a position
+       the tap will not open. Math.min(flight.idx, len - 1) used to put a player
+       who had answered all sixteen back on question sixteen, answer showing,
+       and the re-answer appended a seventeenth score to the day. */
+    const at = inflightResume(s, day, lineup.length) || resumePoint([], lineup.length);
     setLineup(lineup);
     setAnswers(at.answers);
     if (at.done) {
@@ -432,8 +431,8 @@ export default function App() {
             restarted at question 1. Both come from homeResume now. */}
         {view === 'home' && (
           <Home stats={stats} spoilerIds={spoilerIds}
-                playedToday={playedToday || !!(homeResume && homeResume.done)}
-                progress={homeResume && !homeResume.done ? homeResume.idx : 0}
+                playedToday={playedToday || !!homeResume?.done}
+                progress={homeResume?.done === false ? homeResume.idx : 0}
                 preLaunch={day < LAUNCH_DAY}
                 onPlayDaily={startDaily} onPlayGame={startPractice} />
         )}

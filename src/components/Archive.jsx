@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { BRAND } from '../brand.js';
 import { motion } from 'framer-motion';
-import { dayNumber, EPOCH, LAUNCH_DAY, puzzleNumber, SLOTS } from '../lib/schedule.js';
+import { dayNumber, dateOfDay, LAUNCH_DAY, puzzleNumber, SLOTS } from '../lib/schedule.js';
 import { load } from '../lib/storage.js';
 
-const dateOf = d => new Date(EPOCH.getTime() + d * 86400000);
-const iso = d => dateOf(d).toISOString().slice(0, 10);
-const label = d => dateOf(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+/* Was a local copy of dateOfDay's arithmetic. Two places computing the same
+   date from the same epoch is one place too many — when the day math moved to
+   UTC, a private copy would have silently kept the old answer. Use the one. */
+const iso = d => dateOfDay(d).toISOString().slice(0, 10);
+/* timeZone: 'UTC' because dateOfDay returns UTC midnight; without it a player
+   in New York sees every archive tile labelled with the previous day. */
+const label = d => dateOfDay(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
 /** ARCHIVE — every past day, replayable.
  *  Shows your score where you have one, so the grid doubles as a heatmap of how

@@ -10,14 +10,22 @@
    for half the world does not feel daily. */
 import { hash, shuffled } from './random.js';
 
-export const EPOCH = new Date(2026, 0, 1);
+/* UTC, deliberately. A day NUMBER is a calendar fact shared by every player, so
+   it must not be computed from local wall-clock arithmetic — a local day is 23
+   or 25 hours long twice a year, and dividing by 86,400,000 drifted. See
+   tests/dst.test.js for the three symptoms that produced. */
+export const EPOCH = new Date(Date.UTC(2026, 0, 1));
 
 /** Launch day. The archive starts here; earlier days do not exist. */
 export const LAUNCH_DATE = new Date(2026, 9, 20);   // 20 Oct 2026
 
 export function dayNumber(d = new Date()) {
-  const midnight = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  return Math.floor((midnight - EPOCH) / 86400000);
+  /* Read the player's LOCAL calendar date — their midnight is when the puzzle
+     turns over — then measure it on the UTC grid, where every day is exactly
+     86,400,000 ms. Local in, UTC arithmetic: the date is theirs, the number is
+     everyone's. Math.round, not floor: the quotient is a whole number by
+     construction, and floor is what turned a 23-hour day into a lost one. */
+  return Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - EPOCH.getTime()) / 86400000);
 }
 export const LAUNCH_DAY = dayNumber(LAUNCH_DATE);
 
@@ -38,6 +46,8 @@ export function msUntilTomorrow(now = new Date()) {
   return next - now;
 }
 export function weekNumber(day) { return Math.floor((day + 4) / 7); }
+/** The UTC-midnight Date for a day number. Format it with `timeZone: 'UTC'` —
+ *  rendering it in a negative-offset zone would show the previous date. */
 export function dateOfDay(day) { return new Date(EPOCH.getTime() + day * 86400000); }
 
 /* Two of each mode, interleaved so the same mechanic never runs twice in a row. */

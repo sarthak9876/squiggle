@@ -50,9 +50,14 @@ export default function About({ onHome }) {
           Built by {CREDITS.authorUrl
               ? <a href={CREDITS.authorUrl} target="_blank" rel="noopener noreferrer">{CREDITS.author}</a>
               /* An <a> with no href looked clickable and did nothing. */
-              : <b>{CREDITS.author}</b>},
-          in the daily-puzzle tradition that Wordle and <a href="https://magnitudle.com"
-          target="_blank" rel="noopener">Magnitudle</a> made popular.
+              : <b>{CREDITS.author}</b>}.
+          {/* This used to read "in the daily-puzzle tradition that Wordle and
+              Magnitudle made popular" — with a live outbound LINK to one of
+              them. An About page is where a visitor decides whether to come
+              back; sending them to a competitor from it is free traffic given
+              away, and crediting someone else for the format frames this game
+              as the derivative one. Say what the game does instead. */}
+          {' '}One puzzle a day, the same sixteen questions for everyone, gone at midnight.
         </p>
         <div className="socials">
           {CREDITS.socials.map(x => (

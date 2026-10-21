@@ -1,4 +1,4 @@
-import { puzzleLabel } from './schedule.js';
+import { puzzleLabel, SLOTS, LAUNCH_DAY } from './schedule.js';
 import { BRAND } from '../brand.js';
 import { loadEmojiImage } from './emojiUrl.js';
 /* The card's palette is pinned, deliberately. See the note in drawShareCard.
@@ -135,6 +135,27 @@ export function drawShareCard(fp, { total, max, day, scores, format = 'post' }) 
 
 /** The challenge link a player sends a friend: it carries the score to beat and
  *  who set it, so the friend lands on a page that already knows what it is for. */
+/** Read a challenge link back. The counterpart to challengeLink, and kept
+ *  beside it because the bug was that the two disagreed: the writer put the day
+ *  in and the reader never took it out, so a link made for day 290 was shown
+ *  against today's set under the line "scored N on today's set".
+ *
+ *  Returns null for anything that cannot be a fair comparison — a score nobody
+ *  could have scored, or a day that has not happened. A link with no `d` is
+ *  from before the day was carried; today is the only guess available and it is
+ *  what the game already assumed. */
+export function parseChallenge(search, today, launchDay = LAUNCH_DAY) {
+  const q = new URLSearchParams(search || '');
+  const vs = Number(q.get('vs'));
+  if (!q.has('vs') || !Number.isFinite(vs) || vs < 0 || vs > SLOTS.length * 100) return null;
+
+  const raw = q.get('d');
+  const day = raw == null || raw === '' ? today : Number(raw);
+  if (!Number.isInteger(day) || day < launchDay || day > today) return null;
+
+  return { vs, day, forToday: day === today, from: (q.get('from') || '').slice(0, 24) };
+}
+
 export function challengeLink(name, total, day, origin = location.origin) {
   const u = new URL('/play', origin);
   u.searchParams.set('vs', String(total));

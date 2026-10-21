@@ -17,6 +17,7 @@ import NotFound from './components/NotFound.jsx';
 import { Privacy, Terms } from './components/Legal.jsx';
 import { checkRunway } from './lib/runway.js';
 import { load, patch, playerId, mergeInflight, resumePoint } from './lib/storage.js';
+import { parseChallenge } from './lib/sharecard.js';
 import { isMuted, setMuted } from './lib/juice.js';
 import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, isArchiveDay, puzzleNumber } from './lib/schedule.js';
 import { slotKey } from './lib/slotkey.js';
@@ -56,16 +57,16 @@ export default function App() {
   const state = useMemo(() => load(), [tick, view]);
   const day = dayNumber();
 
-  /* A challenge link — /play?vs=1291&from=Asha — lands here. Read once: the
-     params are stripped from the URL after the run starts so a refresh mid-game
-     does not resurrect a challenge the player already saw, and so sharing your
-     own address bar does not pass on somebody else's score. */
-  const challenge = useMemo(() => {
-    const q = new URLSearchParams(location.search);
-    const vs = parseInt(q.get('vs'), 10);
-    if (!Number.isFinite(vs) || vs < 0 || vs > SLOTS.length * 100) return null;
-    return { vs, from: (q.get('from') || '').slice(0, 24) };
-  }, []);
+  /* A challenge link — /play?vs=1291&d=290&from=Asha — lands here. Read once:
+     the params are stripped from the URL after the run starts so a refresh
+     mid-game does not resurrect a challenge the player already saw, and so
+     sharing your own address bar does not pass on somebody else's score.
+
+     The `d` was written by challengeLink from the start and never read, so a
+     link made for an older set was put against TODAY's sixteen. Two different
+     question sets, two different difficulties, one comparison — and the bar
+     said "on today's set", which was simply untrue. parseChallenge reads it. */
+  const challenge = useMemo(() => parseChallenge(location.search, day), [day]);
 
   // A streak that has already been broken must not be displayed as if it were
   // alive. It is only current if you played yesterday or today.
@@ -121,8 +122,17 @@ export default function App() {
      a home page you have to decode. Declared after startDaily so it can simply
      depend on it, rather than reaching through a ref. */
   useEffect(() => {
-    if (challenge && route.name === 'play' && !lineup) startDaily();
-  }, [challenge, route.name, lineup, startDaily]);
+    if (!challenge || route.name !== 'play' || lineup) return;
+    /* Open the set the challenge was actually set on. For an older day that is
+       an archive run — replayable, never counting towards the streak — which is
+       the only way the two scores are comparable. */
+    if (challenge.forToday) { startDaily(); return; }
+    if (isArchiveDay(challenge.day, day)) {
+      setLineup(lineupFor(POOLS, pid, challenge.day));
+      setAnswers([]); setIdx(0);
+      setSession({ kind: 'archive', day: challenge.day });
+    }
+  }, [challenge, route.name, lineup, startDaily, day, pid]);
 
   /* Questions scheduled for the dailies, TODAY and the next week. Practice used
      to draw from the same bank with no exclusion, so playing "Play 5" could hand

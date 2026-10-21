@@ -8,7 +8,7 @@ import Mascot, { moodFor } from './Mascot.jsx';
 import { react } from '../lib/juice.js';
 import { CROWD_ENABLED } from '../lib/flags.js';
 import { reportLink, reportText } from '../lib/report.js';
-import { dayNumber } from '../lib/schedule.js';
+import { dayNumber, puzzleLabel } from '../lib/schedule.js';
 import { HINT_KEEP, applyHint } from '../lib/hint.js';
 
 /* A face for the fact — but ONLY when the question already carries one.
@@ -247,7 +247,11 @@ export default function GameScreen({ lineup, idx, answers = [], challenge, onAns
     <div className="play" style={{ '--gc': game.colour }}>
       {challenge && (
         <div className="vsbar">
-          <b>{challenge.from || 'A friend'}</b> scored <b>{challenge.vs}</b> on today’s set.
+          {/* Said "on today's set" unconditionally. A link carries the day it
+              was set on, and for an older one that sentence was false — name
+              the set instead, so the comparison is honest about what it is. */}
+          <b>{challenge.from || 'A friend'}</b> scored <b>{challenge.vs}</b>
+          {' '}on {challenge.forToday === false ? `set ${puzzleLabel(challenge.day)}` : 'today’s set'}.
           {' '}You are on <b>{runTotal}</b>.
         </div>
       )}

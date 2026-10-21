@@ -49,6 +49,24 @@ export function isArchiveDay(d, today = dayNumber()) {
   return Number.isInteger(d) && d >= LAUNCH_DAY && d < today;
 }
 
+/** What arriving on /play should open.
+ *
+ *  Two effects used to answer this. The challenge effect called setLineup for
+ *  the challenged day; the route resolver a few lines later said
+ *  `else if (route.name === 'play' && !lineup) startDaily()`. Both run in the
+ *  SAME commit and both read `lineup === null` from that render, so the
+ *  resolver always won: a link for day 292 dealt day 293's sixteen, under a
+ *  banner that correctly said "scored 1500 on set #1". The banner was right and
+ *  the questions were wrong.
+ *
+ *  One answer now, and a pure one, so it is testable without React. */
+export function playRouteTarget(challenge, today = dayNumber()) {
+  if (challenge && !challenge.forToday && isArchiveDay(challenge.day, today)) {
+    return { kind: 'archive', day: challenge.day };
+  }
+  return { kind: 'daily' };
+}
+
 /** Every day the archive may offer, newest first. Empty on launch day. */
 export function archiveDays(today = dayNumber()) {
   const out = [];

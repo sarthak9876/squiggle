@@ -19,7 +19,7 @@ import { checkRunway } from './lib/runway.js';
 import { load, patch, playerId, mergeInflight, resumePoint, bankedAnswers } from './lib/storage.js';
 import { parseChallenge } from './lib/sharecard.js';
 import { isMuted, setMuted } from './lib/juice.js';
-import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, isArchiveDay, streakAfter, streakIsAlive, puzzleNumber } from './lib/schedule.js';
+import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, isArchiveDay, playRouteTarget, streakAfter, streakIsAlive, puzzleNumber } from './lib/schedule.js';
 import { slotKey } from './lib/slotkey.js';
 import { POOLS } from './modes/index.js';
 import { GAMES } from './games.jsx';
@@ -124,21 +124,23 @@ export default function App() {
     go({ name: 'play' });
   }, [pid, day]);
 
-  /* Arriving on a challenge link should drop you straight into the set, not onto
-     a home page you have to decode. Declared after startDaily so it can simply
-     depend on it, rather than reaching through a ref. */
-  useEffect(() => {
-    if (!challenge || route.name !== 'play' || lineup) return;
-    /* Open the set the challenge was actually set on. For an older day that is
-       an archive run — replayable, never counting towards the streak — which is
-       the only way the two scores are comparable. */
-    if (challenge.forToday) { startDaily(); return; }
-    if (isArchiveDay(challenge.day, day)) {
-      setLineup(lineupFor(POOLS, pid, challenge.day));
-      setAnswers([]); setIdx(0);
-      setSession({ kind: 'archive', day: challenge.day });
-    }
-  }, [challenge, route.name, lineup, startDaily, day, pid]);
+  /* The ONE way an archive run starts. There were three copies of this —
+     here, the Archive tile handler, and nothing to stop them drifting. */
+  const startArchiveDay = useCallback(d => {
+    if (!isArchiveDay(d, day)) return false;
+    setLineup(lineupFor(POOLS, pid, d));
+    setAnswers([]); setIdx(0);
+    setSession({ kind: 'archive', day: d });
+    return true;
+  }, [day, pid]);
+
+  /* The challenge effect that used to live here raced the route resolver below:
+     both fired in the same commit, both read `lineup === null` from the same
+     render, and the resolver's startDaily() always overwrote the archive lineup
+     this one had just set. A link for day 292 dealt day 293's questions under a
+     banner that correctly said "set #1".
+
+     One owner now — see the resolver — and playRouteTarget makes the decision. */
 
   /* Questions scheduled for the dailies, TODAY and the next week. Practice used
      to draw from the same bank with no exclusion, so playing "Play 5" could hand
@@ -356,7 +358,12 @@ export default function App() {
     if (route.name === 'game' && GAMES[route.id] && (!session || session.mode !== route.id || !lineup)) {
       startPractice(route.id);
     } else if (route.name === 'play' && !lineup) {
-      startDaily();
+      /* A challenge from an earlier day opens THAT day as an archive run —
+         replayable, never counting towards the streak, which is the only way
+         the two scores are comparable. Everything else is today's daily. */
+      const target = playRouteTarget(challenge, day);
+      if (target.kind === 'archive') startArchiveDay(target.day);
+      else startDaily();
     } else if (route.name === 'game' && !GAMES[route.id]) {
       go({ name: 'home' }, { replace: true });
     } else if (route.name === 'results' && !canShowResults) {
@@ -445,13 +452,9 @@ export default function App() {
         )}
         {view === 'archive' && (
           <Archive onHome={goHome} onPlayDay={(d) => {
-            // One rule, shared with the Archive's own list. It allowed d === day,
-            // so today's set was playable as a no-stakes archive run first.
-            if (!isArchiveDay(d, day)) return;
-            setLineup(lineupFor(POOLS, pid, d));
-            setAnswers([]); setIdx(0);
-            setSession({ kind: 'archive', day: d });
-            go({ name: 'play' });
+            // isArchiveDay lives inside startArchiveDay, so the guard and the
+            // start cannot come apart.
+            if (startArchiveDay(d)) go({ name: 'play' });
           }} />
         )}
         {view === 'about' && <About onHome={goHome} />}

@@ -75,3 +75,54 @@ launch day is #1. Before it, the game is playable and labelled "Preview".
 ## Licence
 
 MIT — see `LICENSE`.
+
+## Content cadence — how much writing keeps the game honest
+
+Every mode is dealt **2 questions a day**, so a mode's runway is
+`floor(global questions / 2)` days. The **thinnest mode sets the cycle for the
+whole game**: Draw The Curve, Shapes Only and Size It Up hold 33 each, so the
+cycle is 16 days whatever the other modes do. Region-tagged questions do not
+count — they are filtered out of the daily pool.
+
+**Two global questions in the thinnest mode buys one more day. Nothing else does.**
+
+| target | questions per mode | total bank | what it buys |
+|---|---|---|---|
+| 16 days | 33 (today) | 286 | the first repeat lands 5 Nov 2026 |
+| 30 days | 60 | 480 | a month before anyone sees a question twice |
+| 60 days | 120 | 960 | a quarter of comfortable headroom |
+
+Reaching 30 days needs **194 more global questions**, weighted to the thin end:
+draw +27, shadow +27, size +27, odd +25, groups +26, order +24, place +22,
+share +16.
+
+Pick a cadence from the date you want it by — these are flat rates, so write
+the thin three first or the cycle will not move at all:
+
+| finish by | weeks | per week | per day |
+|---|---|---|---|
+| 5 Nov 2026 (before the first repeat) | 2 | ~97 | ~14 |
+| 30 Nov 2026 | 5 | ~39 | ~6 |
+| 31 Dec 2026 | 10 | ~20 | ~3 |
+
+### What a new question has to carry
+Every one, no exceptions — these are the defect classes four retest rounds
+were spent removing, and they all come back the moment a batch is written fast:
+
+1. A real, checkable **source**. Not "general knowledge".
+2. **Exactly one defensible answer.** "Which is oldest?" had two until the
+   prompt said "oldest in India".
+3. For Odd One Out, **every distractor false of EVERY item** — not merely false
+   of the odd one. "The only one that tastes hot" was true of the chilli, so the
+   question scored 0 for the player who knew it.
+4. For Make The Sets, the label **true of all three items and of nothing in the
+   other groups** ("Things with keys" held a passport).
+5. **No picture already used by another question in the same day's set** — the
+   scheduler now avoids this, and `lint:questions` reports what is left.
+6. Run `npm run lint:questions` after every batch; it fails when fewer than
+   7 days of runway remain.
+
+### Gates that watch this
+- `tests/runway.test.js` fails when the runway drops to 7 days or less.
+- `lint:questions` fails on the same threshold and prints the gap every run.
+- `MIN_DAYS` in the linter is a ratchet: the cycle may never shrink.

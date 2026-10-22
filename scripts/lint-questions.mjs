@@ -8,7 +8,7 @@
      - the same answer or emoji twice in one day's set
    Exits non-zero so CI fails on a bad question rather than a player finding it. */
 import { POOLS } from '../src/modes/index.js';
-import { lineupFor, LAUNCH_DAY, uniqueDays, PER_DAY, MAX_PER_REGION } from '../src/lib/schedule.js';
+import { lineupFor, LAUNCH_DAY, uniqueDays, PER_DAY, MAX_PER_REGION, daysUntilRepeat } from '../src/lib/schedule.js';
 
 const problems = [];
 const warnings = [];
@@ -115,7 +115,11 @@ for (let d = LAUNCH_DAY; d < LAUNCH_DAY + CYCLE; d++) {
    asserts the cycle never SHRINKS, and prints the gap every run so the number
    stays in front of whoever is writing content. Raise TARGET_DAYS as the bank
    grows; the day it reaches 120 the original ask is met and this comment is moot. */
-const TARGET_DAYS = 120;
+/* 30, not 120. The 120 target printed "1634 more questions needed", which reads
+   as hopeless and so got ignored every run since launch. 30 days is two 2/day
+   weeks of headroom over a month and needs 194 — a number someone can actually
+   plan against. Raise it again once the bank clears 60 a mode. */
+const TARGET_DAYS = 30;
 /* Ratchet: today's cycle, never let it drop. Reset from 17 to 16 when the India
    quota was removed — uniqueDays now sizes each mode on its GLOBAL questions
    alone, because a day may carry at most MAX_PER_REGION region questions and
@@ -130,6 +134,23 @@ const MIN_DAYS = 16;
 const MAX_REGION_SHARE = 0.25;
 if (CYCLE < MIN_DAYS) {
   fail('schedule', `cycle fell to ${CYCLE} days (floor is ${MIN_DAYS}) — a pool shrank`);
+}
+
+/* The runway gap has been printed as a WARNING since launch and the script has
+   exited 0 every time. A warning that is always true is wallpaper. What can
+   actually be acted on is how long is left before a live player is dealt a
+   question they have already seen — so that is what FAILS here.
+   Not a flat `CYCLE < 30`: that is red today and stays red until 194 questions
+   land, which would make the gate useless for everything else in the meantime.
+   See tests/runway.test.js, which gates the same number in the unit suite. */
+const RUNWAY_GRACE = 7;
+const LEFT = daysUntilRepeat(POOLS);
+if (LEFT <= RUNWAY_GRACE) {
+  fail('runway', `${LEFT} day(s) until players see a repeated question ` +
+       `(first repeat day ${LAUNCH_DAY + CYCLE}). Write content or cut the cycle.`);
+} else if (CYCLE < TARGET_DAYS) {
+  console.warn(`\n\u23f3 runway: ${LEFT} days left before the first repeat ` +
+               `(fails at ${RUNWAY_GRACE}).`);
 }
 
 /* ── Region balance ──────────────────────────────────────────────────────── */

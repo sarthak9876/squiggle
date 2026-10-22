@@ -429,6 +429,19 @@ export function lineupFor(pools, _pid, day) {
 }
 
 /** How many days each game can run before it starts repeating. */
+/** Days until a live player is served a question they have already seen.
+ *
+ *  The bank holds `uniqueDays(pools).days` distinct days and the first one went
+ *  out on LAUNCH_DAY, so the cycle turns over on LAUNCH_DAY + days. Positive is
+ *  runway left, zero is the day it happens, negative means it already did.
+ *
+ *  This exists because "the bank is short" has been true and printed since
+ *  launch, and a warning that is always true is wallpaper. The number that can
+ *  actually be acted on is how long is left. See tests/runway.test.js. */
+export function daysUntilRepeat(pools, today = dayNumber(), launchDay = LAUNCH_DAY) {
+  return launchDay + uniqueDays(pools).days - Math.max(today, launchDay);
+}
+
 export function uniqueDays(pools) {
   /* The cycle is as long as the bank can fill it FAIRLY, which is not the same
      as how many questions it holds.

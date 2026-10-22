@@ -79,12 +79,30 @@ MIT — see `LICENSE`.
 ## Content cadence — how much writing keeps the game honest
 
 Every mode is dealt **2 questions a day**, so a mode's runway is
-`floor(global questions / 2)` days. The **thinnest mode sets the cycle for the
-whole game**: Draw The Curve, Shapes Only and Size It Up hold 33 each, so the
-cycle is 16 days whatever the other modes do. Region-tagged questions do not
-count — they are filtered out of the daily pool.
+`floor(global questions / 2)` days, and the cycle for the whole game is the
+**minimum across all eight modes**. Region-tagged questions do not count — they
+are filtered out of the daily pool.
 
-**Two global questions in the thinnest mode buys one more day. Nothing else does.**
+### Write across ALL EIGHT modes, not into the thin ones
+
+This is the counter-intuitive part, and it is measured, not assumed:
+
+| what you write | cycle |
+|---|---|
+| nothing (today) | 16 days |
+| +27 to Shapes Only alone | **16 days** — no change at all |
+| +27 to Shapes Only *and* Size It Up | **16 days** — still none |
+| +27 to all three of the thinnest modes | **17 days** — one day, for 81 questions |
+| +2 to every one of the eight modes | 17 days |
+| +27 to every one of the eight modes | 30 days |
+
+"Prioritise the thinnest modes" is the natural plan and it is wrong. Taking
+draw, Shapes Only and Size It Up to 60 buys exactly **one day**, because Odd One
+Out (35) immediately becomes the binding constraint. The minimum moves only when
+the mode currently holding it moves, and then the next-lowest takes over.
+
+**Two global questions in EVERY mode — 16 questions — buys one day. A batch that
+skips a mode buys nothing.**
 
 | target | questions per mode | total bank | what it buys |
 |---|---|---|---|
@@ -96,8 +114,8 @@ Reaching 30 days needs **194 more global questions**, weighted to the thin end:
 draw +27, shadow +27, size +27, odd +25, groups +26, order +24, place +22,
 share +16.
 
-Pick a cadence from the date you want it by — these are flat rates, so write
-the thin three first or the cycle will not move at all:
+Pick a cadence from the date you want it by. Spread each batch across all
+eight modes — a week spent entirely on one mode moves the cycle by zero days:
 
 | finish by | weeks | per week | per day |
 |---|---|---|---|

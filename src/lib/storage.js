@@ -3,6 +3,7 @@
    is guarded so the game stays fully playable when storage is unavailable — you
    simply lose streaks, not the ability to play. */
 import { BRAND } from '../brand.js';
+import { SLOTS } from './schedule.js';
 
 const KEY = BRAND.storageKey;
 
@@ -108,10 +109,22 @@ export function resumePoint(answers, total) {
  *  one, lineup.length in the other). The VALUE was shared; the lookup around it
  *  was not — the same two-sources-of-truth shape one layer up, and the shape
  *  that produced the original bug. One function owns the whole fact now. */
-export function inflightResume(state, day, total) {
+export function inflightResume(state, day) {
   const f = state && state.inflight;
-  if (!f || typeof f !== 'object' || f.day !== day) return null;
-  return resumePoint(f.answers, total);
+  /* No `typeof f === 'object'` clause: it rejects nothing `f.day !== day` does
+     not already reject. Any truthy non-object has `f.day === undefined`, and
+     day is always a real number — the same dead check this file removed from
+     migrateIds, and it would not have excluded arrays either. Measured across
+     15 input shapes: zero behavioural difference. */
+  if (!f || f.day !== day) return null;
+  /* SLOTS.length rather than a `total` argument. The two callers used to pass
+     SLOTS.length and lineup.length for the same fact, and dealBlock pushes
+     exactly one question per SLOT, so those are equal by construction — but
+     "equal by construction somewhere else" is how the inflight.idx vs
+     answers.length drift started. Owning it here makes them impossible to
+     disagree. resumePoint keeps its parameter: practice runs a different
+     count. */
+  return resumePoint(f.answers, SLOTS.length);
 }
 
 export function mergeInflight(stored, next, day) {

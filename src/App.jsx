@@ -83,7 +83,7 @@ export default function App() {
 
   /* Where today's saved run would actually resume — the same call the tap
      makes, so the button cannot promise a position the tap will not open. */
-  const homeResume = inflightResume(state, day, SLOTS.length);
+  const homeResume = inflightResume(state, day);
 
   useEffect(() => {
     const el = document.documentElement;
@@ -112,7 +112,7 @@ export default function App() {
        the tap will not open. Math.min(flight.idx, len - 1) used to put a player
        who had answered all sixteen back on question sixteen, answer showing,
        and the re-answer appended a seventeenth score to the day. */
-    const at = inflightResume(s, day, lineup.length) || resumePoint([], lineup.length);
+    const at = inflightResume(s, day) || resumePoint([], lineup.length);
     setLineup(lineup);
     setAnswers(at.answers);
     if (at.done) {

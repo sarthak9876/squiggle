@@ -130,28 +130,28 @@ describe('finding today’s saved run', () => {
   const day = 300;
 
   it('is null when there is no saved run', () => {
-    expect(inflightResume({}, day, 16)).toBeNull();
-    expect(inflightResume(null, day, 16)).toBeNull();
+    expect(inflightResume({}, day)).toBeNull();
+    expect(inflightResume(null, day)).toBeNull();
   });
 
   it('is null when the saved run belongs to another day', () => {
-    expect(inflightResume({ inflight: { day: day - 1, answers: answers(5) } }, day, 16)).toBeNull();
-    expect(inflightResume({ inflight: { day: day + 1, answers: answers(5) } }, day, 16)).toBeNull();
+    expect(inflightResume({ inflight: { day: day - 1, answers: answers(5) } }, day)).toBeNull();
+    expect(inflightResume({ inflight: { day: day + 1, answers: answers(5) } }, day)).toBeNull();
   });
 
   it('resolves today’s run through resumePoint', () => {
-    const r = inflightResume({ inflight: { day, answers: answers(5) } }, day, 16);
+    const r = inflightResume({ inflight: { day, answers: answers(5) } }, day);
     expect(r).toEqual(resumePoint(answers(5), 16));
   });
 
   it('reports a finished run as done', () => {
-    expect(inflightResume({ inflight: { day, answers: answers(16) } }, day, 16).done).toBe(true);
+    expect(inflightResume({ inflight: { day, answers: answers(16) } }, day).done).toBe(true);
   });
 
   it('survives a corrupt inflight rather than throwing', () => {
     for (const f of ['x', 42, [], { day }, { day, answers: 'nope' }]) {
-      expect(() => inflightResume({ inflight: f }, day, 16), JSON.stringify(f)).not.toThrow();
+      expect(() => inflightResume({ inflight: f }, day), JSON.stringify(f)).not.toThrow();
     }
-    expect(inflightResume({ inflight: { day, answers: 'nope' } }, day, 16)).toMatchObject({ done: false, idx: 0 });
+    expect(inflightResume({ inflight: { day, answers: 'nope' } }, day)).toMatchObject({ done: false, idx: 0 });
   });
 });

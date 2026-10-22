@@ -80,6 +80,13 @@ for (let q = 0; q < IDS.length; q++) {
       stated: document.querySelector('.readout b')?.textContent || '',
       note: document.querySelector('.dimnote')?.textContent || '',
       badge: document.querySelector('.zoombadge')?.textContent || '',
+      /* Artwork smaller than the 8px play-a-day flags as "zero size". Checked
+         HERE as well because this file seeds its question ids, so z12 — the
+         109x pair whose reference sits on the floor — is visited on every run.
+         play-a-day only ever sees whatever the DATE happens to deal, and it
+         caught this one by luck on 23 Oct. */
+      tiny: [...document.querySelectorAll('.stage img, .stage .sil, .stage canvas, .stage svg')]
+        .filter(e => { const b = e.getBoundingClientRect(); return b.width < 8 || b.height < 8; }).length,
       prompt: (document.querySelector('.qprompt, h2')?.textContent || '').slice(0, 44),
     }));
     const range = printedRange(r.stated);
@@ -103,6 +110,17 @@ for (let q = 0; q < IDS.length; q++) {
 
     checked++;
     seen.add(r.prompt);
+    /* Only when the drawing is CLAMPED. At 0.03x a mouse really is a 4.5px dot
+       beside a cat — that is the picture being honest about a tiny ratio, and
+       flagging it would be a detector crying wolf at correct behaviour (the
+       first version of this check did exactly that, on z15 and z9).
+       When the badge says the pair is off scale the ratio is already disclosed
+       as wrong, so a sub-8px box carries no information at all and is simply a
+       rendering failure — that was z12, Earth at 4px with no picture in it. */
+    if (r.tiny && disclosed) {
+      failed++;
+      console.log(`FAIL artwork ${r.prompt.padEnd(44)} ${r.tiny} piece(s) under 8px at "${r.stated}" WHILE off-scale`);
+    }
     (byDim[dim] ||= { n: 0, worst: 0, off: 0, slack: 0 }).n++;
     if (disclosed) { byDim[dim].off++; continue; }   // nothing to measure once it is off scale
     /* A sample whose quotient sits outside the band but whose sub-pixel

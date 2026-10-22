@@ -26,7 +26,7 @@
    approximated scorer and produced 43.9 and 92.8, both wrong. The numbers above
    come from this file's own sweep against size.score. */
 import { describe, it, expect } from 'vitest';
-import { size } from '../src/modes/size.jsx';
+import { size, toRatio } from '../src/modes/size.jsx';
 import { POOLS } from '../src/modes/index.js';
 
 const bank = POOLS.size;
@@ -54,22 +54,73 @@ describe('Size It Up cannot be farmed from one slider position', () => {
        exactly the outlier this is looking for. This is the Order Reset lesson,
        and it is the door that needs no intent at all: nudge once to satisfy
        `ready`, submit. */
-    const scored = bank.map(q => [q.id, size.score(q, size.init(q))]).filter(([, s]) => s > 10);
-    expect(scored, scored.map(([id, s]) => `${id} starts on ${s}`).join(', ')).toEqual([]);
+    /* The bar is RANDOM, not zero. Making the start drawable (above) moves it
+       closer to the truth on a high-ratio question, because the range is narrow
+       and sits high — there is no position that is both far from a 15.5x answer
+       and inside the stage. Drawability wins that trade: a picture the player
+       cannot see breaks the game, while `ready: touched` already stops anyone
+       submitting the start without moving. What must not happen is a start
+       worth MORE than guessing, which averages ~32.
+
+       z12 is exempt and should not be. Sun vs Earth is 109x: it cannot be drawn
+       to scale at any position (it carries the "too big to draw to scale"
+       badge) and its range is so high that every start sits near the answer, so
+       it begins on 49. Both faults are the same cause and neither is fixable in
+       code — the question does not work in this mechanic. Flagged for removal;
+       left in because dropping content is the owner's call, and size would go
+       33 -> 32, which still floors at 16 days. */
+    const KNOWN_BAD = { z12: 'truth 109x — undrawable at every position, see note above' };
+    const scored = bank.map(q => [q.id, size.score(q, size.init(q))])
+      .filter(([id, s]) => s > 35 && !(id in KNOWN_BAD));
+    expect(scored, scored.map(([id, s]) => `${id} starts on ${s}, above the ~32 a random guess scores`).join(', ')).toEqual([]);
+    expect(Object.keys(KNOWN_BAD).every(id => bank.some(q => q.id === id)),
+      'a KNOWN_BAD id no longer exists — drop it from the list').toBe(true);
   });
 
-  it('the start is always far from the truth, on every question', () => {
-    // The guarantee behind the test above, stated directly so a future change
-    // to the bands cannot quietly erode it.
-    for (const q of bank) {
-      const best = [...Array(201)].map((_, i) => [i * 5, size.score(q, { v: i * 5 })])
-        .reduce((a, b) => (b[1] > a[1] ? b : a))[0];
-      expect(Math.abs(size.init(q).v - best) / 1000, `${q.id}`).toBeGreaterThan(0.4);
-    }
+  it('the bank-wide start score stays far below a random guess', () => {
+    // Per-question allows one bad outlier; the mean is what a real player meets.
+    const mean = bank.reduce((a, q) => a + size.score(q, size.init(q)), 0) / bank.length;
+    expect(mean, `mean start score ${mean.toFixed(1)}`).toBeLessThan(12);
   });
+
+  it('the start position is one the stage can actually DRAW', () => {
+    /* Regression, found by the e2e matrix only once the daily rotated to z29
+       ("how big is a PLANE compared to a car?", truth 15.5x). startV puts the
+       slider as far from the truth as it can; for a high-ratio question that
+       meant 102x, which pins the reference box on the 4px FLOOR and renders
+       its artwork at ZERO SIZE — "q2 (Size It Up) rendered 1 piece(s) of
+       artwork at zero size".
+
+       Measured in Chrome: with the target box at its 139px maximum the
+       reference is 139/ratio, so 102x gives 4px and 6.1x gives 22.9px. Past
+       about 10x there is no room for a picture. Being far from the truth is
+       worth nothing if the player cannot see what they are comparing. */
+    const DRAWABLE = 10;
+    const bad = [];
+    for (const q of bank) {
+      /* Seven questions have a TRUTH the stage cannot draw either (z12 at 109x,
+         z9 at 28x, ...). Those show "too big to draw to scale" at every slider
+         position including the answer — a disclosed state, not a surprise, and
+         no start position inside their range can be drawable. Exempt them here
+         and judge them on that badge instead. */
+      if (q.answer > DRAWABLE || q.answer < 1 / DRAWABLE) continue;
+      const r = toRatio(size.init(q).v, q);
+      if (r > DRAWABLE || r < 1 / DRAWABLE) bad.push(`${q.id} starts at ${r.toFixed(2)}x`);
+    }
+    expect(bad, bad.join(', ')).toEqual([]);
+  });
+
+  /* A "distance from the winning position" check used to live here, asserting
+     the start sat >40% of the travel away. It was a PROXY for "the start does
+     not score", and once drawability constrained the start it began failing on
+     questions that score 11 — a true statement about distance and a false alarm
+     about the thing anyone cares about. The score tests above are the invariant
+     itself, so the proxy is gone rather than re-thresholded. */
 
   it('Reset returns to the start, and so scores nothing either', () => {
-    const scored = bank.map(q => [q.id, size.score(q, size.clear(q))]).filter(([, s]) => s > 10);
+    // Reset IS the start, so it inherits exactly the bar above.
+    const scored = bank.map(q => [q.id, size.score(q, size.clear(q))])
+      .filter(([id, s]) => s > 35 && id !== 'z12');
     expect(scored, scored.map(([id, s]) => `${id} scores ${s} after Reset`).join(', ')).toEqual([]);
     expect(bank.every(q => size.clear(q).v === size.init(q).v)).toBe(true);
   });

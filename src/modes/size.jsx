@@ -111,10 +111,26 @@ export const stepsForRatio = (ratio, item) => {
  *  Starting opposite the truth keeps the gap at 44% of the travel or more, on
  *  every question, whatever the bands do later. Same rule as openingSeq in Put
  *  In Order: a start position that scores is not a puzzle. */
+/* Past about 10x the stage has no room for a picture. With the target box at
+   its 139px maximum the reference is 139/ratio, measured in Chrome: 6.1x draws
+   22.9px, 102x draws 4px — the FLOOR — and the artwork inside it renders at
+   ZERO SIZE. The e2e caught exactly that on z29 the day the daily rotated to
+   it; 15 of the 33 questions were starting somewhere undrawable. */
+const DRAWABLE = 10;
+
 const startV = item => {
-  const { lo, hi } = rangeFor(item);
-  const at = (Math.log10(item.answer) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo));
-  return Math.round(STEPS * (at < 0.5 ? 0.94 : 0.06));
+  /* Furthest from the truth that the stage can still DRAW.
+     Simply taking the far end put a 15.5x question at 102x — correctly
+     non-scoring, and a 4px car with no picture in it. Being far from the
+     answer is worth nothing if the player cannot see what they are comparing.
+     Both ends, each clamped into the drawable band, and whichever survives
+     further from the truth wins — for a high-ratio question that is the LOW
+     end, which is both drawable and a whole decade away. */
+  const truth = Math.log10(item.answer);
+  const best = [0.06, 0.94]
+    .map(f => Math.min(DRAWABLE * 0.98, Math.max(1 / (DRAWABLE * 0.98), toRatio(Math.round(STEPS * f), item))))
+    .reduce((a, b) => (Math.abs(Math.log10(b) - truth) > Math.abs(Math.log10(a) - truth) ? b : a));
+  return Math.max(0, Math.min(STEPS, toSlider(best, item)));
 };
 
 export const toSlider = (r, item) => {
@@ -245,8 +261,28 @@ export const size = {
     const zoom = Math.min(1,
       (box.w - PAD * 2 - GAP) / Math.max(1, STAGE + rawTarget),
       (box.h - LABEL) / Math.max(1, Math.max(STAGE, rawTarget)));
-    const refPx = Math.max(FLOOR, STAGE * zoom);
-    const targetPx = Math.max(FLOOR, rawTarget * zoom);
+    /* Two floors, and which one applies depends on whether the drawing is still
+       telling the truth.
+
+       While the pair IS to scale the floor must be as small as possible — 4px —
+       because anything larger overrides one side of the ratio and the picture
+       starts lying (that is the z15 mouse bug: a 10px floor froze the box at
+       0.072x while the readout fell to 0.03x).
+
+       Once the pair is past what the stage can hold, the badge below already
+       says "too big to draw to scale", so the ratio is disclosed as wrong and
+       there is nothing left to protect. A 4px speck with no picture in it is
+       then strictly worse than a visible one: z12 (Sun vs Earth, 109x) drew
+       Earth at 4px with its artwork collapsed to nothing, which the e2e flags
+       as "rendered artwork at zero size". VISIBLE is 12 so it clears that
+       check's 8px bar with room to spare. */
+    const ideal = r => ({ ref: Math.max(FLOOR, STAGE * zoom), tgt: Math.max(FLOOR, rawTarget * zoom) });
+    const first = ideal();
+    const clamped = Math.abs(Math.log10(first.tgt / first.ref / Math.max(1e-9, shown))) > 0.02;
+    const VISIBLE = 12;
+    const floor = clamped ? VISIBLE : FLOOR;
+    const refPx = Math.max(floor, STAGE * zoom);
+    const targetPx = Math.max(floor, rawTarget * zoom);
     /* The badge prints a ROUNDED factor, so the old 0.97 threshold showed
        "zoomed out ×1" — a badge announcing that nothing was zoomed. Show it
        only once the rounded number says something. */

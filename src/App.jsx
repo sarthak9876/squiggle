@@ -16,7 +16,7 @@ import { BRAND } from './brand.js';
 import NotFound from './components/NotFound.jsx';
 import { Privacy, Terms } from './components/Legal.jsx';
 import { checkRunway } from './lib/runway.js';
-import { load, patch, playerId, mergeInflight, resumePoint, inflightResume, bankedAnswers } from './lib/storage.js';
+import { load, patch, playerId, mergeInflight, resumePoint, inflightResume, archiveResume, bankedAnswers } from './lib/storage.js';
 import { parseChallenge } from './lib/sharecard.js';
 import { isMuted, setMuted } from './lib/juice.js';
 import { dayNumber, lineupFor, SLOTS, LAUNCH_DAY, isArchiveDay, playRouteTarget, streakAfter, streakIsAlive, puzzleNumber } from './lib/schedule.js';
@@ -132,8 +132,13 @@ export default function App() {
      here, the Archive tile handler, and nothing to stop them drifting. */
   const startArchiveDay = useCallback(d => {
     if (!isArchiveDay(d, day)) return false;
-    setLineup(lineupFor(POOLS, pid, d));
-    setAnswers([]); setIdx(0);
+    const lu = lineupFor(POOLS, pid, d);
+    // Resume a part-played archive day rather than restarting it, same as the
+    // daily does. A finished one reopens at its last question, not past the end.
+    const at = archiveResume(load(), d, lu.length) || resumePoint([], lu.length);
+    setLineup(lu);
+    setAnswers(at.answers);
+    setIdx(at.done ? Math.max(0, lu.length - 1) : at.idx);
     setSession({ kind: 'archive', day: d });
     return true;
   }, [day, pid]);
@@ -222,6 +227,16 @@ export default function App() {
           [session.mode]: { ...((s.practice || {})[session.mode] || {}),
                             answers: next, idx: next.length } },
       }));
+    } else if (session?.kind === 'archive') {
+      /* There was no branch here, so a refresh twelve questions into a past
+         set threw away all twelve — while the daily and practice both
+         resumed. Its own key, never `inflight`: bankDay reads inflight to
+         write the streak and the best score, and a replayable set must not
+         reach either. */
+      patch(s => ({
+        ...s,
+        archiveRuns: { ...(s.archiveRuns || {}), [session.day]: { answers: next } },
+      }));
     }
     return next;
   }), [session, day]);
@@ -254,6 +269,9 @@ export default function App() {
     patch(s => {
       s.archive = s.archive || {};
       s.archive[d] = { total, answers: final };
+      // The run is over; drop the in-progress copy so replaying it starts clean
+      // rather than resuming a finished run.
+      if (s.archiveRuns) delete s.archiveRuns[d];
       return s;
     });
     setTick(t => t + 1);

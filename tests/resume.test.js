@@ -10,7 +10,7 @@
    The deeper fault is that the position was stored as a second copy of a fact
    the answers array already holds. Two copies of one fact drift. Derive it. */
 import { describe, it, expect } from 'vitest';
-import { resumePoint, mergeInflight, inflightResume } from '../src/lib/storage.js';
+import { resumePoint, mergeInflight, inflightResume, archiveResume } from '../src/lib/storage.js';
 
 const answers = n => Array.from({ length: n }, (_, i) => ({ mode: 'm', score: 100, i }));
 
@@ -153,5 +153,56 @@ describe('finding today’s saved run', () => {
       expect(() => inflightResume({ inflight: f }, day), JSON.stringify(f)).not.toThrow();
     }
     expect(inflightResume({ inflight: { day, answers: 'nope' } }, day)).toMatchObject({ done: false, idx: 0 });
+  });
+});
+
+/* An archive or challenge run threw its progress away on refresh.
+
+   onAnswer saved after every answer for `daily` (into inflight) and for
+   `practice` (into practice[mode]) — and had no branch for `archive`, so a
+   player twelve questions into a past set lost all twelve to a reload. The
+   daily and practice both save; archive silently did not.
+
+   It must save WITHOUT touching inflight: inflight is the daily's, and bankDay
+   reads it to write the streak and the best score. A replayable set must never
+   reach those. Separate key, same resume primitive. */
+describe('an archive run in progress', () => {
+  const day = 288;
+
+  it('is null when that day has no run going', () => {
+    expect(archiveResume({}, day, 16)).toBeNull();
+    expect(archiveResume({ archiveRuns: {} }, day, 16)).toBeNull();
+    expect(archiveResume(null, day, 16)).toBeNull();
+  });
+
+  it('resumes the day it belongs to, not another one', () => {
+    const st = { archiveRuns: { [day]: { answers: answers(5) } } };
+    expect(archiveResume(st, day, 16)).toMatchObject({ done: false, idx: 5 });
+    expect(archiveResume(st, day + 1, 16)).toBeNull();
+  });
+
+  it('keeps separate progress for two different archive days', () => {
+    const st = { archiveRuns: { 288: { answers: answers(5) }, 290: { answers: answers(11) } } };
+    expect(archiveResume(st, 288, 16).idx).toBe(5);
+    expect(archiveResume(st, 290, 16).idx).toBe(11);
+  });
+
+  it('reports a finished archive run as done', () => {
+    expect(archiveResume({ archiveRuns: { [day]: { answers: answers(16) } } }, day, 16).done).toBe(true);
+  });
+
+  it('never reads or writes the daily inflight', () => {
+    // The whole point of the separate key: bankDay reads inflight to write the
+    // streak, and a replayable set must not be able to reach it.
+    const st = { inflight: { day, answers: answers(9) } };
+    expect(archiveResume(st, day, 16), 'must not fall back to inflight').toBeNull();
+  });
+
+  it('survives a corrupt entry instead of throwing', () => {
+    for (const j of ['x', 42, [], { answers: 'nope' }, null]) {
+      expect(() => archiveResume({ archiveRuns: { [day]: j } }, day, 16), JSON.stringify(j)).not.toThrow();
+    }
+    expect(archiveResume({ archiveRuns: { [day]: { answers: 'nope' } } }, day, 16))
+      .toMatchObject({ done: false, idx: 0 });
   });
 });

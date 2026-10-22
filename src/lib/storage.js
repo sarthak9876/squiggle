@@ -127,6 +127,22 @@ export function inflightResume(state, day) {
   return resumePoint(f.answers, SLOTS.length);
 }
 
+/** An archive run in progress for `day`, resolved — or null.
+ *
+ *  Deliberately a different key from `inflight`. inflight is the DAILY's, and
+ *  bankDay reads it to write the streak, the best score and the Fingerprint; a
+ *  replayable past set must not be able to reach any of those. Archive runs
+ *  used to save nothing at all, so a refresh twelve questions into a past set
+ *  threw away all twelve, while the daily and practice both resumed fine.
+ *
+ *  Keyed by day, so two part-played archive days keep separate progress. */
+export function archiveResume(state, day, total) {
+  const runs = state && state.archiveRuns;
+  const r = runs && runs[day];
+  if (!r || typeof r !== 'object') return null;
+  return resumePoint(r.answers, total);
+}
+
 export function mergeInflight(stored, next, day) {
   const have = stored && stored.day === day ? (stored.answers || []) : [];
   const answers = next.length >= have.length ? next : have;

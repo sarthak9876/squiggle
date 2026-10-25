@@ -72,6 +72,11 @@ const REVIEWED = {
   "g34": "cb98f46bc986",
   "g35": "4c18aab2201b",
   "g36": "d23643ebf1a4",
+  "g37": "a4e0bdb77e95",
+  "g38": "095e5a5fa517",
+  "g39": "0a5000b4c33a",
+  "g40": "3bf12de2e393",
+  "g41": "43ffe79628a3",
 };
 
 describe('Make The Sets groups have been checked against their items', () => {

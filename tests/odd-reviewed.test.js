@@ -92,6 +92,10 @@ const REVIEWED = {
   "d33": "66f5f7f37e4b",
   "d34": "991a76b44a55",
   "d35": "8dd1a33fde41",
+  "d36": "4820033c907f",
+  "d37": "ffb004a779f8",
+  "d38": "fce94f9d8f8f",
+  "d39": "ae0cecd08821",
 };
 
 describe('Odd One Out distractors have been checked against every item', () => {
